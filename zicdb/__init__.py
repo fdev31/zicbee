@@ -2,11 +2,11 @@
 # vim: et ts=4 sw=4
 # ./run.py search #shak# in '@filename@L' and #but# in '@filename@L'
 
-import os
+import os, sys
 DB_DIR = os.getenv('ZICDB_PATH') or '~/.zicdb'
 
 valid_ext = ('.ogg','.mp3', '.mp4',
-    '.aac', '.vqf', '.wmv', '.wma', '.m4a', 'asf'):
+    '.aac', '.vqf', '.wmv', '.wma', '.m4a', 'asf')
 
 filters_dict = dict(
         track = ('TRCK', 'tracknumber'),
@@ -50,7 +50,7 @@ def filter_dict(data):
             data[k] = u''
     return data
 
-def startup(action, *args):
+def startup(action='help', *args):
 
     # Open DB
     import buzhug
@@ -78,15 +78,17 @@ def startup(action, *args):
         from mutagen.mp3 import MP3
         from mutagen.easyid3 import EasyID3
         from time import time
-        import sys
+        import itertools
 
         start_t = time()
+        newline_iterator = itertools.cycle(x == 10 for x in xrange(11))
         for path in args:
             for root, dirs, files in os.walk(path):
                 for fname in files:
                     if fname[-4:].lower() in valid_ext:
+                        if newline_iterator.next():
+                            print ''
                         fullpath = os.path.join(root, fname)
-                        print fullpath
                         try:
                             tags = File(fullpath)
                         except Exception:
@@ -124,6 +126,33 @@ def startup(action, *args):
         print "Database cleared!"
         shutil.rmtree(db_dir, ignore_errors=True)
     else:
-        print "Actions: scan, search, reset"
+        print "Welcome to ZicDB!".center(80)
+        print """Command: reset
+    Erases the Database (every previous scan is lost!)
+
+Command: scan <directory> [directory...]
+    Scan directories for files and add them to the database
+
+Command: search <match command>
+
+Match commands composition:
+    VAL OPERATOR VAL
+    VAL can be @<tag> or #string# or integer (ie. 13)
+    OPERATOR can be 'in' '==' '<' and so on...
+
+    @<tag>    Access a tag value
+    #blah#    Declare the string "blah" (used for matching)
+    @L        Suffix for tags value, convert tag to lowercase
+
+Possible tags:
+\t- %s
+
+Exemple:
+%% %s search '#shak# in @filename@L and track == 2'
+
+Note:
+    << ' >> symbol is used here to prevent the shell from interpreting
+    special characters (@, ==, etc...)
+    """%('\n\t- '.join(valid_tags), sys.argv[0])
 
 
