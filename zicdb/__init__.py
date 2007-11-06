@@ -1,4 +1,5 @@
 # Syntax:
+# vim: et ts=4 sw=4
 # ./run.py search #shak# in '@filename@L' and #but# in '@filename@L'
 
 import os
@@ -9,7 +10,7 @@ def filter_dict(data):
         data['track'] = data.pop('tracknumber')
     except KeyError: pass
     for k, v in data.items():
-        if k not in ('genre', 'artist', 'album', 'title', 'track', 'filename'):
+        if k not in ('genre', 'artist', 'album', 'title', 'track', 'filename', 'length'):
             del data[k]
         else:
             if isinstance(v, (list, tuple)):
@@ -43,6 +44,7 @@ def startup(action, *args):
                 ('album', unicode),
                 ('title', unicode),
                 ('track', int),
+                ('length', int),
                 mode='open'
                 )
 
@@ -53,25 +55,25 @@ def startup(action, *args):
         import sys
 
         start_t = time()
-        for root, dirs, files in os.walk(args[0]):
-            for fname in files:
-                if fname[-4:].lower() in ('.ogg', '.mp3'):
-                    fullpath = os.path.join(root, fname)
-                    try:
-                        id3 = File(fullpath)
-                    except Exception:
-                        id3 = None
+        for path in args:
+            for root, dirs, files in os.walk(path):
+                for fname in files:
+                    if fname[-4:].lower() in ('.ogg', '.mp3', '.mp4', '.aac', '.vqf', '.wmv', '.wma', '.m4a'):
+                        fullpath = os.path.join(root, fname)
+                        try:
+                            tags = File(fullpath)
+                        except Exception:
+                            tags = None
 
-                    if not id3:
-                        print "E",
-#                        print "[EE] Unable to read %s!"%fullpath
-                        continue
-                    data = filter_dict(dict(id3))
-                    data['filename'] = fullpath
-                    print ".",
-#                    print ', '.join('%s: %s'%(k,v) for k,v in data.iteritems())
-                    songs.insert(**data)
-                    sys.stdout.flush()
+                        if not tags:
+                            print "E",
+                            continue
+                        data = filter_dict(dict(tags))
+                        data['filename'] = fullpath
+                        data['length'] = int(tags.info.length+0.5)
+                        print ".",
+                        songs.insert(**data)
+                        sys.stdout.flush()
         elapsed = time() - start_t
         print "Done!"
         songs.commit()
@@ -87,5 +89,7 @@ def startup(action, *args):
         import shutil
         print "Database cleared!"
         shutil.rmtree(db_dir, ignore_errors=True)
+    else:
+        print "Actions: scan, search, reset"
 
 
