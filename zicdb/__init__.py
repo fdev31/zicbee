@@ -23,6 +23,18 @@ valid_tags = (
         'filename',
         'length')
 
+def duration_tidy(orig):
+    minutes, seconds = divmod(orig, 60)
+    if minutes > 60:
+        hours = int(minutes/60)
+        minutes -= hours*60
+        if hours > 24:
+            days = int(hours/24)
+            hours -= days*24
+            return '%d days, %d:%d.%ds.'%(days, hours, minutes, seconds)
+        return '%d:%d.%ds.'%(hours, minutes, seconds)
+    return '%d.%ds.'%(minutes, seconds)
+
 def filter_dict(data):
     for good_tag, bad_tags in filters_dict.iteritems():
         for bad_tag in bad_tags:
@@ -48,6 +60,10 @@ def filter_dict(data):
     for k in ('genre', 'artist', 'album', 'title'):
         if data.get(k) is None:
             data[k] = u''
+
+    if data.get('genre') == u'12':
+        data['genre'] = u''
+
     return data
 
 def startup(action='help', *args):
@@ -119,8 +135,11 @@ def startup(action='help', *args):
         condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', 's.') or 'True'
         print "Condition", condition
         results = (s for s in songs if eval(condition))
+        duration = 0
         for res in results:
             print ' '.join('%s: %s'%(f, getattr(res, f)) for f in res.fields if f[0] != '_')
+            duration += res.length
+        print "For a total of %s!"%duration_tidy(duration)
     elif action == 'reset':
         import shutil
         print "Database cleared!"
