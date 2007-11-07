@@ -48,18 +48,34 @@ def filter_dict(data):
             del data[k]
         else:
             if isinstance(v, (list, tuple)):
-                data[k] = v[0]
+                try:
+                    data[k] = [i for i in v if i][0]
+                except IndexError, e:
+                    print "ERR", str(e)
+                    data[k] = None
         track_val = data.get('track')
         if track_val is not None:
             if isinstance(track_val, (list, tuple)):
                 track_val = track_val[0]
             if not isinstance(track_val, int):
-                track_val = int(track_val.replace('-', '/').split('/')[0])
+                try:
+                    track_val = int(track_val.replace('-', ' ').replace('/', ' ').replace(':', ' ').split(' ')[0])
+                except ValueError, e:
+                    if track_val:
+                        print "Track error(%s): %s"%(track_val, str(e))
+                    track_val = None
             data['track'] = track_val
 
     for k in ('genre', 'artist', 'album', 'title'):
         if data.get(k) is None:
             data[k] = u''
+        else:
+            val = str(data[k])
+            try:
+                val = val.decode('utf8')
+            except ValueError:
+                val = val.decode('latin1')
+            data[k] = val
 
     if data.get('genre') == u'12':
         data['genre'] = u''
@@ -120,7 +136,7 @@ def startup(action='help', *args):
                         data = filter_dict(dict(tags))
                         data['filename'] = fullpath
                         data['length'] = length
-                        if 'title' in data and 'artist' in data:
+                        if data.get('title') and data.get('artist'):
                             print '.',
                         else:
                             print '0',
@@ -132,12 +148,13 @@ def startup(action='help', *args):
         print "Processed %d songs in %.2fs. (%.2f/s.)"%( len(songs), elapsed, len(songs)/elapsed)
 
     elif action == 'search':
-        condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', 's.') or 'True'
+        condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', '') or 'True'
         print "Condition", condition
-        results = (s for s in songs if eval(condition))
+        results = songs.select(['filename', 'length'], condition)
         duration = 0
         for res in results:
-            print ' '.join('%s: %s'%(f, getattr(res, f)) for f in res.fields if f[0] != '_')
+            txt = ' '.join('%s: %s'%(f, getattr(res, f)) for f in res.fields if f[0] != '_')
+            print txt.encode('utf8')
             duration += res.length
         print "For a total of %s!"%duration_tidy(duration)
     elif action == 'reset':
