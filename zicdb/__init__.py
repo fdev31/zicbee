@@ -3,6 +3,7 @@
 # ./run.py search #shak# in '@filename@L' and #but# in '@filename@L'
 
 import os, sys
+from time import time
 DB_DIR = os.getenv('ZICDB_PATH') or '~/.zicdb'
 
 valid_ext = ('.ogg','.mp3', '.mp4',
@@ -93,7 +94,6 @@ def startup(action='help', *args):
         from mutagen import File
         from mutagen.mp3 import MP3
         from mutagen.easyid3 import EasyID3
-        from time import time
         import itertools
 
         start_t = time()
@@ -120,7 +120,7 @@ def startup(action='help', *args):
                         data = filter_dict(dict(tags))
                         data['filename'] = fullpath
                         data['length'] = length
-                        if 'title' in data and 'artist' in data:
+                        if data.get('title') and data.get('artist'):
                             print '.',
                         else:
                             print '0',
@@ -129,9 +129,10 @@ def startup(action='help', *args):
         elapsed = time() - start_t
         print "Done!"
         songs.commit()
-        print "Processed %d songs in %.2fs. (%.2f/s.)"%( len(songs), elapsed, len(songs)/elapsed)
+        print "Processed %d songs in %s (%.2f/s.)"%( len(songs), duration_tidy(elapsed), len(songs)/elapsed)
 
     elif action == 'search':
+        t = time()
         condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', 's.') or 'True'
         print "Condition", condition
         results = (s for s in songs if eval(condition))
@@ -139,7 +140,10 @@ def startup(action='help', *args):
         for res in results:
             print ' '.join('%s: %s'%(f, getattr(res, f)) for f in res.fields if f[0] != '_')
             duration += res.length
-        print "For a total of %s!"%duration_tidy(duration)
+        print "Found in %s for a total of %s!"%(
+                duration_tidy(time()-t),
+                duration_tidy(duration)
+                )
     elif action == 'reset':
         import shutil
         print "Database cleared!"
