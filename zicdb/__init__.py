@@ -133,12 +133,16 @@ def startup(action='help', *args):
 
     elif action == 'search':
         t = time()
-        condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', 's.') or 'True'
+        condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', '') or 'True'
         print "Condition", condition
-        results = (s for s in songs if eval(condition))
         duration = 0
-        for res in results:
-            print ' '.join('%s: %s'%(f, getattr(res, f)) for f in res.fields if f[0] != '_')
+
+        fields = list(valid_tags)
+        fields.remove('filename')
+        fields = tuple(fields)
+
+        for res in songs.select([], condition):
+            print '%s :\n '%res.filename,'| '.join('%s: %s'%(f, getattr(res, f)) for f in fields if f[0] != '_' and getattr(res, f))
             duration += res.length
         print "Found in %s for a total of %s!"%(
                 duration_tidy(time()-t),
