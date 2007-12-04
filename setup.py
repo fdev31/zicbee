@@ -21,8 +21,8 @@ setup (
             },
 
         install_requires = [
-            'buzhug>=0.9',
-            'mutagen>=1.13',
+#            'buzhug>=0.9',
+#            'mutagen>=1.13',
             ],
 
         dependency_links = [
