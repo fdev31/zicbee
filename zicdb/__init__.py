@@ -69,6 +69,9 @@ def filter_dict(data):
     return data
 
 def startup(action='help', *args):
+    if not args:
+        import sys
+        args = sys.argv[1:]
 
     # Open DB
     import buzhug
@@ -159,15 +162,16 @@ def startup(action='help', *args):
         shutil.rmtree(db_dir, ignore_errors=True)
     else:
         print "Welcome to ZicDB!".center(80)
-        print """Command: reset
+        print """
+reset
     Erases the Database (every previous scan is lost!)
 
-Command: scan <directory> [directory...]
+scan <directory> [directory...]
     Scan directories for files and add them to the database
 
-Command: search <match command>
+search <match command>
 
-Match commands composition:
+  Match commands composition:
     VAL OPERATOR VAL
     VAL can be @<tag> or #string# or integer (ie. 13)
     OPERATOR can be 'in' '==' '<' and so on...
@@ -176,13 +180,13 @@ Match commands composition:
     #blah#    Declare the string "blah" (used for matching)
     @L        Suffix for tags value, convert tag to lowercase
 
-Possible tags:
+  Possible tags:
 \t- %s
 
-Exemple:
-%% %s search '#shak# in @filename@L and track == 2'
+  Exemple:
+  %% %s search '#shak# in @filename@L and track == 2'
 
-Note:
+  Note:
     << ' >> symbol is used here to prevent the shell from interpreting
     special characters (@, ==, etc...)
     """%('\n\t- '.join(valid_tags), sys.argv[0])
