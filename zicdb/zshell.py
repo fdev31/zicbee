@@ -3,6 +3,11 @@ def init():
             dict(songs=Database('songs'), args=sys.argv[2:])
             )
 
+def do_bundle():
+    if len(args) != 1:
+        sys.exit("Need filename name as agment !")
+    songs.dump_archive(args[0])
+
 def do_reset():
     songs.destroy()
     print "Database cleared!"
@@ -13,8 +18,11 @@ def do_help():
 reset
     Erases the Database (every previous scan is lost!)
 
-scan <directory> [directory...]
-    Scan directories for files and add them to the database
+bundle <filename>
+    Create a bundle (compressed archive) of the database
+
+scan <directory|archive> [directory|archive...]
+    Scan directories/archive for files and add them to the database
 
 search <match command>
 
@@ -57,17 +65,35 @@ def do_search():
 
 def do_scan():
     import itertools
+    if not args:
+        sys.exit('At least one argument must be specified!')
 
     newline_iterator = itertools.cycle(x == 10 for x in xrange(11))
     orig_nb = len(songs)
     start_t = time()
 
+    archives = []
+    directories = []
+
     for path in args:
-        for status_char in songs.merge(path):
+        if os.path.isdir(path):
+            directories.append(path)
+        else:
+            archives.append(path)
+
+    def _scan(**kw):
+        print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
+        for status_char in songs.merge(**kw):
             print status_char,
             if newline_iterator.next():
                 print ''
             sys.stdout.flush()
+
+    for path in archives:
+        _scan(archive=path)
+
+    for path in directories:
+        _scan(directory=path)
 
     elapsed = time() - start_t
     print "Processed %d (+ %d) songs in %s (%.2f/s.)"%(
