@@ -32,7 +32,16 @@ filters_dict = dict(
 class Database(object):
     def __init__(self, name):
         """ Open/Create a database """
-        self.db = buzhug.Base(os.path.join(DB_DIR, name))
+        self.name = name
+        self._init()
+        self._open()
+
+    def _init(self):
+        self.db = buzhug.Base(os.path.join(DB_DIR, self.name))
+        self.search = self.db.select
+        self.destroy = self.db.destroy
+
+    def _open(self):
         self.db.create(
                 ('filename', str),
                 ('genre', unicode),
@@ -43,9 +52,6 @@ class Database(object):
                 ('length', int),
                 mode='open'
                 )
-
-        self.search = self.db.select
-        self.destroy = self.db.destroy
 
     def __len__(self):
         return len(self.db)
