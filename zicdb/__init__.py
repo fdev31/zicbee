@@ -26,6 +26,7 @@ valid_tags = (
 
 def duration_tidy(orig):
     minutes, seconds = divmod(orig, 60)
+    return '%d min %02ds.'%(minutes, seconds)
     if minutes > 60:
         hours = int(minutes/60)
         minutes -= hours*60
@@ -34,7 +35,7 @@ def duration_tidy(orig):
             hours -= days*24
             return '%d days, %d:%d.%ds.'%(days, hours, minutes, seconds)
         return '%d:%d.%ds.'%(hours, minutes, seconds)
-    return '%d.%ds.'%(minutes, seconds)
+    return '%d.%02ds.'%(minutes, seconds)
 
 def filter_dict(data):
     for good_tag, bad_tags in filters_dict.iteritems():
@@ -105,26 +106,29 @@ def startup(action='help', *args):
                         if newline_iterator.next():
                             print ''
                         fullpath = os.path.join(root, fname)
-                        try:
-                            tags = File(fullpath)
-                        except Exception:
-                            tags = None
-
-                        if not tags:
-                            print "E",
-                            continue
-                        # Do it before tags is changed !
-                        length = int(tags.info.length+0.5)
-                        if isinstance(tags, MP3):
-                            tags = EasyID3(fullpath)
-                        data = filter_dict(dict(tags))
-                        data['filename'] = fullpath
-                        data['length'] = length
-                        if data.get('title') and data.get('artist'):
-                            print '.',
+                        if songs.select(filename=fullpath):
+                            print 'I',
                         else:
-                            print '0',
-                        songs.insert(**data)
+                            try:
+                                tags = File(fullpath)
+                            except Exception:
+                                tags = None
+
+                            if not tags:
+                                print "E",
+                                continue
+                            # Do it before tags is changed !
+                            length = int(tags.info.length+0.5)
+                            if isinstance(tags, MP3):
+                                tags = EasyID3(fullpath)
+                            data = filter_dict(dict(tags))
+                            data['filename'] = fullpath
+                            data['length'] = length
+                            if data.get('title') and data.get('artist'):
+                                print '.',
+                            else:
+                                print '0',
+                            songs.insert(**data)
                         sys.stdout.flush()
         elapsed = time() - start_t
         print "Done!"
@@ -148,6 +152,7 @@ def startup(action='help', *args):
                 duration_tidy(time()-t),
                 duration_tidy(duration)
                 )
+
     elif action == 'reset':
         import shutil
         print "Database cleared!"
