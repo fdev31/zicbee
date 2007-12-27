@@ -1,4 +1,5 @@
 __all__ = ['Database', 'valid_tags']
+# vim: ts=4 sw=4 et
 
 import os
 import buzhug
@@ -82,34 +83,42 @@ class Database(object):
             from mutagen.mp3 import MP3
             from mutagen.easyid3 import EasyID3
 
+        if no_dups:
+            old_len = len(self.db)
+            for it in (i for i in self.db if i.filename.startswith(directory)):
+                self.db.delete(it)
+            print "Removed %d items"%( old_len - len(self.db) )
+            self.db.cleanup()
+
         if directory is not None:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
                     if fname[-4:].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
-                        if no_dups and self.db.select(filename=fullpath):
-                            yield 'I'
-                        else:
-                            try:
-                                tags = File(fullpath)
-                            except Exception:
-                                tags = None
 
-                            if not tags:
-                                yield "E"
-                                continue
-                            # Do it before tags is changed !
-                            length = int(tags.info.length+0.5)
-                            if isinstance(tags, MP3):
-                                tags = EasyID3(fullpath)
-                            data = filter_dict(dict(tags))
-                            data['filename'] = fullpath
-                            data['length'] = length
-                            if data.get('title') and data.get('artist'):
-                                yield '.'
-                            else:
-                                yield '0'
+                        try:
+                            tags = File(fullpath)
+                        except Exception:
+                            tags = None
+
+                        if not tags:
+                            yield "E"
+                            continue
+                        # Do it before tags is changed !
+                        length = int(tags.info.length+0.5)
+                        if isinstance(tags, MP3):
+                            tags = EasyID3(fullpath)
+                        data = filter_dict(dict(tags))
+                        data['filename'] = fullpath
+                        data['length'] = length
+                        if data.get('title') and data.get('artist'):
+                            yield '.'
+                        else:
+                            yield '0'
+                        try:
                             self.db.insert(**data)
+                        except:
+                            import pdb; pdb.set_trace()
 
         if  archive is not None:
             from tarfile import TarFile
@@ -163,19 +172,35 @@ def filter_dict(data):
         if k not in valid_tags:
             del data[k]
         else:
-            if isinstance(v, (list, tuple)):
-                data[k] = v[0]
-        track_val = data.get('track')
-        if track_val is not None:
+            while isinstance(v, (list, tuple)):
+                try:
+                    v = v[0]
+                except IndexError:
+                    v = None
+            data[k] = v
+    track_val = data.get('track')
+    if track_val is not None:
+        track_val = track_val.strip()
+        try:
             if isinstance(track_val, (list, tuple)):
                 track_val = track_val[0]
             if not isinstance(track_val, int):
-                track_val = int(track_val.replace('-', '/').split('/')[0])
-            data['track'] = track_val
+                track_val = int(track_val.replace('-', ' ').replace('/', ' ').split()[0])
+        except:
+            print "Unable to get track for", repr(track_val)
+            data['track'] = None
+        else:
+            try:
+                data['track'] = int(track_val.strip())
+            except:
+                data['track'] = None
 
     for k in ('genre', 'artist', 'album', 'title'):
-        if data.get(k) is None:
+        d = data.get(k)
+        if d is None:
             data[k] = u''
+        elif not isinstance(d, unicode):
+            data[k] = unicode(d)
 
     if data.get('genre') == u'12':
         data['genre'] = u''
