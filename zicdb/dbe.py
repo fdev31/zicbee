@@ -83,14 +83,31 @@ class Database(object):
             from mutagen.mp3 import MP3
             from mutagen.easyid3 import EasyID3
 
-        if no_dups:
+        us_prefix = None
+
+        # Avoid duplicates
+        if no_dups and len(self.db):
+
+            # user specified prefix
+            if directory is None:
+                try:
+                    print "Example filename %s"%(self.db[0].filename)
+                except IndexError:
+                    pass
+                finally:
+                    us_prefix = raw_input('Enter prefix to remove: ')
+                    if us_prefix.strip():
+                        directory = us_prefix
+
+            # Remove every file starting with that directory
             old_len = len(self.db)
             for it in (i for i in self.db if i.filename.startswith(directory)):
                 self.db.delete(it)
             print "Removed %d items"%( old_len - len(self.db) )
             self.db.cleanup()
 
-        if directory is not None:
+        # Directory handling
+        if directory is not None and not us_prefix:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
                     if fname[-4:].lower() in valid_ext:
@@ -120,6 +137,7 @@ class Database(object):
                         except:
                             import pdb; pdb.set_trace()
 
+        # Archive handling
         if  archive is not None:
             from tarfile import TarFile
             from tempfile import mkdtemp
@@ -147,18 +165,20 @@ class Database(object):
 
                 for alien_entry in tmp_db:
                     if alien_entry not in self.db:
-                        entry_dict = dict( (f,unicode(getattr(alien_entry,f), 'utf8')) for f in alien_entry.fields if f[0] != '_')
-                        print alien_entry
-                        print entry_dict
-                        if no_dups and self.db.select(artist=entry_dict['artist']):
-                            continue
+                        entry_dict = dict()
+                        for f in alien_entry.fields:
+                            if f[0] == '_':
+                                continue
+                            val = getattr(alien_entry, f)
+                            if isinstance(val, str) and f != 'filename':
+                                val = unicode(val)
+                            entry_dict[f] = val
                         self.db.insert(**entry_dict)
+                        yield '.'
             finally:
                 rmtree(tmp, ignore_errors=True)
 
         self.db.commit()
-
-
 
 def filter_dict(data):
     for good_tag, bad_tags in filters_dict.iteritems():

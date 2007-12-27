@@ -9,5 +9,8 @@ def startup(action='help'):
         action = sys.argv[1]
 
     zshell.init()
-    getattr(zshell, 'do_'+action, zshell.do_help)()
+    try:
+        getattr(zshell, 'do_'+action, zshell.do_help)()
+    except:
+        print "Abort!"
 
