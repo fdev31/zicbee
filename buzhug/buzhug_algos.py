@@ -14,6 +14,10 @@ try:
 except NameError:
     from sets import Set as set
 
+def rev(s):
+    """ function used to compare strings in decreasing order"""
+    return ''.join([chr(255-ord(c)) for c in s])
+
 def make_search_func(db,field,value):
     """Return the search function on a field
     If value is a pair of values (v1,v2), all blocks between v1 and v2
