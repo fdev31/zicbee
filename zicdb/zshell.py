@@ -56,7 +56,8 @@ def do_search():
     fields = tuple(fields)
 
     for res in songs.search([], condition):
-        print '%s :\n '%res.filename,'| '.join('%s: %s'%(f, getattr(res, f)) for f in fields if f[0] != '_' and getattr(res, f))
+        txt = '%s :\n %s'%(res.filename, '| '.join('%s: %s'%(f, getattr(res, f)) for f in fields if f[0] != '_' and getattr(res, f)))
+        print txt.decode('utf8').encode('utf8')
         duration += res.length
     print "Found in %s for a total of %s!"%(
             duration_tidy(time()-start_t),
