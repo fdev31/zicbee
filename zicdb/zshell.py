@@ -62,16 +62,14 @@ def do_search(out=None):
     fields.remove('filename')
     fields = tuple(fields)
 
-    def _default_write(song):
-        print '%s :\n '%song.filename,'| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f))
-
-    def _m3u_write(song):
-        print song.filename
-
     if out == 'm3u':
-        song_output = _m3u_write
+        def song_output(song):
+            print song.filename
+    elif out == 'null':
+        def song_output(song): pass
     else:
-        song_output = _default_write
+        def song_output(song):
+            print '%s :\n '%song.filename,'| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f))
 
     num = 0
     for num, res in enumerate(songs.search([], condition)):
