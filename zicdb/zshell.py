@@ -1,14 +1,19 @@
 import itertools
 
+DEFAULT_NAME='songs'
+
 def init():
     globals().update(
-            dict(songs=Database(os.environ.get('ZDB', 'songs')), args=sys.argv[2:])
+            dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)), args=sys.argv[2:])
             )
 
 def do_list():
     for i in os.listdir(DB_DIR):
         if os.path.isfile(os.path.join(DB_DIR, i, '__info__')):
-            print "%s # %d records"%(i, len(Database(i)))
+            txt = "%s # %d records"%(i, len(Database(i)))
+            if i == DEFAULT_NAME:
+                txt += ' [default]'
+            print txt
 
 def do_bundle():
     if len(args) != 1:
