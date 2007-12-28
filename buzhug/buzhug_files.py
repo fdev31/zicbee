@@ -204,11 +204,18 @@ class UnicodeFile(StringFile):
         else:
             return StringFile.from_block(self,block.decode('utf-8'))
 
-from datetime import date, datetime
+
+# Generic class for dates
+# Although dates have a fixed length file, this class derives from 
+# VariableLengthFile because select is faster this way
+# block_len is set because this forces the use of the fast select algos
+
+from datetime import date, datetime, time as dtime
+
 class DateFile(VariableLengthFile):
 
-    block_len = 10
-    
+    block_len = 10 # value set to force use of the fast select algos
+
     def to_block(self,value):
         if value is None:
             return '!xxxxxxxx\n'
@@ -226,8 +233,8 @@ class DateFile(VariableLengthFile):
    
 class DateTimeFile(VariableLengthFile):
 
-    block_len = 10
-    
+    block_len = 16 # value set to force use of the fast select algos
+
     def to_block(self,value):
         if value is None:
             return '!xxxxxxxxxxxxxx\n'
@@ -243,6 +250,27 @@ class DateTimeFile(VariableLengthFile):
         else:
             return datetime(int(block[1:5]),int(block[5:7]),int(block[7:9]),
                 int(block[9:11]),int(block[11:13]),int(block[13:15]))
+
+class TimeFile(VariableLengthFile):
+
+    # code by Nicolas Pinault
+
+    block_len = 8 # value set to force use of the fast select algos
+
+    def to_block(self,value):
+        if value is None:
+            return '!xxxxxx\n'
+        elif not isinstance(value, dtime):
+            raise ValueError,'Bad type : expected datetime.time, got %s %s' \
+                %(value,value.__class__)
+        else:
+            return value.strftime('-%H%M%S')+'\n'
+    
+    def from_block(self,block):
+        if block[0] == '!':
+            return None
+        else:
+            return dtime(int(block[1:3]),int(block[3:5]),int(block[5:7]))
     
 import struct
 class IntegerFile(FixedLengthFile):
@@ -291,7 +319,7 @@ class FloatFile(FixedLengthFile):
             # f = mant*2**exp, 0.5 <= abs(mant) < 1
             mant,exp = math.frexp(value)
             if value == 0.0:
-                return '-'+chr(100)*12 # 0.0 must be coded differently
+                return '-'+chr(100)*9 # 0.0 must be coded differently
             elif value>0:
                 pack_exp = struct.pack('>h',exp+self.MIDSHORT)
                 return '-'+pack_exp+struct.pack('>d',mant)[1:]

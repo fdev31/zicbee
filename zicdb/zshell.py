@@ -1,7 +1,14 @@
+import itertools
+
 def init():
     globals().update(
-            dict(songs=Database('songs'), args=sys.argv[2:])
+            dict(songs=Database(os.environ.get('ZDB', 'songs')), args=sys.argv[2:])
             )
+
+def do_list():
+    for i in os.listdir(DB_DIR):
+        if os.path.isfile(os.path.join(DB_DIR, i, '__info__')):
+            print "%s # %d records"%(i, len(Database(i)))
 
 def do_bundle():
     if len(args) != 1:
@@ -46,7 +53,7 @@ search <match command>
     special characters (@, ==, etc...)
     """%('\n\t- '.join(valid_tags), sys.argv[0])
 
-def do_search():
+def do_search(out=None):
     condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', '') or 'True'
     duration = 0
     start_t = time()
@@ -55,17 +62,28 @@ def do_search():
     fields.remove('filename')
     fields = tuple(fields)
 
-    for res in songs.search([], condition):
-        txt = '%s :\n %s'%(res.filename, '| '.join('%s: %s'%(f, getattr(res, f)) for f in fields if f[0] != '_' and getattr(res, f)))
-        print txt.decode('utf8').encode('utf8')
+    if out == 'm3u':
+        def song_output(song):
+            print song.filename
+    elif out == 'null':
+        def song_output(song): pass
+    else:
+        def song_output(song):
+            txt = '%s :\n%s '%(song.filename, '| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f)))
+            print txt.decode('utf8').encode('utf8')
+
+    num = 0
+    for num, res in enumerate(songs.search([], condition)):
+        song_output(res)
         duration += res.length
-    print "Found in %s for a total of %s!"%(
+
+    print "# %d results in %s for a total of %s!"%(
+            num,
             duration_tidy(time()-start_t),
             duration_tidy(duration)
             )
 
 def do_scan():
-    import itertools
     if not args:
         sys.exit('At least one argument must be specified!')
 
@@ -84,11 +102,16 @@ def do_scan():
 
     def _scan(**kw):
         print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
-        for status_char in songs.merge(**kw):
-            print status_char,
-            if newline_iterator.next():
-                print ''
-            sys.stdout.flush()
+        try:
+            for status_char in songs.merge(**kw):
+                print status_char,
+                if newline_iterator.next():
+                    print ''
+                sys.stdout.flush()
+        except Exception, e:
+            print "ERROR!", str(e)
+            import traceback
+            traceback.print_exc()
 
     for path in archives:
         _scan(archive=path)
@@ -97,9 +120,11 @@ def do_scan():
         _scan(directory=path)
 
     elapsed = time() - start_t
-    print "Processed %d (+ %d) songs in %s (%.2f/s.)"%(
+    delta = len(songs)-orig_nb
+    print "\nProcessed %d (%s%d) songs in %s (%.2f/s.)"%(
             len(songs),
-            len(songs)-orig_nb,
+            '-' if delta < 0 else '+',
+            delta,
             duration_tidy(elapsed),
             len(songs)/elapsed)
 
@@ -108,11 +133,21 @@ def do_scan():
 
 import os, sys
 from time import time
-from zicdb.dbe import Database, valid_tags
+from zicdb.dbe import Database, valid_tags, DB_DIR
+
+_plur = lambda val: 's' if val > 1 else ''
 
 def duration_tidy(orig):
     minutes, seconds = divmod(orig, 60)
-    return '%d min %02ds.'%(minutes, seconds)
+    if minutes > 60:
+        hours, minutes = divmod(minutes, 60)
+        if hours > 24:
+            days, hours = divmod(hours, 24)
+            return '%d day%s, %d hour%s %d min %02.1fs.'%(days, _plur(days), hours, _plur(hours), minutes, seconds)
+        else:
+            return '%d hour%s %d min %02.1fs.'%(hours, 's' if hours>1 else '', minutes, seconds)
+    else:
+        return '%d min %02.1fs.'%(minutes, seconds)
     if minutes > 60:
         hours = int(minutes/60)
         minutes -= hours*60

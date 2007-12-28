@@ -2,7 +2,7 @@ import os
 import random
 import re
 
-from datetime import date, datetime
+from datetime import date, datetime, time as dtime
 from buzhug import Base, Record
 
 try:
@@ -23,7 +23,7 @@ else:
     db = ProxyBase('dummy')
 
 db.create(('name',str), ('fr_name',unicode),
-    ('age',int),('size',int),('birth',date),('afloat',float),
+    ('age',int),('size',int),('birth',date),('afloat',float), ('birth_hour', dtime),
     mode='override')
 
 for i in range(100):
@@ -32,7 +32,8 @@ for i in range(100):
          age=random.randint(7,47),size=random.randint(110,175),
          birth=date(random.randint(1958,1999),random.randint(1,12),10),
          afloat = random.uniform(-10**random.randint(-307,307),
-            10**random.randint(-307,307)))
+            10**random.randint(-307,307)),
+         birth_hour = dtime(random.randint(0, 23), random.randint(0, 59), random.randint(0, 59)))
 
 #db.add_field('fr_name',unicode,after='name',
 #    default=unicode('andr\x82','latin-1'))
@@ -44,22 +45,30 @@ for i in range(5):
          random.randint(7,47),random.randint(110,175),
          date(random.randint(1958,1999),random.randint(1,12),10),
          random.uniform(-10**random.randint(-307,307),
-            10**random.randint(-307,307)))
+            10**random.randint(-307,307)),
+         dtime(random.randint(0, 23), random.randint(0, 59), random.randint(0, 59)))
     db.insert(name=random.choice(names)) # missing fields
 
 # insert as string
 db.set_string_format(unicode,'latin-1')
 db.set_string_format(date,'%d-%m-%y')
+db.set_string_format(dtime,'%H-%M-%S')
 db.insert_as_strings(name="testname",fr_name=random.choice(fr_names),
-    age=10,size=123,birth="07-10-94")
+    age=10,size=123,birth="07-10-95", birth_hour="20-53-3")
 print db[len(db)-1].birth
 db.insert_as_strings("testname",random.choice(fr_names),
-    11,134,"09-10-94",1.0)
+    11,134,"09-12-94",1.0, "5-6-13")
 print db[len(db)-1].birth
 
+for i in range(10):
+    print db[i].birth
 # search between 2 dates
-print '\nBirth between 1960 and 1964'
-for r in db.select(None,birth=[date(1960,1,1),date(1964,12,13)]):
+print '\nBirth between 1960 and 1970'
+for r in db.select(None,birth=[date(1960,1,1),date(1970,12,13)]):
+    print r.name,r.birth
+
+print "sorted"
+for r in db.select(None,birth=[date(1960,1,1),date(1970,12,13)]).sort_by('+name-birth'):
     print r.name,r.birth
 
 f = buzhug_files.FloatFile().to_block

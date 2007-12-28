@@ -49,6 +49,9 @@ Version 0.7 :
 Version 0.9 :
 - prevent adding a field with the same name as an existing one
 - add a close() method to close all files
+Version 1.0
+- make sort_by compatible with Python 2.3
+- support for the datetime.time types (by Nicolas Pinault)
 """
 
 import os
@@ -61,7 +64,7 @@ import tempfile
 import shutil
 
 import time
-from datetime import date,datetime
+from datetime import date,datetime, time as dtime
 
 # compatibility with Python 2.3
 try:
@@ -72,7 +75,7 @@ except NameError:
 from buzhug_files import *
 import buzhug_algos
 
-_version = "0.9"
+version = "1.0"
 
 # ------------------------
 # The following classes are used to modelize the objects in the
@@ -169,10 +172,6 @@ class ResultSet(list):
         For instance, sort_by('name + surname - age') sorts by ascending 
         name, ascending surname and descending age"""
         
-        def rev(s):
-            """ function used to compare strings in decreasing order"""
-            return ''.join([chr(255-ord(c)) for c in s])
-
         # parse the order string
         e = cStringIO.StringIO(order).readline
         cond = []
@@ -196,12 +195,15 @@ class ResultSet(list):
             if order == '+':
                 elts.append("rec[%s]" %ix)
             else:
-                elts.append("rev(rec[%s])" %ix)
+                elts.append("buzhug_algos.rev(rec[%s])" %ix)
         o_f += ",".join(elts) +"]"        
-        exec o_f in locals()  # this creates the local function order_func
+        exec o_f in globals()  # this creates the global function order_func
 
         # apply the key
-        self.sort(key=order_func)
+        try:
+            self.sort(key=order_func)
+        except TypeError: # for Python 2.3
+            self.sort(lambda x,y: cmp(order_func(x),order_func(y)))
         return self
         
 REGEXPTYPE = type(re.compile('a'))
@@ -287,7 +289,7 @@ class Base:
 
     types_map = [ (int,IntegerFile),(float,FloatFile),
             (str,StringFile),(unicode,UnicodeFile),
-            (date,DateFile),(datetime,DateTimeFile)]
+            (date,DateFile),(datetime,DateTimeFile), (dtime, TimeFile)]
 
     def __init__(self,basename):
         self.name = self.__name__ = basename
@@ -524,6 +526,18 @@ class Base:
                 def _from_string(dts):
                     return datetime(*time.strptime(dts,format)[:6])
                 self.from_string[datetime] = _from_string
+        elif class_ is dtime:
+            # test datetime format
+            dt = dtime(8,30,15)
+            t = time.strptime(dt.strftime(format),format)
+            if not t[3:6] == (dt.hour, dt.minute, dt.second):
+                raise TimeFormatError,'%s is not a valid datetime.time format' \
+                    %format
+            else:
+                # create the conversion function string -> dtime
+                def _from_string(dts):
+                    return dtime(*time.strptime(dts,format)[3:6])
+                self.from_string[dtime] = _from_string
         else:
             raise ValueError,"Can't specify a format for class %s" %class_
 
@@ -895,7 +909,7 @@ class Base:
             if isinstance(typ,Base):
                 self._register_base(typ)
             else:
-                raise TypeError,"type %s not allowed" %typ    
+                raise TypeError,"type %s not allowed (pouet)" %typ    
 
     def _validate(self,k,v):
         """Validate the couple key,value"""
