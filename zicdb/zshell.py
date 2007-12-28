@@ -120,7 +120,7 @@ def do_scan():
 
     elapsed = time() - start_t
     delta = len(songs)-orig_nb
-    print "Processed %d (%s%d) songs in %s (%.2f/s.)"%(
+    print "\nProcessed %d (%s%d) songs in %s (%.2f/s.)"%(
             len(songs),
             '-' if delta < 0 else '+',
             delta,
