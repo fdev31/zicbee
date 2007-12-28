@@ -134,9 +134,19 @@ import os, sys
 from time import time
 from zicdb.dbe import Database, valid_tags, DB_DIR
 
+_plur = lambda val: 's' if val > 1 else ''
+
 def duration_tidy(orig):
     minutes, seconds = divmod(orig, 60)
-    return '%d min %02ds.'%(minutes, seconds)
+    if minutes > 60:
+        hours, minutes = divmod(minutes, 60)
+        if hours > 24:
+            days, hours = divmod(hours, 24)
+            return '%d day%s, %d hour%s %d min %02.1fs.'%(days, _plur(days), hours, _plur(hours), minutes, seconds)
+        else:
+            return '%d hour%s %d min %02.1fs.'%(hours, 's' if hours>1 else '', minutes, seconds)
+    else:
+        return '%d min %02.1fs.'%(minutes, seconds)
     if minutes > 60:
         hours = int(minutes/60)
         minutes -= hours*60
