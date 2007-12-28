@@ -1,7 +1,14 @@
+import itertools
+
 def init():
     globals().update(
             dict(songs=Database(os.environ.get('ZDB', 'songs')), args=sys.argv[2:])
             )
+
+def do_list():
+    for i in os.listdir(DB_DIR):
+        if os.path.isfile(os.path.join(DB_DIR, i, '__info__')):
+            print "%s # %d records"%(i, len(Database(i)))
 
 def do_bundle():
     if len(args) != 1:
@@ -46,7 +53,7 @@ search <match command>
     special characters (@, ==, etc...)
     """%('\n\t- '.join(valid_tags), sys.argv[0])
 
-def do_search():
+def do_search(out=None):
     condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', '') or 'True'
     duration = 0
     start_t = time()
@@ -55,16 +62,29 @@ def do_search():
     fields.remove('filename')
     fields = tuple(fields)
 
-    for res in songs.search([], condition):
-        print '%s :\n '%res.filename,'| '.join('%s: %s'%(f, getattr(res, f)) for f in fields if f[0] != '_' and getattr(res, f))
+    def _default_write(song):
+        print '%s :\n '%song.filename,'| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f))
+
+    def _m3u_write(song):
+        print song.filename
+
+    if out == 'm3u':
+        song_output = _m3u_write
+    else:
+        song_output = _default_write
+
+    num = 0
+    for num, res in enumerate(songs.search([], condition)):
+        song_output(res)
         duration += res.length
-    print "Found in %s for a total of %s!"%(
+
+    print "# %d results in %s for a total of %s!"%(
+            num,
             duration_tidy(time()-start_t),
             duration_tidy(duration)
             )
 
 def do_scan():
-    import itertools
     if not args:
         sys.exit('At least one argument must be specified!')
 
@@ -112,7 +132,7 @@ def do_scan():
 
 import os, sys
 from time import time
-from zicdb.dbe import Database, valid_tags
+from zicdb.dbe import Database, valid_tags, DB_DIR
 
 def duration_tidy(orig):
     minutes, seconds = divmod(orig, 60)
