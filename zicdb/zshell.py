@@ -119,9 +119,11 @@ def do_scan():
         _scan(directory=path)
 
     elapsed = time() - start_t
-    print "Processed %d (+ %d) songs in %s (%.2f/s.)"%(
+    delta = len(songs)-orig_nb
+    print "Processed %d (%s%d) songs in %s (%.2f/s.)"%(
             len(songs),
-            len(songs)-orig_nb,
+            '-' if delta < 0 else '+',
+            delta,
             duration_tidy(elapsed),
             len(songs)/elapsed)
 

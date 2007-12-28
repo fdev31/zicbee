@@ -75,6 +75,7 @@ class Database(object):
 
     def merge(self, directory=None, archive=None, no_dups=True):
         """ Merge informations from files in specified directory """
+        # TODO: add auto "no_dups" style after a len() check of the db
 
         try:
             EasyID3
