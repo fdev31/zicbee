@@ -18,8 +18,8 @@ def startup(action='help'):
         action = sys.argv[1]
 
     zshell.init()
-    if ':' in action:
-        params = action.split(':')
+    if '::' in action:
+        params = action.split('::')
         action = params.pop(0)
         kparams = dict()
         for p in params:
