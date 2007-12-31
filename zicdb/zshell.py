@@ -27,6 +27,7 @@ def do_reset():
 def do_help():
         print "Welcome to ZicDB!".center(80)
         print """
+
 reset
     Erases the Database (every previous scan is lost!)
 
@@ -36,7 +37,10 @@ bundle <filename>
 scan <directory|archive> [directory|archive...]
     Scan directories/archive for files and add them to the database
 
-search <match command>
+search[::out] <match command>
+
+  out:
+	specifies the output format (for now: m3u or null or default)
 
   Match commands composition:
     VAL OPERATOR VAL
@@ -59,7 +63,7 @@ search <match command>
     """%('\n\t- '.join(valid_tags), sys.argv[0])
 
 def do_search(out=None):
-    condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@', '') or 'True'
+    condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@U', '.upper()').replace('@', '') or 'True'
     duration = 0
     start_t = time()
 
