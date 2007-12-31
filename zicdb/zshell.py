@@ -27,6 +27,13 @@ def do_reset():
 def do_help():
         print "Welcome to ZicDB!".center(80)
         print """
+use
+    Not a command by itself, used to specify active database (default: songs)
+    Exemple:
+    %% %(prog)s use lisa search #dire st# in @artist@L
+
+list
+    List available Databases.
 
 reset
     Erases the Database (every previous scan is lost!)
@@ -40,7 +47,7 @@ scan <directory|archive> [directory|archive...]
 search[::out] <match command>
 
   out:
-	specifies the output format (for now: m3u or null or default)
+    specifies the output format (for now: m3u or null or default)
 
   Match commands composition:
     VAL OPERATOR VAL
@@ -52,15 +59,17 @@ search[::out] <match command>
     @L        Suffix for tags value, convert tag to lowercase
 
   Possible tags:
-\t- %s
+\t- %(tags)s
 
   Exemple:
-  %% %s search '#shak# in @filename@L and track == 2'
+  %% %(prog)s search '#shak# in @filename@L and track == 2'
 
   Note:
     << ' >> symbol is used here to prevent the shell from interpreting
     special characters (@, ==, etc...)
-    """%('\n\t- '.join(valid_tags), sys.argv[0])
+    """%dict(
+            tags = '\n\t- '.join(valid_tags),
+            prog = sys.argv[0])
 
 def do_search(out=None):
     condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@U', '.upper()').replace('@', '') or 'True'
