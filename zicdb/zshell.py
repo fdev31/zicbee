@@ -2,10 +2,13 @@ import itertools
 
 DEFAULT_NAME='songs'
 
-def init():
+def init(args=None):
+    clean_args = args or sys.argv[2:]
     globals().update(
-            dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)), args=sys.argv[2:])
+            dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)),
+                args=clean_args)
             )
+    sys.argv = sys.argv[2:]
 
 def do_list():
     for i in os.listdir(DB_DIR):
@@ -146,6 +149,48 @@ def do_scan():
             duration_tidy(elapsed),
             len(songs)/elapsed)
 
+
+def do_serve():
+    import web
+
+    render = web.template.render('web_templates')
+
+    urls = (
+            '/(.*)', 'index',
+            )
+
+    artist_form = web.form.Form(
+            web.form.Hidden('id'),
+            web.form.Textbox('pattern')
+            )
+
+    class index:
+        def GET(self, name):
+            if artist_form.validates():
+                artist_form.fill()
+                filename = artist_form['id'].value
+                if name.startswith("get") and filename:
+                    web.header('Content-Type', 'application/x-audio')
+                    web.header('Location', filename)
+                    web.header('Content-Disposition',
+                            'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+                    web.header('Cache-Control', 'no-cache, must-revalidate')
+                    web.header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+                    print file('/tmp/testwww.py').read()
+                    return
+
+            web.header('Content-Type', 'text/html; charset=utf-8')
+
+            pattern = artist_form['pattern'].value
+            if pattern:
+                res = songs.search([], pattern.replace('@L', '.lower()'))
+            else:
+                res = None
+
+            print render.index(artist_form, res)
+
+
+    web.run(urls, locals())
 
 ### INTERNAL ###
 

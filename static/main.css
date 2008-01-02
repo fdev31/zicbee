@@ -1,0 +1,10 @@
+.answer {
+background: #ddd;
+border: solid black 1px;
+margin: 1em auto;
+padding: 1em;
+}
+
+a {
+    color: black;
+}
