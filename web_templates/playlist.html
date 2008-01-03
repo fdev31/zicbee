@@ -1,0 +1,6 @@
+$def with (url, results)
+#EXTM3U
+$if results:
+    $for uri, res in results:
+        #EXTINF:${res.length},${res.title}
+        $:uri

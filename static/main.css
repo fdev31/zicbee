@@ -1,8 +1,11 @@
+body {
+	background: #eef;
+}
 .answer {
-background: #ddd;
-border: solid black 1px;
-margin: 1em auto;
-padding: 1em;
+	background: #ded;
+	border: solid black 1px;
+	margin: 1em auto;
+	padding: 1em;
 }
 
 a {

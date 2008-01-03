@@ -1,3 +1,4 @@
+# vim: et ts=4 sw=4
 import itertools
 
 DEFAULT_NAME='songs'
@@ -34,6 +35,9 @@ use
     Not a command by itself, used to specify active database (default: songs)
     Exemple:
     %% %(prog)s use lisa search #dire st# in @artist@L
+
+serve
+    Runs a user-accessible www server on port 8080
 
 list
     List available Databases.
@@ -161,7 +165,8 @@ def do_serve():
 
     artist_form = web.form.Form(
             web.form.Hidden('id'),
-            web.form.Textbox('pattern')
+            web.form.Textbox('pattern'),
+            web.form.Checkbox('m3u'),
             )
 
     class index:
@@ -176,18 +181,39 @@ def do_serve():
                             'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
                     web.header('Cache-Control', 'no-cache, must-revalidate')
                     web.header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
-                    print file('/tmp/testwww.py').read()
+
+                    CHUNK=1024*1024
+                    in_fd = file(filename)
+                    web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+
+                    while True:
+                        data = in_fd.read(CHUNK)
+                        if not data: break
+                        print data
                     return
 
-            web.header('Content-Type', 'text/html; charset=utf-8')
+            if artist_form['m3u'].value:
+                web.header('Content-Type', 'audio/x-mpegurl')
+                m3u = True
+            else:
+                web.header('Content-Type', 'text/html; charset=utf-8')
+                m3u = False
 
             pattern = artist_form['pattern'].value
             if pattern:
-                res = songs.search([], pattern.replace('@L', '.lower()'))
+                home = web.ctx['homedomain']+'/get?'
+                urlencode = web.http.urlencode
+                res = (
+                        (home+urlencode({'id':r.filename}), r)
+                        for r in songs.search([], pattern.replace('@L', '.lower()'))
+                        )
             else:
                 res = None
 
-            print render.index(artist_form, res)
+            if m3u:
+                print render.playlist(web.http.url, res)
+            else:
+                print render.index(artist_form, res)
 
 
     web.run(urls, locals())
