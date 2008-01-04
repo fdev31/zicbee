@@ -176,20 +176,17 @@ def do_serve():
                 filename = artist_form['id'].value
                 if name.startswith("get") and filename:
                     web.header('Content-Type', 'application/x-audio')
-                    web.header('Location', filename)
                     web.header('Content-Disposition',
                             'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
-                    web.header('Cache-Control', 'no-cache, must-revalidate')
-                    web.header('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
 
-                    CHUNK=1024*1024
+                    CHUNK=1024**2
                     in_fd = file(filename)
                     web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
 
                     while True:
                         data = in_fd.read(CHUNK)
                         if not data: break
-                        print data
+                        yield data
                     return
 
             if artist_form['m3u'].value:
