@@ -208,9 +208,9 @@ def do_serve():
                 res = None
 
             if m3u:
-                print render.playlist(web.http.url, res)
+                yield render.playlist(web.http.url, res)
             else:
-                print render.index(artist_form, res)
+                yield render.index(artist_form, res)
 
 
     web.run(urls, locals())
