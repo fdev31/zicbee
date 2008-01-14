@@ -76,7 +76,7 @@ search[::out] <match command>
     special characters (@, ==, etc...)
     """%dict(
             tags = '\n\t- '.join(valid_tags),
-            prog = sys.argv[0])
+            prog = "zicdb")
 
 def do_search(out=None):
     condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@U', '.upper()').replace('@', '') or 'True'
@@ -94,7 +94,7 @@ def do_search(out=None):
         def song_output(song): pass
     else:
         def song_output(song):
-            txt = '%s :\n%s '%(song.filename, '| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f)))
+            txt = '%s :\n%s '%(repr(song.filename), '| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f)))
             print txt.decode('utf8').encode('utf8')
 
     num = 0
