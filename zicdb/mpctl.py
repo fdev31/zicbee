@@ -22,7 +22,7 @@ class MPlayer(object):
     def _command(self, name, *args):
         cmd = '%s%s%s\n'%(name,
                 ' ' if args else '',
-                ' '.join(str(a) for a in args)
+                ' '.join(repr(a) for a in args)
                 )
         self._mplayer.stdin.write(cmd)
         if name == 'quit':
@@ -75,7 +75,8 @@ if __name__ == '__main__':
         readline.parse_and_bind('tab: complete')
         import rlcompleter
         mp.loadfile(sys.argv[1])
-        raw_input('Run this with python -i to get interactive shell.\nPress any key to quit.')
+        raw_input('Run this with python -i to get interactive shell.'
+                '\nPress any key to quit.')
     finally:
         mp.quit()
 
