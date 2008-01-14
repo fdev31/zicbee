@@ -179,7 +179,7 @@ def do_serve():
                     web.header('Content-Disposition',
                             'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
 
-                    CHUNK=1024**2
+                    CHUNK=1024
                     in_fd = file(filename)
                     web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
 
@@ -213,6 +213,8 @@ def do_serve():
                 yield render.index(artist_form, res)
 
 
+    # UGLY !
+    sys.argv = ['zicdb', '9090']
     web.run(urls, locals())
 
 ### INTERNAL ###
