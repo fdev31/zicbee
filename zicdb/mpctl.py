@@ -1,7 +1,10 @@
-from select import select
+import select
 import subprocess
 
 class MPlayer(object):
+    """ A class to access a slave mplayer process
+    you may want to use _command directly or call populate()
+    """
     def __init__(self):
         self._mplayer = subprocess.Popen(
                 ['mplayer', '-slave', '-quiet', '-idle'],
@@ -10,7 +13,7 @@ class MPlayer(object):
 
     def _readlines(self):
         ret = []
-        while any(select([self._mplayer.stdout.fileno()], [], [], 0.6)):
+        while any(select.select([self._mplayer.stdout.fileno()], [], [], 0.6)):
 #            if self._mplayer.poll():
 #                raise SystemExit()
             ret.append( self._mplayer.stdout.readline() )
@@ -26,44 +29,46 @@ class MPlayer(object):
             return
         return self._readlines()
 
-def init():
-    mplayer = subprocess.Popen(['mplayer', '-input', 'cmdlist'],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    @classmethod
+    def populate(kls):
+        """ Populates this class by introspecting mplayer executable """
+        mplayer = subprocess.Popen(['mplayer', '-input', 'cmdlist'],
+                stdin=subprocess.PIPE, stdout=subprocess.PIPE)
 
-    while True:
-        line = mplayer.stdout.readline()
-        if not line:
-            break
-        if line[0].isupper():
-            continue
-        args = line.split()
-        cmd_name = args.pop(0)
-        func_str = '''def _mp_func(self, *args):
-        """%(doc)s"""
-        if not (%(minargc)d <= len(args) <= %(argc)d):
-            raise TypeError('%(name)s takes %(argc)d arguments (%%d given)'%%len(args))
-        ret = self._command('%(name)s', *args)
-        if not ret:
-            return None
-        if ret[0].startswith('ANS'):
-            val = ret[0].split('=', 1)[1].rstrip()
-            try:
-                return eval(val)
-            except:
-                return val
-        return ret'''%dict(
-                doc = '%s(%s)'%(cmd_name, ', '.join(args)),
-                minargc = len([a for a in args if a[0] != '[']),
-                argc = len(args),
-                name = cmd_name,
-                )
-        exec(func_str)
+        while True:
+            line = mplayer.stdout.readline()
+            if not line:
+                break
+            if line[0].isupper():
+                continue
+            args = line.split()
+            cmd_name = args.pop(0)
+            func_str = '''def _mp_func(self, *args):
+            """%(doc)s"""
+            if not (%(minargc)d <= len(args) <= %(argc)d):
+                raise TypeError('%(name)s takes %(argc)d arguments (%%d given)'%%len(args))
+            ret = self._command('%(name)s', *args)
+            if not ret:
+                return None
+            if ret[0].startswith('ANS'):
+                val = ret[0].split('=', 1)[1].rstrip()
+                try:
+                    return eval(val)
+                except:
+                    return val
+            return ret'''%dict(
+                    doc = '%s(%s)'%(cmd_name, ', '.join(args)),
+                    minargc = len([a for a in args if a[0] != '[']),
+                    argc = len(args),
+                    name = cmd_name,
+                    )
+            exec(func_str)
 
-        setattr(MPlayer, cmd_name, _mp_func)
+            setattr(MPlayer, cmd_name, _mp_func)
 
 if __name__ == '__main__':
     import sys
-    init()
+    MPlayer.populate()
     try:
         mp = MPlayer()
         import readline
