@@ -192,6 +192,9 @@ def do_serve():
             if artist_form['m3u'].value:
                 web.header('Content-Type', 'audio/x-mpegurl')
                 m3u = True
+            elif web.input().get('plain'):
+                web.header('Content-Type', 'text/plain')
+                m3u = None
             else:
                 web.header('Content-Type', 'text/html; charset=utf-8')
                 m3u = False
@@ -207,8 +210,10 @@ def do_serve():
             else:
                 res = None
 
-            if m3u:
+            if m3u is True:
                 yield render.playlist(web.http.url, res)
+            elif m3u is None:
+                yield render.plain(web.http.url, res)
             else:
                 yield render.index(artist_form, res)
 
