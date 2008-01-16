@@ -98,7 +98,8 @@ class PPlayer(object):
 
     selected = property(lambda self: self.playlist[self.player.cur_song] if self.player.cur_song != -1 else None)
 
-pp = PPlayer()
-gtk.main()
-pp.player.quit()
+if __name__ == '__main__':
+    pp = PPlayer()
+    gtk.main()
+    pp.player.quit()
 
