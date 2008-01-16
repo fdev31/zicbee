@@ -25,6 +25,7 @@ class PPlayer(object):
         self.player.cur_song = -1
         gobject.timeout_add(1666, self._tick_generator().next)
         self._running = False
+        self._paused = False
 
         self._wtree = gtk.glade.XML('pplayer.glade')
 
@@ -44,6 +45,9 @@ class PPlayer(object):
 
     def _tick_generator(self):
         while True:
+            if self._paused:
+                yield True
+                continue
             try:
                 if self._running:
                     pos = self.player.get_time_pos()
@@ -82,6 +86,7 @@ class PPlayer(object):
 
     def toggle_pause(self, w):
         self.player.pause()
+        self._paused = not self._paused
 
     def play_prev(self, w):
         self.player.cur_song -= 1
