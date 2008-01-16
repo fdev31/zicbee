@@ -65,11 +65,9 @@ class PPlayer(object):
                             meta = self.selected_uri
                         self.info_lbl.set_text(meta)
                         total = self.selected['length']
-                        print pos, total
                         if total and total > 0:
                             pos = (pos / total * 100)
                         pos %= 100
-                        print repr(pos)
                         self.cursor.set_value(float(pos))
             except Exception, e:
                 traceback.print_exc()
