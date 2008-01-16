@@ -62,12 +62,12 @@ class PPlayer(object):
                     else:
                         meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
                         if not meta:
-                            meta = self.selected
+                            meta = self.selected_uri
                         self.info_lbl.set_text(meta)
-                        total = self.player.get_time_length()
+                        total = self.selected['length']
                         print pos, total
                         if total and total > 0:
-                            pos = total / pos
+                            pos = (pos / total * 100)
                         else:
                             pos %= 100
                         print repr(pos)
@@ -89,7 +89,6 @@ class PPlayer(object):
         self._play_selected()
         self._running = True
 
-
     def toggle_pause(self, w):
         self.player.pause()
         self._paused = not self._paused
@@ -105,9 +104,11 @@ class PPlayer(object):
         self._play_selected()
 
     def _play_selected(self):
-        self.player.loadfile(str(self.selected))
+        self.player.loadfile(str(self.selected_uri))
 
-    selected = property(lambda self: self.playlist[self.player.cur_song][0] if self.player.cur_song != -1 else None)
+    selected = property(lambda self: self.playlist[self.player.cur_song][1] if self.player.cur_song != -1 else None)
+
+    selected_uri = property(lambda self: self.playlist[self.player.cur_song][0] if self.player.cur_song != -1 else None)
 
 if __name__ == '__main__':
     pp = PPlayer()
