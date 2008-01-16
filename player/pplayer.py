@@ -74,6 +74,9 @@ class PPlayer(object):
             finally:
                 yield True
 
+    def absolute_seek(self, w, value):
+        self.player.seek('%d'%value, 1)
+
     def validate_pattern(self, w):
         params = {'pattern':w.get_text()}
         hostname = self.hostname_w.get_text()

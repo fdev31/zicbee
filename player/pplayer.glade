@@ -36,7 +36,7 @@
                         </child>
                         <child>
                             <widget class="GtkEntry" id="hostname">
-                                <property name="text">localhost</property>
+                                <property name="text" context="yes" translatable="yes">localhost</property>
                                 <property name="visible">True</property>
                             </widget>
                             <packing>
@@ -124,7 +124,9 @@ Blah</property>
                     <widget class="GtkHScale" id="cursor">
                         <property name="digits">0</property>
                         <property name="draw_value">False</property>
+                        <property name="is_focus">True</property>
                         <property name="visible">True</property>
+                        <signal handler="absolute_seek" name="adjust-bounds"/>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
