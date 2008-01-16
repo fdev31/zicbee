@@ -68,8 +68,7 @@ class PPlayer(object):
                         print pos, total
                         if total and total > 0:
                             pos = (pos / total * 100)
-                        else:
-                            pos %= 100
+                        pos %= 100
                         print repr(pos)
                         self.cursor.set_value(float(pos))
             except Exception, e:
