@@ -16,6 +16,7 @@ except:
 import mp
 import gobject
 import urllib
+import random
 import traceback
 
 class PPlayer(object):
@@ -61,15 +62,16 @@ class PPlayer(object):
                     else:
                         meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
                         if not meta:
-                            meta = self.playlist[self.player.cur_song]
+                            song = urllib.unquote_plus(self.playlist[self.player.cur_song])
+                            meta = song.rsplit('/', 1)[-1]
                         self.info_lbl.set_text(meta)
                         total = self.player.get_time_length()
-                        print pos, total
+#                        print pos, total
                         if total and total > 0:
                             pos = total / pos
                         else:
                             pos %= 100
-                        print repr(pos)
+#                        print repr(pos)
                         self.cursor.set_value(float(pos))
             except Exception, e:
                 traceback.print_exc()
@@ -80,6 +82,7 @@ class PPlayer(object):
         params = {'pattern':w.get_text()}
         uri = 'http://gunter.static.wyplay.int:9090/?plain=1&' + urllib.urlencode(params)
         self.playlist = [l.strip() for l in urllib.urlopen(uri).readlines()]
+        random.shuffle(self.playlist)
         self.player.cur_song = 0
         self._play_selected()
         self._running = True
