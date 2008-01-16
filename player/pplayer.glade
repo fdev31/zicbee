@@ -34,6 +34,15 @@
                                 <property name="position">1</property>
                             </packing>
                         </child>
+                        <child>
+                            <widget class="GtkEntry" id="hostname">
+                                <property name="text">localhost</property>
+                                <property name="visible">True</property>
+                            </widget>
+                            <packing>
+                                <property name="position">2</property>
+                            </packing>
+                        </child>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
@@ -72,13 +81,12 @@
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkButton" id="pause_button">
+                            <widget class="GtkToggleButton" id="pause_button">
                                 <property name="image_position">top</property>
-                                <property name="is_focus">True</property>
                                 <property name="label">gtk-media-pause</property>
                                 <property name="use_stock">True</property>
                                 <property name="visible">True</property>
-                                <signal handler="toggle_pause" name="clicked"/>
+                                <signal handler="toggle_pause" name="toggled"/>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
