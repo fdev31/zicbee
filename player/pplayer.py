@@ -16,6 +16,7 @@ except:
 import mp
 import gobject
 import urllib
+import traceback
 
 class PPlayer(object):
 
@@ -58,7 +59,7 @@ class PPlayer(object):
                             self._running = False
                             self.info_lbl.set_text('Not Playing.')
                     else:
-                        meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta)
+                        meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
                         if not meta:
                             meta = self.playlist[self.player.cur_song]
                         self.info_lbl.set_text(meta)
@@ -71,13 +72,13 @@ class PPlayer(object):
                         print repr(pos)
                         self.cursor.set_value(float(pos))
             except Exception, e:
-                print "E:", str(e)
+                traceback.print_exc()
             finally:
                 yield True
 
     def validate_pattern(self, w):
         params = {'pattern':w.get_text()}
-        uri = 'http://localhost:9090/?plain=1&' + urllib.urlencode(params)
+        uri = 'http://gunter.static.wyplay.int:9090/?plain=1&' + urllib.urlencode(params)
         self.playlist = [l.strip() for l in urllib.urlopen(uri).readlines()]
         self.player.cur_song = 0
         self._play_selected()
