@@ -32,6 +32,7 @@ class PPlayer(object):
         self._running = False
         self._paused = False
         self._position = None
+        self._play_timeout = None
 
         self._wtree = gtk.glade.XML('pplayer.glade')
 
@@ -52,7 +53,7 @@ class PPlayer(object):
 
     def _tick_generator(self):
         while True:
-            if self._paused:
+            if self._paused or self._play_timeout is not None:
                 yield True
                 continue
             try:
@@ -65,19 +66,6 @@ class PPlayer(object):
                             self._running = False
                             self.info_lbl.set_text('Not Playing.')
                     else:
-                        m_d = self.selected
-                        if m_d.get('album'):
-                            meta = '%s\n%s - %s'%(
-                                    m_d.get('title', 'Untitled'),
-                                    m_d.get('artist', 'Anonymous'), m_d.get('album'))
-                        else:
-                            meta = '%s\n%s'%(
-                                    m_d.get('title', 'Untitled'),
-                                    m_d.get('artist', 'Anonymous'))
-                        if 'length' in m_d:
-                            meta += '\n%s'%duration_tidy(m_d['length'])
-
-                        self.info_lbl.set_text(meta)
                         self.cursor.set_value(self._position)
             except Exception, e:
                 traceback.print_exc()
@@ -130,9 +118,32 @@ class PPlayer(object):
         self.player.cur_song += 1
         self._play_selected()
 
-    def _play_selected(self):
+    def _play_now(self):
         self.player.loadfile(str(self.selected_uri))
-        self.cursor.set_range(0, self.selected['length'])
+        self._play_timeout = None
+        return False
+
+    def _play_selected(self):
+        m_d = self.selected
+        self.cursor.set_range(0, m_d['length'])
+        if m_d.get('album'):
+            meta = '%s\n%s - %s'%(
+                    m_d.get('title', 'Untitled'),
+                    m_d.get('artist', 'Anonymous'), m_d.get('album'))
+        else:
+            meta = '%s\n%s'%(
+                    m_d.get('title', 'Untitled'),
+                    m_d.get('artist', 'Anonymous'))
+        if 'length' in m_d:
+            meta += '\n%s'%duration_tidy(m_d['length'])
+
+        self.info_lbl.set_text(meta)
+
+        if self._play_timeout is not None:
+            gobject.source_remove(self._play_timeout)
+
+        self._play_timeout = gobject.timeout_add(600, self._play_now)
+
 
     selected = property(lambda self: self.playlist[self.player.cur_song][1] if self.player.cur_song != -1 else None)
 
