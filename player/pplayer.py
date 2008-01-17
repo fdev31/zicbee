@@ -190,7 +190,8 @@ class PPlayer(object):
     def _play_now(self):
         self._pop_status()
         uri = self.selected_uri
-        self._push_status(u'playing %s'%urllib.unquote_plus(uri))
+        idx = uri.index('id=')
+        self._push_status(u'playing %s'%urllib.unquote_plus(uri[idx+3:]))
         self.player.loadfile(str(uri))
         return False
 
