@@ -185,13 +185,25 @@ class PPlayer(object):
         self._cur_song_pos -= 1
         if self._cur_song_pos < 0:
             raise IndexError()
-        self._play_selected()
+        try:
+            self._play_selected()
+        except:
+            pass
+        else:
+            if not self._play_timeout.running:
+                self._push_status('seeking...')
 
     def play_next(self, w):
+        if self._cur_song_pos > len(self.playlist):
+            return
         self._cur_song_pos += 1
-        if not self._play_timeout.running:
-            self._push_status('seeking...')
-        self._play_selected()
+        try:
+            self._play_selected()
+        except:
+            pass
+        else:
+            if not self._play_timeout.running:
+                self._push_status('seeking...')
 
     def _play_now(self):
         self._pop_status()
