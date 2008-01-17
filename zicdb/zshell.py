@@ -219,7 +219,10 @@ def do_serve():
             elif format == 'plain':
                 yield render.plain(web.http.url, res)
             elif format == 'json':
-                from simplejson import dumps as jdump
+                try:
+                    from cjson import encode as jdump
+                except ImportError:
+                    from simplejson import dumps as jdump
                 quote = urllib.quote
                 dict_list = [
                         (s[0],
