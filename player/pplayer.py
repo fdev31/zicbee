@@ -27,7 +27,7 @@ class PPlayer(object):
     def __init__(self):
         self.player = mp.MPlayer()
         self.playlist = []
-        self.player.cur_song = -1
+        self._cur_song_pos = -1
         gobject.timeout_add(1666, self._tick_generator().next)
         self._running = False
         self._paused = False
@@ -96,29 +96,29 @@ class PPlayer(object):
             from simplejson import loads as jload
 
         self.playlist = jload(urllib.urlopen(uri).read())
-        self.player.cur_song = 0
+        self._cur_song_pos = 0
         self._play_selected()
         self._running = True
 
     def shuffle_playlist(self, w):
         print "Mixing", len(self.playlist), "elements."
         random.shuffle(self.playlist)
-        self.player.cur_song = -1
+        self._cur_song_pos = -1
 
     def toggle_pause(self, w):
         self.player.pause()
         self._paused = not self._paused
 
     def play_prev(self, w):
-        if self.player.cur_song <= 0:
+        if self._cur_song_pos <= 0:
             return
-        self.player.cur_song -= 1
-        if self.player.cur_song < 0:
+        self._cur_song_pos -= 1
+        if self._cur_song_pos < 0:
             raise IndexError()
         self._play_selected()
 
     def play_next(self, w):
-        self.player.cur_song += 1
+        self._cur_song_pos += 1
         self._play_selected()
 
     def _play_now(self):
@@ -148,9 +148,9 @@ class PPlayer(object):
         self._play_timeout = gobject.timeout_add(600, self._play_now)
 
 
-    selected = property(lambda self: self.playlist[self.player.cur_song][1] if self.player.cur_song != -1 else None)
+    selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos != -1 else None)
 
-    selected_uri = property(lambda self: self.playlist[self.player.cur_song][0] if self.player.cur_song != -1 else None)
+    selected_uri = property(lambda self: self.playlist[self._cur_song_pos][0] if self._cur_song_pos != -1 else None)
 
 if __name__ == '__main__':
     pp = PPlayer()
