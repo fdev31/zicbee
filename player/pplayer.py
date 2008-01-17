@@ -68,7 +68,9 @@ class PPlayer(object):
         self.cursor = self._wtree.get_widget('cursor')
         self.hostname_w = self._wtree.get_widget('hostname')
         self.status_w = self._wtree.get_widget('statusbar')
+        self.status_w_ctx = self.status_w.get_context_id('player')
         self.cursor.set_range(0, 100)
+        self._push_status('idle')
 
         handlers = dict( (prop, getattr(self, prop))
             for prop in dir(self)
@@ -77,6 +79,12 @@ class PPlayer(object):
         self._wtree.signal_autoconnect(handlers)
         self.win.connect('destroy', gtk.main_quit)
         self.win.show()
+
+    def _push_status(self, txt):
+        self.status_w.push(self.status_w_ctx, txt)
+
+    def _pop_status(self):
+        self.status_w.pop(self.status_w_ctx)
 
     def _tick_generator(self):
         while True:
@@ -131,7 +139,13 @@ class PPlayer(object):
         except ImportError:
             from simplejson import loads as jload
 
-        self.playlist = jload(urllib.urlopen(uri).read())
+        self._pop_status()
+        try:
+            self.playlist = jload(urllib.urlopen(uri).read())
+        except:
+            self._push_status('Empty')
+        else:
+            self._push_status('Connected')
         self._cur_song_pos = 0
         self._play_selected()
         self._running = True
@@ -155,10 +169,15 @@ class PPlayer(object):
 
     def play_next(self, w):
         self._cur_song_pos += 1
+        if not self._play_timeout.running:
+            self._push_status('seeking...')
         self._play_selected()
 
     def _play_now(self):
-        self.player.loadfile(str(self.selected_uri))
+        self._pop_status()
+        uri = self.selected_uri
+        self._push_status(u'playing %s'%urllib.unquote_plus(uri))
+        self.player.loadfile(str(uri))
         return False
 
     def _play_selected(self):
