@@ -63,8 +63,7 @@ class PPlayer(object):
                     else:
                         meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
                         if not meta:
-                            song = urllib.unquote_plus(self.selected_uri)
-                            meta = song.rsplit('/', 1)[-1]
+                            meta = '\n'.join('%s: %s'%(k, v) for k, v in self.selected.iteritems() if v)
                         self.info_lbl.set_text(meta)
                         total = self.selected['length']
                         if total and total > 0:
@@ -80,7 +79,7 @@ class PPlayer(object):
         self.player.seek('%d'%value, 1)
 
     def validate_pattern(self, w):
-        params = {'pattern':w.get_text()}
+        params = {'pattern':self.pat.get_text()}
         hostname = self.hostname_w.get_text()
         if ':' not in hostname:
             hostname += ':9090'
