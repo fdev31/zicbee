@@ -35,7 +35,8 @@ class DelayedAction(object):
             self.fn(*self.args, **self.kw)
             self.running = None
         except Exception, e:
-            print "E:", str(e)
+            traceback.print_stack()
+            traceback.print_exc()
         return False
 
     def start(self, delay):
@@ -104,6 +105,7 @@ class PPlayer(object):
                 if self._running:
                     self._position = self.player.get_time_pos()
                     if self._position is None:
+                        self.cursor.set_value(self.selected['length'])
                         try:
                             self.play_next(None)
                         except IndexError:
@@ -112,6 +114,7 @@ class PPlayer(object):
                     else:
                         self.cursor.set_value(self._position)
             except Exception, e:
+                traceback.print_stack()
                 traceback.print_exc()
             finally:
                 yield True
@@ -147,7 +150,6 @@ class PPlayer(object):
         if ':' not in hostname:
             hostname += ':9090'
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
-        print uri
         try:
             from cjson import decode as jload
         except ImportError:
@@ -161,8 +163,12 @@ class PPlayer(object):
         else:
             self._push_status('Connected')
         self._cur_song_pos = 0
-        self._play_selected()
-        self._running = True
+        try:
+            self._play_selected()
+        except:
+            return
+        else:
+            self._running = True
 
     def shuffle_playlist(self, w):
         print "Mixing", len(self.playlist), "elements."
@@ -191,7 +197,7 @@ class PPlayer(object):
         self._pop_status()
         uri = self.selected_uri
         idx = uri.index('id=')
-        self._push_status(u'playing %s'%urllib.unquote_plus(uri[idx+3:]))
+        self._push_status('playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
         return False
 
@@ -212,7 +218,7 @@ class PPlayer(object):
 
         self.info_lbl.set_text(meta)
 
-        self._play_timeout.start(0.5)
+        self._play_timeout.start(1)
 
 
     selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos != -1 else None)
