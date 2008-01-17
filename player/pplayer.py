@@ -19,6 +19,9 @@ import urllib
 import random
 import traceback
 
+#from ..zshell import duration_tidy
+from zicdb.zshell import duration_tidy
+
 class PPlayer(object):
 
     def __init__(self):
@@ -28,6 +31,7 @@ class PPlayer(object):
         gobject.timeout_add(1666, self._tick_generator().next)
         self._running = False
         self._paused = False
+        self._position = None
 
         self._wtree = gtk.glade.XML('pplayer.glade')
 
@@ -53,30 +57,44 @@ class PPlayer(object):
                 continue
             try:
                 if self._running:
-                    pos = self.player.get_time_pos()
-                    if pos is None:
+                    self._position = self.player.get_time_pos()
+                    if self._position is None:
                         try:
                             self.play_next(None)
                         except IndexError:
                             self._running = False
                             self.info_lbl.set_text('Not Playing.')
                     else:
-                        meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
-                        if not meta:
-                            meta = '\n'.join('%s: %s'%(k, v) for k, v in self.selected.iteritems() if v)
+                        m_d = self.selected
+                        if m_d.get('album'):
+                            meta = '%s\n%s - %s'%(
+                                    m_d.get('title', 'Untitled'),
+                                    m_d.get('artist', 'Anonymous'), m_d.get('album'))
+                        else:
+                            meta = '%s\n%s'%(
+                                    m_d.get('title', 'Untitled'),
+                                    m_d.get('artist', 'Anonymous'))
+                        if 'length' in m_d:
+                            meta += '\n%s'%duration_tidy(m_d['length'])
+
                         self.info_lbl.set_text(meta)
-                        total = self.selected['length']
-                        if total and total > 0:
-                            pos = (pos / total * 100)
-                        pos %= 100
-                        self.cursor.set_value(float(pos))
+                        self.cursor.set_value(self._position)
             except Exception, e:
                 traceback.print_exc()
             finally:
                 yield True
 
     def absolute_seek(self, w, value):
-        self.player.seek('%d'%value, 1)
+        #     |      Seek to some place in the movie.
+        #     |          0 is a relative seek of +/- <value> seconds (default).
+        #     |          1 is a seek to <value> % in the movie.
+        #     |          2 is a seek to an absolute position of <value> seconds.
+        print "seek not supported right now :("
+#        if 0 <= value <= 100:
+#            print "VALUE", value
+#            self.player.seek('%d'%value, 1)
+#        diff = value - self._position
+#        print "DIFF", diff
 
     def validate_pattern(self, w):
         params = {'pattern':self.pat.get_text()}
@@ -114,6 +132,7 @@ class PPlayer(object):
 
     def _play_selected(self):
         self.player.loadfile(str(self.selected_uri))
+        self.cursor.set_range(0, self.selected['length'])
 
     selected = property(lambda self: self.playlist[self.player.cur_song][1] if self.player.cur_song != -1 else None)
 
