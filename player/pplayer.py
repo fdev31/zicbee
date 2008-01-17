@@ -85,7 +85,11 @@ class PPlayer(object):
         if ':' not in hostname:
             hostname += ':9090'
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
-        from simplejson import loads as jload
+        try:
+            from cjson import decode as jload
+        except ImportError:
+            from simplejson import loads as jload
+
         self.playlist = jload(urllib.urlopen(uri).read())
 #        print len(self.playlist)
 #        random.shuffle(self.playlist)
