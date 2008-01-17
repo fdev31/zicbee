@@ -86,6 +86,9 @@ class PPlayer(object):
 
     def validate_pattern(self, w):
         txt = self.pat.get_text()
+        if not txt:
+            txt = 'True'
+
         if len(txt) > 2 and txt[0] == txt[-1] == '"':
             txt = txt.lower()
             txt = '%(txt)s in artist@L or %(txt)s in title@L or %(txt)s in album@L or %(txt)s in filename@L'%dict(txt=txt)
