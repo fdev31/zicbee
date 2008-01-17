@@ -30,14 +30,14 @@ class MPlayer(object):
 
     def _spawn(self):
         self._mplayer = subprocess.Popen(
-                [self.exe_name, '-cache', '512', '-slave', '-quiet', '-idle'],
+                [self.exe_name, '-cache', '128', '-slave', '-quiet', '-idle'],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
         self._readlines()
 
     def __del__(self):
         self._mplayer.stdin.write('quit\\n')
 
-    def _readlines(self, timeout=0.6):
+    def _readlines(self, timeout=0.4):
         ret = []
         while any(select.select([self._mplayer.stdout.fileno()], [], [], timeout)):
             ret.append( self._mplayer.stdout.readline() )
