@@ -4,3 +4,6 @@ FUTURE:
   - shuffle
   - inject (local file or directory)
 
+ UI:
+  Add volume control under buttons (and remove controls text)
+  Review alignments ?
