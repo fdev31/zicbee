@@ -85,11 +85,16 @@ class PPlayer(object):
 #        print "DIFF", diff
 
     def validate_pattern(self, w):
-        params = {'pattern':self.pat.get_text()}
+        txt = self.pat.get_text()
+        if len(txt) > 2 and txt[0] == txt[-1] == '"':
+            txt = txt.lower()
+            txt = '%(txt)s in artist@L or %(txt)s in title@L or %(txt)s in album@L or %(txt)s in filename@L'%dict(txt=txt)
+        params = {'pattern':txt}
         hostname = self.hostname_w.get_text()
         if ':' not in hostname:
             hostname += ':9090'
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
+        print uri
         try:
             from cjson import decode as jload
         except ImportError:
