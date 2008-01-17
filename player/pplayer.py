@@ -103,12 +103,15 @@ class PPlayer(object):
     def shuffle_playlist(self, w):
         print "Mixing", len(self.playlist), "elements."
         random.shuffle(self.playlist)
+        self.player.cur_song = -1
 
     def toggle_pause(self, w):
         self.player.pause()
         self._paused = not self._paused
 
     def play_prev(self, w):
+        if self.player.cur_song <= 0:
+            return
         self.player.cur_song -= 1
         if self.player.cur_song < 0:
             raise IndexError()
