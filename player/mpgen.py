@@ -66,10 +66,14 @@ class MPlayer(object):
         if name == 'quit':
             return
         ret = self._readlines()
+
         if not ret:
             return None
-        if ret[-1].startswith('ANS'):
-            val = ret[-1].split('=', 1)[1].rstrip()
+        else:
+            ret = ret[-1]
+
+        if ret.startswith('ANS'):
+            val = ret.split('=', 1)[1].rstrip()
             try:
                 return eval(val)
             except:

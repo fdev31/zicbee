@@ -35,6 +35,7 @@ class PPlayer(object):
         self.pat = self._wtree.get_widget('pattern_entry')
         self.info_lbl = self._wtree.get_widget('info_label')
         self.cursor = self._wtree.get_widget('cursor')
+        self.hostname_w = self._wtree.get_widget('hostname')
         self.cursor.set_range(0, 100)
 
         handlers = dict( (prop, getattr(self, prop))
@@ -62,31 +63,35 @@ class PPlayer(object):
                     else:
                         meta = '\n'.join('%s: %s'%(k, v) for k, v in self.player.meta.iteritems())
                         if not meta:
-                            song = urllib.unquote_plus(self.playlist[self.player.cur_song])
+                            song = urllib.unquote_plus(self.selected_uri)
                             meta = song.rsplit('/', 1)[-1]
                         self.info_lbl.set_text(meta)
-                        total = self.player.get_time_length()
-#                        print pos, total
+                        total = self.selected['length']
                         if total and total > 0:
-                            pos = total / pos
-                        else:
-                            pos %= 100
-#                        print repr(pos)
+                            pos = (pos / total * 100)
+                        pos %= 100
                         self.cursor.set_value(float(pos))
             except Exception, e:
                 traceback.print_exc()
             finally:
                 yield True
 
+    def absolute_seek(self, w, value):
+        self.player.seek('%d'%value, 1)
+
     def validate_pattern(self, w):
         params = {'pattern':w.get_text()}
-        uri = 'http://gunter.static.wyplay.int:9090/?plain=1&' + urllib.urlencode(params)
-        self.playlist = [l.strip() for l in urllib.urlopen(uri).readlines()]
-        random.shuffle(self.playlist)
+        hostname = self.hostname_w.get_text()
+        if ':' not in hostname:
+            hostname += ':9090'
+        uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
+        from simplejson import loads as jload
+        self.playlist = jload(urllib.urlopen(uri).read())
+#        print len(self.playlist)
+#        random.shuffle(self.playlist)
         self.player.cur_song = 0
         self._play_selected()
         self._running = True
-
 
     def toggle_pause(self, w):
         self.player.pause()
@@ -103,9 +108,11 @@ class PPlayer(object):
         self._play_selected()
 
     def _play_selected(self):
-        self.player.loadfile(self.selected)
+        self.player.loadfile(str(self.selected_uri))
 
-    selected = property(lambda self: self.playlist[self.player.cur_song] if self.player.cur_song != -1 else None)
+    selected = property(lambda self: self.playlist[self.player.cur_song][1] if self.player.cur_song != -1 else None)
+
+    selected_uri = property(lambda self: self.playlist[self.player.cur_song][0] if self.player.cur_song != -1 else None)
 
 if __name__ == '__main__':
     pp = PPlayer()

@@ -156,6 +156,7 @@ def do_scan():
 
 def do_serve():
     import web
+    import urllib
 
     render = web.template.render('web_templates')
 
@@ -191,13 +192,16 @@ def do_serve():
 
             if artist_form['m3u'].value:
                 web.header('Content-Type', 'audio/x-mpegurl')
-                m3u = True
+                format = 'm3u'
             elif web.input().get('plain'):
                 web.header('Content-Type', 'text/plain')
-                m3u = None
+                format = 'plain'
+            elif web.input().get('json'):
+                web.header('Content-Type', 'text/plain')
+                format = 'json'
             else:
                 web.header('Content-Type', 'text/html; charset=utf-8')
-                m3u = False
+                format = 'html'
 
             pattern = artist_form['pattern'].value
             if pattern:
@@ -210,10 +214,24 @@ def do_serve():
             else:
                 res = None
 
-            if m3u is True:
+            if format == 'm3u':
                 yield render.playlist(web.http.url, res)
-            elif m3u is None:
+            elif format == 'plain':
                 yield render.plain(web.http.url, res)
+            elif format == 'json':
+                from simplejson import dumps as jdump
+                quote = urllib.quote
+                dict_list = [
+                        (s[0],
+                            dict( (f, getattr(s[1], f)
+                                if f != 'filename'
+                                else quote(getattr(s[1], f))
+                                )
+                            for f in s[1].fields if f[0] != '_')
+                            )
+                        # /tuple(uri, dict)
+                        for s in res]
+                yield jdump(dict_list)
             else:
                 yield render.index(artist_form, res)
 
