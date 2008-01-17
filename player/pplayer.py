@@ -22,6 +22,32 @@ import traceback
 #from ..zshell import duration_tidy
 from zicdb.zshell import duration_tidy
 
+class DelayedAction(object):
+    def __init__(self, fn, *args, **kw):
+        self.fn = fn
+        self.args = args
+        self.kw = kw
+        self.running = None
+        self._delay = 1
+
+    def _run(self):
+        try:
+            self.fn(*self.args, **self.kw)
+            self.running = None
+        except Exception, e:
+            print "E:", str(e)
+        return False
+
+    def start(self, delay):
+        """ start action after 'delay' seconds. """
+        self.stop()
+        self.running = gobject.timeout_add(int(delay*1000), self._run)
+
+    def stop(self):
+        if self.running is not None:
+            gobject.source_remove(self.running)
+        self.running = None
+
 class PPlayer(object):
 
     def __init__(self):
@@ -32,7 +58,7 @@ class PPlayer(object):
         self._running = False
         self._paused = False
         self._position = None
-        self._play_timeout = None
+        self._play_timeout = DelayedAction(self._play_now)
 
         self._wtree = gtk.glade.XML('pplayer.glade')
 
@@ -41,6 +67,7 @@ class PPlayer(object):
         self.info_lbl = self._wtree.get_widget('info_label')
         self.cursor = self._wtree.get_widget('cursor')
         self.hostname_w = self._wtree.get_widget('hostname')
+        self.status_w = self._wtree.get_widget('statusbar')
         self.cursor.set_range(0, 100)
 
         handlers = dict( (prop, getattr(self, prop))
@@ -53,7 +80,8 @@ class PPlayer(object):
 
     def _tick_generator(self):
         while True:
-            if self._paused or self._play_timeout is not None:
+            if self._paused or self._play_timeout.running:
+                # Do nothing if paused or actualy changing the song
                 yield True
                 continue
             try:
@@ -131,11 +159,11 @@ class PPlayer(object):
 
     def _play_now(self):
         self.player.loadfile(str(self.selected_uri))
-        self._play_timeout = None
         return False
 
     def _play_selected(self):
         m_d = self.selected
+        self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
         if m_d.get('album'):
             meta = '%s\n%s - %s'%(
@@ -150,10 +178,7 @@ class PPlayer(object):
 
         self.info_lbl.set_text(meta)
 
-        if self._play_timeout is not None:
-            gobject.source_remove(self._play_timeout)
-
-        self._play_timeout = gobject.timeout_add(600, self._play_now)
+        self._play_timeout.start(0.5)
 
 
     selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos != -1 else None)
