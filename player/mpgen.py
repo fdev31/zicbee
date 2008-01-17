@@ -30,7 +30,7 @@ class MPlayer(object):
 
     def _spawn(self):
         self._mplayer = subprocess.Popen(
-                [self.exe_name, '-slave', '-quiet', '-idle'],
+                [self.exe_name, '-cache', '512', '-slave', '-quiet', '-idle'],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
         self._readlines()
 
