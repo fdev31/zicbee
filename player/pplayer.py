@@ -91,11 +91,13 @@ class PPlayer(object):
             from simplejson import loads as jload
 
         self.playlist = jload(urllib.urlopen(uri).read())
-#        print len(self.playlist)
-#        random.shuffle(self.playlist)
         self.player.cur_song = 0
         self._play_selected()
         self._running = True
+
+    def shuffle_playlist(self, w):
+        print "Mixing", len(self.playlist), "elements."
+        random.shuffle(self.playlist)
 
     def toggle_pause(self, w):
         self.player.pause()

@@ -36,8 +36,10 @@
                         </child>
                         <child>
                             <widget class="GtkEntry" id="hostname">
+                                <property name="is_focus">True</property>
                                 <property name="text" context="yes" translatable="yes">localhost</property>
                                 <property name="visible">True</property>
+                                <signal handler="validate_pattern" name="activate"/>
                             </widget>
                             <packing>
                                 <property name="position">2</property>
@@ -94,6 +96,18 @@
                             </packing>
                         </child>
                         <child>
+                            <widget class="GtkButton" id="button1">
+                                <property name="is_focus">True</property>
+                                <property name="label" context="yes" translatable="yes">Shuffle</property>
+                                <property name="visible">True</property>
+                                <signal handler="shuffle_playlist" name="clicked"/>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="position">3</property>
+                            </packing>
+                        </child>
+                        <child>
                             <widget class="GtkLabel" id="info_label">
                                 <property name="label" context="yes" translatable="yes">0:00
 Coin
@@ -102,7 +116,7 @@ Blah</property>
                                 <property name="xpad">3</property>
                             </widget>
                             <packing>
-                                <property name="position">3</property>
+                                <property name="position">4</property>
                             </packing>
                         </child>
                         <child>
@@ -111,7 +125,7 @@ Blah</property>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
-                                <property name="position">4</property>
+                                <property name="position">5</property>
                             </packing>
                         </child>
                     </widget>
