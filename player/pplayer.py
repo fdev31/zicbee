@@ -77,6 +77,9 @@ class PPlayer(object):
         self._volume_action = DelayedAction(self.player.volume)
 
         self.hostname_w = self._wtree.get_widget('hostname')
+        if len(sys.argv) == 2:
+            self.hostname_w.set_text(sys.argv[1])
+
         self.status_w = self._wtree.get_widget('statusbar')
         self.status_w_ctx = self.status_w.get_context_id('player')
         self._push_status('idle')
