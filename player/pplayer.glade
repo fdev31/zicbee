@@ -2,7 +2,6 @@
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
     <widget class="GtkWindow" id="main_window">
-        <property name="default_height">250</property>
         <property name="default_width">440</property>
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <child>
@@ -109,10 +108,11 @@
                         </child>
                         <child>
                             <widget class="GtkLabel" id="info_label">
-                                <property name="label" context="yes" translatable="yes">0:00
-Coin
-Blah</property>
+                                <property name="can_focus">True</property>
+                                <property name="justify">right</property>
+                                <property name="selectable">True</property>
                                 <property name="visible">True</property>
+                                <property name="xalign">1.0</property>
                                 <property name="xpad">3</property>
                             </widget>
                             <packing>
@@ -177,6 +177,8 @@ Blah</property>
                         </child>
                     </widget>
                     <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">3</property>
                     </packing>
                 </child>
@@ -186,6 +188,7 @@ Blah</property>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">4</property>
                     </packing>
                 </child>
