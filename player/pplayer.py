@@ -59,17 +59,25 @@ class PPlayer(object):
         self._paused = False
         self._position = None
         self._play_timeout = DelayedAction(self._play_now)
+        self._seek_action = DelayedAction(self._seek_now)
 
         self._wtree = gtk.glade.XML('pplayer.glade')
 
         self.win = self._wtree.get_widget('main_window')
         self.pat = self._wtree.get_widget('pattern_entry')
         self.info_lbl = self._wtree.get_widget('info_label')
+        # position
         self.cursor = self._wtree.get_widget('cursor')
+        self.cursor.set_range(0, 100)
+        # volume
+        self.volume_w = self._wtree.get_widget('volume')
+        self.volume_w.set_range(0, 100)
+        self.volume_w.set_value(100)
+        self._volume_action = DelayedAction(self.player.volume)
+
         self.hostname_w = self._wtree.get_widget('hostname')
         self.status_w = self._wtree.get_widget('statusbar')
         self.status_w_ctx = self.status_w.get_context_id('player')
-        self.cursor.set_range(0, 100)
         self._push_status('idle')
 
         handlers = dict( (prop, getattr(self, prop))
@@ -88,7 +96,7 @@ class PPlayer(object):
 
     def _tick_generator(self):
         while True:
-            if self._paused or self._play_timeout.running:
+            if self._paused or self._play_timeout.running or self._seek_action.running:
                 # Do nothing if paused or actualy changing the song
                 yield True
                 continue
@@ -108,17 +116,23 @@ class PPlayer(object):
             finally:
                 yield True
 
-    def absolute_seek(self, w, value):
+    def change_volume(self, w, value):
+        if not (0 <= value <= 100):
+            return False
+        self._volume_action.args = (value, 1)
+        self._volume_action.start(0.1)
+
+    def _seek_now(self, val):
+        if 0 <= val <= 100:
+            self.player.seek('%d'%val, 1)
+
+    def absolute_seek(self, w, type, val):
         #     |      Seek to some place in the movie.
         #     |          0 is a relative seek of +/- <value> seconds (default).
         #     |          1 is a seek to <value> % in the movie.
         #     |          2 is a seek to an absolute position of <value> seconds.
-        print "seek not supported right now :("
-#        if 0 <= value <= 100:
-#            print "VALUE", value
-#            self.player.seek('%d'%value, 1)
-#        diff = value - self._position
-#        print "DIFF", diff
+        self._seek_action.args = (val,)
+        self._seek_action.start(0.2)
 
     def validate_pattern(self, w):
         txt = self.pat.get_text()

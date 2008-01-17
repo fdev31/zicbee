@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
     <widget class="GtkWindow" id="main_window">
-        <property name="default_width">440</property>
+        <property name="default_width">400</property>
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <child>
             <widget class="GtkVBox" id="vbox1">
@@ -11,6 +11,18 @@
                     <widget class="GtkHBox" id="hbox1">
                         <property name="border_width">2</property>
                         <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkEntry" id="hostname">
+                                <property name="is_focus">True</property>
+                                <property name="text" context="yes" translatable="yes">localhost</property>
+                                <property name="visible">True</property>
+                                <signal handler="validate_pattern" name="activate"/>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                            </packing>
+                        </child>
                         <child>
                             <widget class="GtkLabel" id="label1">
                                 <property name="label" context="yes" translatable="yes">Pattern:</property>
@@ -21,22 +33,12 @@
                             <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
+                                <property name="position">1</property>
                             </packing>
                         </child>
                         <child>
                             <widget class="GtkEntry" id="pattern_entry">
                                 <property name="is_focus">True</property>
-                                <property name="visible">True</property>
-                                <signal handler="validate_pattern" name="activate"/>
-                            </widget>
-                            <packing>
-                                <property name="position">1</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <widget class="GtkEntry" id="hostname">
-                                <property name="is_focus">True</property>
-                                <property name="text" context="yes" translatable="yes">localhost</property>
                                 <property name="visible">True</property>
                                 <signal handler="validate_pattern" name="activate"/>
                             </widget>
@@ -55,60 +57,96 @@
                         <property name="spacing">1</property>
                         <property name="visible">True</property>
                         <child>
-                            <widget class="GtkButton" id="left_button">
-                                <property name="image_position">top</property>
-                                <property name="is_focus">True</property>
-                                <property name="label">gtk-media-previous</property>
-                                <property name="use_stock">True</property>
+                            <widget class="GtkVBox" id="vbox2">
                                 <property name="visible">True</property>
-                                <signal handler="play_prev" name="clicked"/>
+                                <child>
+                                    <widget class="GtkHBox" id="hbox3">
+                                        <property name="homogeneous">True</property>
+                                        <property name="visible">True</property>
+                                        <child>
+                                            <widget class="GtkButton" id="left_button">
+                                                <property name="image_position">top</property>
+                                                <property name="is_focus">True</property>
+                                                <property name="visible">True</property>
+                                                <signal handler="play_prev" name="clicked"/>
+                                                <child>
+                                                    <widget class="GtkImage" id="image66">
+                                                        <property name="stock">gtk-media-previous</property>
+                                                        <property name="visible">True</property>
+                                                    </widget>
+                                                </child>
+                                            </widget>
+                                        </child>
+                                        <child>
+                                            <widget class="GtkButton" id="right_button">
+                                                <property name="image_position">top</property>
+                                                <property name="is_focus">True</property>
+                                                <property name="visible">True</property>
+                                                <signal handler="play_next" name="clicked"/>
+                                                <child>
+                                                    <widget class="GtkImage" id="image77">
+                                                        <property name="stock">gtk-media-next</property>
+                                                        <property name="visible">True</property>
+                                                    </widget>
+                                                </child>
+                                            </widget>
+                                            <packing>
+                                                <property name="position">1</property>
+                                            </packing>
+                                        </child>
+                                        <child>
+                                            <widget class="GtkToggleButton" id="pause_button">
+                                                <property name="image_position">top</property>
+                                                <property name="is_focus">True</property>
+                                                <property name="visible">True</property>
+                                                <signal handler="toggle_pause" name="toggled"/>
+                                                <child>
+                                                    <widget class="GtkImage" id="image88">
+                                                        <property name="stock">gtk-media-pause</property>
+                                                        <property name="visible">True</property>
+                                                    </widget>
+                                                </child>
+                                            </widget>
+                                            <packing>
+                                                <property name="position">2</property>
+                                            </packing>
+                                        </child>
+                                        <child>
+                                            <widget class="GtkButton" id="button1">
+                                                <property name="is_focus">True</property>
+                                                <property name="label" context="yes" translatable="yes">Shuffle</property>
+                                                <property name="visible">True</property>
+                                                <signal handler="shuffle_playlist" name="clicked"/>
+                                            </widget>
+                                            <packing>
+                                                <property name="position">3</property>
+                                            </packing>
+                                        </child>
+                                    </widget>
+                                    <packing>
+                                        <property name="expand">False</property>
+                                    </packing>
+                                </child>
+                                <child>
+                                    <widget class="GtkHScale" id="volume">
+                                        <property name="draw_value">False</property>
+                                        <property name="is_focus">True</property>
+                                        <property name="visible">True</property>
+                                        <signal handler="change_volume" name="adjust-bounds"/>
+                                    </widget>
+                                    <packing>
+                                        <property name="position">1</property>
+                                    </packing>
+                                </child>
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <widget class="GtkButton" id="right_button">
-                                <property name="image_position">top</property>
-                                <property name="is_focus">True</property>
-                                <property name="label">gtk-media-next</property>
-                                <property name="use_stock">True</property>
-                                <property name="visible">True</property>
-                                <signal handler="play_next" name="clicked"/>
-                            </widget>
-                            <packing>
-                                <property name="expand">False</property>
-                                <property name="position">1</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <widget class="GtkToggleButton" id="pause_button">
-                                <property name="image_position">top</property>
-                                <property name="label">gtk-media-pause</property>
-                                <property name="use_stock">True</property>
-                                <property name="visible">True</property>
-                                <signal handler="toggle_pause" name="toggled"/>
-                            </widget>
-                            <packing>
-                                <property name="expand">False</property>
-                                <property name="position">2</property>
-                            </packing>
-                        </child>
-                        <child>
-                            <widget class="GtkButton" id="button1">
-                                <property name="is_focus">True</property>
-                                <property name="label" context="yes" translatable="yes">Shuffle</property>
-                                <property name="visible">True</property>
-                                <signal handler="shuffle_playlist" name="clicked"/>
-                            </widget>
-                            <packing>
-                                <property name="expand">False</property>
-                                <property name="position">3</property>
                             </packing>
                         </child>
                         <child>
                             <widget class="GtkLabel" id="info_label">
                                 <property name="can_focus">True</property>
+                                <property name="is_focus">True</property>
                                 <property name="justify">right</property>
                                 <property name="selectable">True</property>
                                 <property name="visible">True</property>
@@ -116,7 +154,7 @@
                                 <property name="xpad">3</property>
                             </widget>
                             <packing>
-                                <property name="position">4</property>
+                                <property name="position">1</property>
                             </packing>
                         </child>
                         <child>
@@ -125,7 +163,7 @@
                             </widget>
                             <packing>
                                 <property name="expand">False</property>
-                                <property name="position">5</property>
+                                <property name="position">2</property>
                             </packing>
                         </child>
                     </widget>
@@ -138,9 +176,11 @@
                     <widget class="GtkHScale" id="cursor">
                         <property name="digits">0</property>
                         <property name="draw_value">False</property>
+                        <property name="fill_level">100.0</property>
                         <property name="is_focus">True</property>
+                        <property name="update_policy">delayed</property>
                         <property name="visible">True</property>
-                        <signal handler="absolute_seek" name="adjust-bounds"/>
+                        <signal handler="absolute_seek" name="change-value"/>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
