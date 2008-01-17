@@ -226,11 +226,8 @@ def do_serve():
                 quote = urllib.quote
                 dict_list = [
                         (s[0],
-                            dict( (f, getattr(s[1], f)
-                                if f != 'filename'
-                                else quote(getattr(s[1], f))
-                                )
-                            for f in s[1].fields if f[0] != '_')
+                            dict( (f, getattr(s[1], f))
+                            for f in s[1].fields if f[0] not in 'f_')
                             )
                         # /tuple(uri, dict)
                         for s in res]
