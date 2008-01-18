@@ -100,7 +100,10 @@ class PPlayer(object):
 
     def _tick_generator(self):
         while True:
-            if self._paused or self._play_timeout.running or self._seek_action.running:
+            if self._paused \
+            or self._play_timeout.running \
+            or not self.playlist \
+            or self._seek_action.running:
                 # Do nothing if paused or actualy changing the song
                 yield True
                 continue
