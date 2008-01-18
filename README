@@ -4,6 +4,8 @@ FUTURE:
   - shuffle
   - inject (local file or directory)
 
+  Add shoutcast/jamendo/lastfm support
+
  UI:
   Add volume control under buttons (and remove controls text)
   Review alignments ?
