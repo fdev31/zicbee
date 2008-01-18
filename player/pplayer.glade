@@ -13,8 +13,11 @@
                         <property name="visible">True</property>
                         <child>
                             <widget class="GtkEntry" id="hostname">
+                                <property name="has_tooltip">True</property>
                                 <property name="is_focus">True</property>
                                 <property name="text" context="yes" translatable="yes">localhost</property>
+                                <property name="tooltip_markup" context="yes" translatable="yes">Enter hostname here</property>
+                                <property name="tooltip_text" context="yes" translatable="yes">Enter hostname here</property>
                                 <property name="visible">True</property>
                                 <signal handler="validate_pattern" name="activate"/>
                             </widget>
@@ -38,7 +41,26 @@
                         </child>
                         <child>
                             <widget class="GtkEntry" id="pattern_entry">
+                                <property name="has_tooltip">True</property>
                                 <property name="is_focus">True</property>
+                                <property name="tooltip_markup" context="yes" translatable="yes">Examples:
+ &amp;quot;System of a down&amp;quot; # search of a pattern, case insensitive
+ &amp;quot;Björk&amp;quot; in artist and &amp;quot;vespatine&amp;quot; in album
+
+Available fields: album, artist, title, genre, filename, length
+Modifier: @L = lowercase, as in &amp;quot;désir&amp;quot; in artist@L
+
+Note:
+ Don&amp;apos;t forget &amp;quot;&amp;quot; !!</property>
+                                <property name="tooltip_text" context="yes" translatable="yes">Examples:
+ "System of a down" # search of a pattern, case insensitive
+ "Björk" in artist and "vespatine" in album
+
+Available fields: album, artist, title, genre, filename, length
+Modifier: @L = lowercase, as in "désir" in artist@L
+
+Note:
+ Don't forget "" !!</property>
                                 <property name="visible">True</property>
                                 <signal handler="validate_pattern" name="activate"/>
                             </widget>
