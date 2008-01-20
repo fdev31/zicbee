@@ -118,7 +118,7 @@ class PPlayer(object):
                             self._running = False
                             self.info_lbl.set_text('Not Playing.')
                     else:
-                        self.cursor.set_value(self._position)
+                        self.cursor.set_value(float(self._position))
             except Exception, e:
                 traceback.print_stack()
                 traceback.print_exc()
