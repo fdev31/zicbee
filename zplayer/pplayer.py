@@ -172,13 +172,8 @@ class PPlayer(object):
 
         self._pop_status()
         try:
-            self.list_store.clear()
             self.playlist = jload(urllib.urlopen(uri).read())
-
-            def _f():
-                for uri, infos in self.playlist:
-                    self.list_store.append((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
-            DelayedAction(_f).start(0.5)
+            DelayedAction(self._fill_playlist).start(0.5)
         except:
             self._push_status('Empty')
         else:
@@ -191,10 +186,18 @@ class PPlayer(object):
         else:
             self._running = True
 
+    def _fill_playlist(self):
+        # Fills the gtk list store
+        self.list_store.clear()
+        add = self.list_store.append
+        for uri, infos in self.playlist:
+            add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
+
     def shuffle_playlist(self, w):
         print "Mixing", len(self.playlist), "elements."
         random.shuffle(self.playlist)
         self._cur_song_pos = -1
+        self._fill_playlist()
 
     def toggle_pause(self, w):
         self.player.pause()
