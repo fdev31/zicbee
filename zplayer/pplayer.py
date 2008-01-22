@@ -68,12 +68,13 @@ class PPlayer(object):
         self.list_w = self._wtree.get_widget('songlist_tv')
         self.list_store = gtk.ListStore(str, str, str)
         self.list_w.set_model(self.list_store)
-        for name in 'Artist', 'Album', 'Title':
-            col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=0)
+        for i, name in enumerate(('Artist', 'Album', 'Title')):
+            col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i)
             col.set_resizable(True)
             self.list_w.append_column( col )
 
         self.pat = self._wtree.get_widget('pattern_entry')
+        self.pat.grab_focus()
         self.info_lbl = self._wtree.get_widget('info_label')
         # position
         self.cursor = self._wtree.get_widget('cursor')
@@ -171,14 +172,15 @@ class PPlayer(object):
 
         self._pop_status()
         try:
+            self.list_store.clear()
             self.playlist = jload(urllib.urlopen(uri).read())
 
-            append_it = (self.list_store.append((it['artist'], it['album'], it['title'])) for it in self.playlist)
-
-            DelayedAction(lambda it: any(it), append_it).start(0.5)
+            def _f():
+                for uri, infos in self.playlist:
+                    self.list_store.append((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
+            DelayedAction(_f).start(0.5)
         except:
             self._push_status('Empty')
-            self.list_store.clear()
         else:
             self._push_status('Connected')
         self._cur_song_pos = 0

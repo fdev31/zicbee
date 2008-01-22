@@ -2,10 +2,12 @@
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
     <widget class="GtkWindow" id="main_window">
+        <property name="default_height">400</property>
         <property name="default_width">400</property>
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <child>
             <widget class="GtkVBox" id="vbox1">
+                <property name="homogeneous">True</property>
                 <property name="visible">True</property>
                 <child>
                     <widget class="GtkHBox" id="hbox1">
@@ -210,14 +212,16 @@ Note:
                     </packing>
                 </child>
                 <child>
-                    <widget class="GtkTreeView" id="songlist_tv">
-                          <property name="visible">True</property>
-                          <property name="can_focus">True</property>
-                          <property name="headers_visible">True</property>
-                          <property name="rules_hint">False</property>
-                          <property name="enable_search">True</property>
-                        <property name="reorderable">True</property>
-                        <property name="search_column">0</property>
+                    <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                        <property name="visible">True</property>
+                        <child>
+                            <widget class="GtkTreeView" id="songlist_tv">
+                                <property name="is_focus">True</property>
+                                <property name="model">model1</property>
+                                <property name="search_column">0</property>
+                                <property name="visible">True</property>
+                            </widget>
+                        </child>
                     </widget>
                     <packing>
                         <property name="position">3</property>
