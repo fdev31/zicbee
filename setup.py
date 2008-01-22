@@ -12,11 +12,13 @@ setup (
         packages = find_packages(),
         package_data = {
             'zicdb': ['web_templates/*.html'],
+            'zplayer': ['*.glade'],
             },
 
         entry_points = {
             "console_scripts": [
-                'zicdb = zicdb:startup'
+                'zicdb = zicdb:startup',
+                'zicgui = zplayer.pplayer:main'
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicdb:startup'

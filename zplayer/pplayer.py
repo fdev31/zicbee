@@ -19,8 +19,8 @@ import urllib
 import random
 import traceback
 
-#from ..zshell import duration_tidy
 from zicdb.zshell import duration_tidy
+from pkg_resources import resource_filename
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
@@ -62,7 +62,7 @@ class PPlayer(object):
         self._play_timeout = DelayedAction(self._play_now)
         self._seek_action = DelayedAction(self._seek_now)
 
-        self._wtree = gtk.glade.XML('pplayer.glade')
+        self._wtree = gtk.glade.XML(resource_filename('zplayer', 'pplayer.glade'))
 
         self.win = self._wtree.get_widget('main_window')
         self.pat = self._wtree.get_widget('pattern_entry')
@@ -243,8 +243,10 @@ class PPlayer(object):
 
     selected_uri = property(lambda self: self.playlist[self._cur_song_pos][0] if self._cur_song_pos != -1 else None)
 
-if __name__ == '__main__':
+def main():
     pp = PPlayer()
     gtk.main()
     pp.player.quit()
 
+if __name__ == '__main__':
+    main()
