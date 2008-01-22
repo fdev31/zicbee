@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from setuptools import setup, find_packages
-VERSION='0.1'
+VERSION='0.2'
 
 setup (
         name='zicdb',
@@ -21,11 +21,15 @@ setup (
             },
 
         install_requires = [
-#            'buzhug>=0.9',
-#            'mutagen>=1.13',
+            'buzhug>=0.9',
+            'mutagen>=1.13',
+            'web.py>=0.22',
+#            'simplejson>=1.7.3',
+            'python-cjson>=1.0.5',
             ],
 
         dependency_links = [
+            'eggs',
             'http://box.gnux.info/fab/eggs'
             ],
         )
