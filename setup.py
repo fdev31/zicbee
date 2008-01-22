@@ -11,7 +11,7 @@ setup (
         keywords='database music tags metadata management',
         packages = find_packages(),
         package_data = {
-            'zicdb': ['web_templates/*.html'],
+            'zicdb': ['web_templates/*.html', 'static/*'],
             'zplayer': ['*.glade'],
             },
 

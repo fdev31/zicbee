@@ -160,6 +160,7 @@ def do_serve():
 
     from pkg_resources import resource_filename
     render = web.template.render(resource_filename('zicdb', 'web_templates'))
+    os.chdir( resource_filename('zicdb', 'static')[:-6] )
 
     urls = (
             '/(.*)', 'index',
