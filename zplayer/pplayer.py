@@ -235,6 +235,7 @@ class PPlayer(object):
         idx = uri.index('id=')
         self._push_status('playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
+        self.volume_w.set_value(float(self.player.prop_volume))
         return False
 
     def _play_selected(self):
