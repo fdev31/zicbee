@@ -7,7 +7,6 @@
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <child>
             <widget class="GtkVBox" id="vbox1">
-                <property name="homogeneous">True</property>
                 <property name="visible">True</property>
                 <child>
                     <widget class="GtkHBox" id="hbox1">
@@ -213,11 +212,11 @@ Note:
                 </child>
                 <child>
                     <widget class="GtkScrolledWindow" id="scrolledwindow1">
+                        <property name="shadow_type">etched-in</property>
                         <property name="visible">True</property>
                         <child>
                             <widget class="GtkTreeView" id="songlist_tv">
                                 <property name="is_focus">True</property>
-                                <property name="model">model1</property>
                                 <property name="search_column">0</property>
                                 <property name="visible">True</property>
                             </widget>
@@ -229,11 +228,13 @@ Note:
                 </child>
                 <child>
                     <widget class="GtkStatusbar" id="statusbar">
+                        <property name="border_width">3</property>
                         <property name="visible">True</property>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="pack_type">end</property>
                         <property name="position">4</property>
                     </packing>
                 </child>
