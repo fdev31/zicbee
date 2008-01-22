@@ -1,15 +1,23 @@
 FUTURE:
+
+ Tags edition ? add pure "tags" + ratings (user defined)
+ Better tags management ? (check m4a files)
+
  Add playlist management to the view
   - display
-  - shuffle
   - inject (local file or directory)
 
   Add shoutcast/jamendo/lastfm support
 
  UI:
-  Add volume control under buttons (and remove controls text)
   Review alignments ?
   Make title & artist in bold font
 
+ Refactor:
+  make actions separate files (split zshell.py)
+
 BUGS:
   statusbar on search errors/next
+  Scrollbar freezes
+  Search is very limited (but fast) right now, add hybrid mode ?
+
