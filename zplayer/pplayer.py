@@ -238,6 +238,7 @@ class PPlayer(object):
         m_d = self.selected
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
+        self.cursor.set_fill_level(m_d['length'])
         if m_d.get('album'):
             meta = '%s\n%s - %s'%(
                     m_d.get('title', 'Untitled'),

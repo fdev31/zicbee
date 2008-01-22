@@ -199,7 +199,7 @@ Note:
                     <widget class="GtkHScale" id="cursor">
                         <property name="digits">0</property>
                         <property name="draw_value">False</property>
-                        <property name="fill_level">100.0</property>
+                        <property name="fill_level">300.0</property>
                         <property name="is_focus">True</property>
                         <property name="update_policy">delayed</property>
                         <property name="visible">True</property>

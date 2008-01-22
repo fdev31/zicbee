@@ -3,6 +3,8 @@ FUTURE:
  Tags edition ? add pure "tags" + ratings (user defined)
  Better tags management ? (check m4a files)
 
+ Add tarball download to http interface
+
  Add playlist management to the view
   - display
   - inject (local file or directory)
