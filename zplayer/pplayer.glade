@@ -211,32 +211,13 @@ Note:
                 </child>
                 <child>
                     <widget class="GtkTreeView" id="songlist_tv">
-                        <property name="is_focus">True</property>
+                          <property name="visible">True</property>
+                          <property name="can_focus">True</property>
+                          <property name="headers_visible">True</property>
+                          <property name="rules_hint">False</property>
+                          <property name="enable_search">True</property>
                         <property name="reorderable">True</property>
                         <property name="search_column">0</property>
-                        <property name="visible">True</property>
-                        <child>
-                            <widget class="GtkTreeViewColumn" id="treeviewcolumn1">
-                                <property name="clickable">True</property>
-                                <property name="resizable">True</property>
-                                <property name="title" context="yes" translatable="yes">Artist</property>
-                            </widget>
-                        </child>
-                        <child>
-                            <widget class="GtkTreeViewColumn" id="treeviewcolumn2">
-                                <property name="clickable">True</property>
-                                <property name="resizable">True</property>
-                                <property name="title" context="yes" translatable="yes">Title</property>
-                            </widget>
-                        </child>
-                        <child>
-                            <widget class="GtkTreeViewColumn" id="treeviewcolumn3">
-                                <property name="clickable">True</property>
-                                <property name="expand">True</property>
-                                <property name="resizable">True</property>
-                                <property name="title" context="yes" translatable="yes">Filename</property>
-                            </widget>
-                        </child>
                     </widget>
                     <packing>
                         <property name="position">3</property>

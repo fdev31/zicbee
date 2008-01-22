@@ -66,12 +66,13 @@ class PPlayer(object):
 
         self.win = self._wtree.get_widget('main_window')
         self.list_w = self._wtree.get_widget('songlist_tv')
-        store = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING)
-        for n in xrange(10):
-            store.append( ("Foo", "Bar", "Baz") )
-        self.list_w.set_model(store)
-#        it = self.list_w.get_model().get_iter_root()
-#        print it
+        self.list_store = gtk.ListStore(str, str, str)
+        self.list_w.set_model(self.list_store)
+        for name in 'Artist', 'Album', 'Title':
+            col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=0)
+            col.set_resizable(True)
+            self.list_w.append_column( col )
+
         self.pat = self._wtree.get_widget('pattern_entry')
         self.info_lbl = self._wtree.get_widget('info_label')
         # position
@@ -171,8 +172,13 @@ class PPlayer(object):
         self._pop_status()
         try:
             self.playlist = jload(urllib.urlopen(uri).read())
+
+            append_it = (self.list_store.append((it['artist'], it['album'], it['title'])) for it in self.playlist)
+
+            DelayedAction(lambda it: any(it), append_it).start(0.5)
         except:
             self._push_status('Empty')
+            self.list_store.clear()
         else:
             self._push_status('Connected')
         self._cur_song_pos = 0
