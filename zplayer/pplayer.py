@@ -65,6 +65,13 @@ class PPlayer(object):
         self._wtree = gtk.glade.XML(resource_filename('zplayer', 'pplayer.glade'))
 
         self.win = self._wtree.get_widget('main_window')
+        self.list_w = self._wtree.get_widget('songlist_tv')
+        store = gtk.ListStore(gobject.TYPE_STRING,gobject.TYPE_STRING,gobject.TYPE_STRING)
+        for n in xrange(10):
+            store.append( ("Foo", "Bar", "Baz") )
+        self.list_w.set_model(store)
+#        it = self.list_w.get_model().get_iter_root()
+#        print it
         self.pat = self._wtree.get_widget('pattern_entry')
         self.info_lbl = self._wtree.get_widget('info_label')
         # position
