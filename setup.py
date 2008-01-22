@@ -10,6 +10,9 @@ setup (
         long_description='A simple Music database engine',
         keywords='database music tags metadata management',
         packages = find_packages(),
+        package_data = {
+            'zicdb': ['web_templates/*.html'],
+            },
 
         entry_points = {
             "console_scripts": [

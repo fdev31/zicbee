@@ -158,7 +158,8 @@ def do_serve():
     import web
     import urllib
 
-    render = web.template.render('web_templates')
+    from pkg_resources import resource_filename
+    render = web.template.render(resource_filename('zicdb', 'web_templates'))
 
     urls = (
             '/(.*)', 'index',
