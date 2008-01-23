@@ -255,6 +255,7 @@ class PPlayer(object):
             meta += '\n%s'%duration_tidy(m_d['length'])
 
         self.info_lbl.set_text(meta)
+        self.list_w.set_cursor( (self._cur_song_pos, 0) )
 
         self._play_timeout.start(1)
 
