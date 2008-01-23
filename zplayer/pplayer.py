@@ -59,6 +59,7 @@ class PPlayer(object):
         self._running = False
         self._paused = False
         self._position = None
+        self._actual_infos = ''
         self._play_timeout = DelayedAction(self._play_now)
         self._seek_action = DelayedAction(self._seek_now)
 
@@ -190,8 +191,11 @@ class PPlayer(object):
         # Fills the gtk list store
         self.list_store.clear()
         add = self.list_store.append
+        total = 0
         for uri, infos in self.playlist:
+            total += infos['length']
             add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
+        self._actual_infos = duration_tidy(total)
 
     def shuffle_playlist(self, w):
         print "Mixing", len(self.playlist), "elements."
@@ -233,7 +237,7 @@ class PPlayer(object):
         self._pop_status()
         uri = self.selected_uri
         idx = uri.index('id=')
-        self._push_status('playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
+        self._push_status(self._actual_infos + '| playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
         try:
             self.volume_w.set_value(float(self.player.prop_volume))
