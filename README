@@ -13,7 +13,6 @@ FUTURE:
 
  UI:
   Review alignments ?
-  Make title & artist in bold font
 
  Refactor:
   make actions separate files (split zshell.py)
