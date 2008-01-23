@@ -217,7 +217,7 @@ class PPlayer(object):
             if not self._play_timeout.running:
                 self._push_status('seeking...')
 
-    def play_next(self, w):
+    def play_next(self, *args):
         if self._cur_song_pos > len(self.playlist):
             return
         self._cur_song_pos += 1
@@ -235,7 +235,10 @@ class PPlayer(object):
         idx = uri.index('id=')
         self._push_status('playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
-        self.volume_w.set_value(float(self.player.prop_volume))
+        try:
+            self.volume_w.set_value(float(self.player.prop_volume))
+        except TypeError:
+            self.play_next()
         return False
 
     def force_change_song(self, treeview, path, treeview_col):
