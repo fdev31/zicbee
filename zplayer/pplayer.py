@@ -178,9 +178,9 @@ class PPlayer(object):
             self.playlist = jload(urllib.urlopen(uri).read())
             DelayedAction(self._fill_playlist).start(0.5)
         except:
-            self._push_status('Empty')
+            self._push_status('Connect to %s failed'%hostname)
         else:
-            self._push_status('Connected')
+            self._push_status('Connected' if len(self.playlist) else 'Empty')
         self._cur_song_pos = 0
         try:
             self._play_selected()

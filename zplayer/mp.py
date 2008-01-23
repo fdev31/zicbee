@@ -32,7 +32,7 @@ class MPlayer(object):
     def __del__(self):
         self._mplayer.stdin.write('quit\n')
 
-    def _readlines(self, timeout=0.6):
+    def _readlines(self, timeout=0.4):
         ret = []
         while any(select.select([self._mplayer.stdout.fileno()], [], [], timeout)):
             ret.append( self._mplayer.stdout.readline() )
@@ -163,6 +163,13 @@ class MPlayer(object):
             raise TypeError('frame_step takes 0 arguments (%d given)'%len(args))
         return self.command('frame_step', *args)
 
+    def grab_frames(self, *args):
+        """ grab_frames()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('grab_frames takes 0 arguments (%d given)'%len(args))
+        return self.command('grab_frames', *args)
+
     def pt_step(self, *args):
         """ pt_step <value> [force]
     Go to the next/previous entry in the playtree. The sign of <value> tells
@@ -192,16 +199,6 @@ class MPlayer(object):
         if not (1 <= len(args) <= 1):
             raise TypeError('alt_src_step takes 1 arguments (%d given)'%len(args))
         return self.command('alt_src_step', *args)
-
-    def loop(self, *args):
-        """ loop <value> [abs]
-    Adjust/set how many times the movie should be looped. -1 means no loop,
-    and 0 forever.
-
-        """
-        if not (1 <= len(args) <= 2):
-            raise TypeError('loop takes 2 arguments (%d given)'%len(args))
-        return self.command('loop', *args)
 
     def sub_delay(self, *args):
         """ sub_delay <value> [abs]
@@ -261,13 +258,6 @@ class MPlayer(object):
         if not (1 <= len(args) <= 2):
             raise TypeError('volume takes 2 arguments (%d given)'%len(args))
         return self.command('volume', *args)
-
-    def balance(self, *args):
-        """ balance(float, integer=None)
-        """
-        if not (1 <= len(args) <= 2):
-            raise TypeError('balance takes 2 arguments (%d given)'%len(args))
-        return self.command('balance', *args)
 
     def use_master(self, *args):
         """ use_master
@@ -417,16 +407,6 @@ class MPlayer(object):
         if not (0 <= len(args) <= 0):
             raise TypeError('sub_log takes 0 arguments (%d given)'%len(args))
         return self.command('sub_log', *args)
-
-    def sub_scale(self, *args):
-        """ sub_scale <value> [abs]
-    Adjust the subtitle size by +/- <value> or set it to <value> when [abs]
-    is nonzero.
-
-        """
-        if not (1 <= len(args) <= 2):
-            raise TypeError('sub_scale takes 2 arguments (%d given)'%len(args))
-        return self.command('sub_scale', *args)
 
     def get_percent_pos(self, *args):
         """ get_percent_pos
@@ -591,15 +571,6 @@ class MPlayer(object):
             raise TypeError('switch_audio takes 1 arguments (%d given)'%len(args))
         return self.command('switch_audio', *args)
 
-    def tv_start_scan(self, *args):
-        """ tv_start_scan
-    Start automatic TV channel scanning.
-
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('tv_start_scan takes 0 arguments (%d given)'%len(args))
-        return self.command('tv_start_scan', *args)
-
     def tv_step_channel(self, *args):
         """ tv_step_channel <channel>
     Select next/previous TV channel.
@@ -653,15 +624,6 @@ class MPlayer(object):
         if not (1 <= len(args) <= 1):
             raise TypeError('tv_set_freq takes 1 arguments (%d given)'%len(args))
         return self.command('tv_set_freq', *args)
-
-    def tv_step_freq(self, *args):
-        """ tv_step_freq <frequency offset in MHz>
-    Set the TV tuner frequency relative to current value.
-
-        """
-        if not (1 <= len(args) <= 1):
-            raise TypeError('tv_step_freq takes 1 arguments (%d given)'%len(args))
-        return self.command('tv_step_freq', *args)
 
     def tv_set_norm(self, *args):
         """ tv_set_norm <norm>
@@ -869,36 +831,61 @@ class MPlayer(object):
             raise TypeError('change_rectangle takes 2 arguments (%d given)'%len(args))
         return self.command('change_rectangle', *args)
 
-    def teletext_add_dec(self, *args):
-        """ teletext_add_dec(string)
+    def gui_loadfile(self, *args):
+        """ gui_loadfile()
         """
-        if not (1 <= len(args) <= 1):
-            raise TypeError('teletext_add_dec takes 1 arguments (%d given)'%len(args))
-        return self.command('teletext_add_dec', *args)
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_loadfile takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_loadfile', *args)
 
-    def teletext_go_link(self, *args):
-        """ teletext_go_link <1-6>
-    Follow given link on current teletext page.
-
+    def gui_loadsubtitle(self, *args):
+        """ gui_loadsubtitle()
         """
-        if not (1 <= len(args) <= 1):
-            raise TypeError('teletext_go_link takes 1 arguments (%d given)'%len(args))
-        return self.command('teletext_go_link', *args)
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_loadsubtitle takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_loadsubtitle', *args)
 
-    def dvdnav(self, *args):
-        """ dvdnav <button>
-    Press the given dvdnav button.
-        1 up
-        2 down
-        3 left
-        4 right
-        5 menu
-        6 select
-
+    def gui_about(self, *args):
+        """ gui_about()
         """
-        if not (1 <= len(args) <= 1):
-            raise TypeError('dvdnav takes 1 arguments (%d given)'%len(args))
-        return self.command('dvdnav', *args)
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_about takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_about', *args)
+
+    def gui_play(self, *args):
+        """ gui_play()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_play takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_play', *args)
+
+    def gui_stop(self, *args):
+        """ gui_stop()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_stop takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_stop', *args)
+
+    def gui_playlist(self, *args):
+        """ gui_playlist()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_playlist takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_playlist', *args)
+
+    def gui_preferences(self, *args):
+        """ gui_preferences()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_preferences takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_preferences', *args)
+
+    def gui_skinbrowser(self, *args):
+        """ gui_skinbrowser()
+        """
+        if not (0 <= len(args) <= 0):
+            raise TypeError('gui_skinbrowser takes 0 arguments (%d given)'%len(args))
+        return self.command('gui_skinbrowser', *args)
 
     def menu(self, *args):
         """ menu <command>
@@ -995,17 +982,6 @@ class MPlayer(object):
         if not (1 <= len(args) <= 1):
             raise TypeError('get_property takes 1 arguments (%d given)'%len(args))
         return self.command('get_property', *args)
-
-    def step_property(self, *args):
-        """ step_property <property> [value] [direction]
-    Change a property by value, or increase by a default if value is
-    not given or zero. The direction is reversed if direction is less
-    than zero.
-
-        """
-        if not (1 <= len(args) <= 3):
-            raise TypeError('step_property takes 3 arguments (%d given)'%len(args))
-        return self.command('step_property', *args)
 
     def seek_chapter(self, *args):
         """ seek_chapter <value> [type]
