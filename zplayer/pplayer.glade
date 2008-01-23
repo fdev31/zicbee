@@ -196,17 +196,36 @@ Note:
                     </packing>
                 </child>
                 <child>
-                    <widget class="GtkHScale" id="cursor">
-                        <property name="digits">0</property>
-                        <property name="draw_value">False</property>
-                        <property name="fill_level">300.0</property>
-                        <property name="is_focus">True</property>
-                        <property name="update_policy">delayed</property>
+                    <widget class="GtkHBox" id="hbox4">
                         <property name="visible">True</property>
-                        <signal handler="absolute_seek" name="change-value"/>
+                        <child>
+                            <widget class="GtkLabel" id="song_length">
+                                <property name="visible">True</property>
+                                <property name="xalign">0.0</property>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="padding">2</property>
+                            </packing>
+                        </child>
+                        <child>
+                            <widget class="GtkHScale" id="cursor">
+                                <property name="digits">0</property>
+                                <property name="draw_value">False</property>
+                                <property name="fill_level">300.0</property>
+                                <property name="is_focus">True</property>
+                                <property name="update_policy">delayed</property>
+                                <property name="visible">True</property>
+                                <signal handler="absolute_seek" name="change-value"/>
+                            </widget>
+                            <packing>
+                                <property name="position">1</property>
+                            </packing>
+                        </child>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
+                        <property name="padding">2</property>
                         <property name="position">2</property>
                     </packing>
                 </child>
@@ -220,8 +239,6 @@ Note:
                                 <property name="is_focus">True</property>
                                 <property name="search_column">0</property>
                                 <property name="visible">True</property>
-<!--                                <signal handler="force_change_song" name="toggle-cursor-row"/>-->
-<!--                                <signal handler="force_change_song" name="cursor-changed"/>-->
                                 <signal handler="force_change_song" name="row-activated"/>
                             </widget>
                         </child>

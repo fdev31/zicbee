@@ -76,6 +76,7 @@ class PPlayer(object):
 
         self.pat = self._wtree.get_widget('pattern_entry')
         self.pat.grab_focus()
+        self.length_lbl = self._wtree.get_widget('song_length')
         self.info_lbl = self._wtree.get_widget('info_label')
         # position
         self.cursor = self._wtree.get_widget('cursor')
@@ -129,6 +130,7 @@ class PPlayer(object):
                             self.info_lbl.set_text('Not Playing.')
                     else:
                         self.cursor.set_value(float(self._position))
+                        self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
                 traceback.print_stack()
                 traceback.print_exc()
