@@ -216,9 +216,13 @@ Note:
                         <property name="visible">True</property>
                         <child>
                             <widget class="GtkTreeView" id="songlist_tv">
+                                <property name="enable_grid_lines">both</property>
                                 <property name="is_focus">True</property>
                                 <property name="search_column">0</property>
                                 <property name="visible">True</property>
+<!--                                <signal handler="force_change_song" name="toggle-cursor-row"/>-->
+<!--                                <signal handler="force_change_song" name="cursor-changed"/>-->
+                                <signal handler="force_change_song" name="row-activated"/>
                             </widget>
                         </child>
                     </widget>

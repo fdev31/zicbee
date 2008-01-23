@@ -238,6 +238,10 @@ class PPlayer(object):
         self.volume_w.set_value(float(self.player.prop_volume))
         return False
 
+    def force_change_song(self, treeview, path, treeview_col):
+        self._cur_song_pos = path[0]
+        self._play_selected()
+
     def _play_selected(self):
         m_d = self.selected
         self.cursor.set_value(0.0)
