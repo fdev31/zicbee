@@ -256,22 +256,21 @@ class PPlayer(object):
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
         self.cursor.set_fill_level(m_d['length'])
+        self._play_timeout.start(1)
+
         if m_d.get('album'):
-            meta = '%s\n%s - %s'%(
+            meta = '<span weight="bold">%s\n%s</span> - %s'%(
                     m_d.get('title', 'Untitled'),
                     m_d.get('artist', 'Anonymous'), m_d.get('album'))
         else:
-            meta = '%s\n%s'%(
+            meta = '<span weight="bold">%s\n%s</span>'%(
                     m_d.get('title', 'Untitled'),
                     m_d.get('artist', 'Anonymous'))
         if 'length' in m_d:
             meta += '\n%s'%duration_tidy(m_d['length'])
 
-        self.info_lbl.set_text(meta)
+        self.info_lbl.set_markup(meta)
         self.list_w.set_cursor( (self._cur_song_pos, 0) )
-
-        self._play_timeout.start(1)
-
 
     selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos != -1 else None)
 
