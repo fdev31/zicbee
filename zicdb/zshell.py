@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 import itertools
-from zicdb.zutils import duration_tidy
+from zicdb.zutils import duration_tidy, parse_line
 
 DEFAULT_NAME='songs'
 
@@ -35,7 +35,7 @@ def do_help():
 use
     Not a command by itself, used to specify active database (default: songs)
     Exemple:
-    %% %(prog)s use lisa search #dire st# in @artist@L
+    %% %(prog)s use lisa search artist: dire st
 
 serve
     Runs a user-accessible www server on port 8080
@@ -58,29 +58,20 @@ search[::out] <match command>
     specifies the output format (for now: m3u or null or default)
 
   Match commands composition:
-    VAL OPERATOR VAL
-    VAL can be @<tag> or #string# or integer (ie. 13)
-    OPERATOR can be 'in' '==' '<' and so on...
+    field: value [ [or|and] field2: value2 ]...
+    for length, value may be preceded by "<" or ">"
+    if field name starts with a capital, the search is case-sensitive
 
-    @<tag>    Access a tag value
-    #blah#    Declare the string "blah" (used for matching)
-    @L        Suffix for tags value, convert tag to lowercase
-
-  Possible tags:
+  Possible fields:
 \t- %(tags)s
 
   Exemple:
-  %% %(prog)s search '#shak# in @filename@L and track == 2'
-
-  Note:
-    << ' >> symbol is used here to prevent the shell from interpreting
-    special characters (@, ==, etc...)
+  %% %(prog)s search filename: shak length > 3*60
     """%dict(
             tags = '\n\t- '.join(valid_tags),
             prog = "zicdb")
 
 def do_search(out=None):
-    condition = ' '.join(args).replace('#', "'").replace('@L', '.lower()').replace('@U', '.upper()').replace('@', '') or 'True'
     duration = 0
     start_t = time()
 
@@ -99,7 +90,8 @@ def do_search(out=None):
             print txt.decode('utf8').encode('utf8')
 
     num = 0
-    for num, res in enumerate(songs.search([], condition)):
+    pat, kw = parse_line(' '.join(args))
+    for num, res in enumerate(songs.search(None, pat, **kw)):
         song_output(res)
         duration += res.length
 
@@ -207,15 +199,13 @@ def do_serve():
                 format = 'html'
 
             pattern = artist_form['pattern'].value
-            if pattern:
-                home = web.ctx['homedomain']+'/get?'
-                urlencode = web.http.urlencode
-                res = (
-                        (home+urlencode({'id':r.filename}), r)
-                        for r in songs.search([], pattern.replace('@L', '.lower()'))
-                        )
-            else:
-                res = None
+            pat, vars = parse_line(pattern)
+            home = web.ctx['homedomain']+'/get?'
+            urlencode = web.http.urlencode
+            res = (
+                    (home+urlencode({'id':r.filename}), r)
+                    for r in songs.search(None, pat, **vars)
+                    )
 
             if format == 'm3u':
                 yield render.playlist(web.http.url, res)
@@ -248,6 +238,4 @@ def do_serve():
 import os, sys
 from time import time
 from zicdb.dbe import Database, valid_tags, DB_DIR
-
-_plur = lambda val: 's' if val > 1 else ''
 

@@ -19,7 +19,7 @@ import urllib
 import random
 import traceback
 
-from zicdb.zutils import duration_tidy
+from zicdb.zutils import duration_tidy, parse_line
 from pkg_resources import resource_filename
 
 def DEBUG():
@@ -158,14 +158,7 @@ class PPlayer(object):
         self._seek_action.start(0.2)
 
     def validate_pattern(self, w):
-        txt = self.pat.get_text()
-        if not txt:
-            txt = 'True'
-
-        if len(txt) > 2 and txt[0] == txt[-1] == '"':
-            txt = txt.lower()
-            txt = '%(txt)s in artist@L or %(txt)s in title@L or %(txt)s in album@L or %(txt)s in filename@L'%dict(txt=txt)
-        params = {'pattern':txt}
+        params = {'pattern':self.pat.get_text()}
         hostname = self.hostname_w.get_text()
         if ':' not in hostname:
             hostname += ':9090'

@@ -1,4 +1,8 @@
+__all__ = ['parse_line', 'duration_tidy']
+
 import string
+
+_plur = lambda val: 's' if val > 1 else ''
 
 def duration_tidy(orig):
     minutes, seconds = divmod(orig, 60)
@@ -56,19 +60,10 @@ def _conv_line(txt):
                         if vals[1] in ('or', 'and'):
                             val = vals[0]
                             bin_operator = vals[1]
-
-                    if attr[0].islower():
-                        attr += '.lower()'
-                        val = val.lower()
-                    attr = attr.lower()
                     ret.append( (attr, val) )
                     ret.append( bin_operator )
                     attr = name
                 else:
-                    if attr[0].islower():
-                        attr += '.lower()'
-                        elt = elt.lower()
-                    attr = attr.lower()
                     ret.append( (attr, elt.strip()) )
         return ret
     else:
@@ -79,7 +74,7 @@ def parse_line(line):
     # string (simple) handling
     if isinstance(ret, basestring):
         if ret:
-            return ('"%s"'%ret, {})
+            return ('%(t)s in artist or %(t)s in title or %(t)s in filename or %(t)s in album'%dict(t='"%s"'%ret.replace('"', r'\"')), {})
         else:
             return ('1', {})
     # complex search
@@ -102,6 +97,11 @@ def parse_line(line):
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
                 args[var_name] = eval(value)
             else:
+                if attr_name[0].islower():
+                    value = value.lower()
+                    attr_name += '.lower()'
+                else:
+                    attr_name = attr_name.lower()
                 str_list.append('"%s" in %s'%(value.replace('"', r'\"'), attr_name))
     return ' '.join(str_list), args
 
