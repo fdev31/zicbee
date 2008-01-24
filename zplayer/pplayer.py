@@ -19,8 +19,12 @@ import urllib
 import random
 import traceback
 
-from zicdb.zshell import duration_tidy
+from zicdb.zutils import duration_tidy
 from pkg_resources import resource_filename
+
+def DEBUG():
+    traceback.print_stack()
+    traceback.print_exc()
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
@@ -35,8 +39,7 @@ class DelayedAction(object):
             self.fn(*self.args, **self.kw)
             self.running = None
         except Exception, e:
-            traceback.print_stack()
-            traceback.print_exc()
+            DEBUG()
         return False
 
     def start(self, delay):
@@ -132,8 +135,7 @@ class PPlayer(object):
                         self.cursor.set_value(float(self._position))
                         self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
-                traceback.print_stack()
-                traceback.print_exc()
+                DEBUG()
             finally:
                 yield True
 
@@ -178,6 +180,7 @@ class PPlayer(object):
             self.playlist = jload(urllib.urlopen(uri).read())
             DelayedAction(self._fill_playlist).start(0.5)
         except:
+            DEBUG()
             self._push_status('Connect to %s failed'%hostname)
         else:
             self._push_status('Connected' if len(self.playlist) else 'Empty')
