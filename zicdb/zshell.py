@@ -19,6 +19,8 @@ def do_list():
             if i == DEFAULT_NAME:
                 txt += ' [default]'
             print txt
+def do_shell():
+    import pdb; pdb.set_trace()
 
 def do_bundle():
     if len(args) != 1:
@@ -112,7 +114,10 @@ def do_scan():
     archives = []
     directories = []
 
+    exp_vars = os.path.expandvars
+    exp_usr = os.path.expanduser
     for path in args:
+        path = exp_usr(exp_vars(path))
         if os.path.isdir(path):
             directories.append(path)
         else:
