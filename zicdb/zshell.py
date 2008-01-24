@@ -200,6 +200,7 @@ def do_serve():
 
             pattern = artist_form['pattern'].value
             pat, vars = parse_line(pattern)
+            web.debug(pattern, pat, vars)
             home = web.ctx['homedomain']+'/get?'
             urlencode = web.http.urlencode
             res = (
