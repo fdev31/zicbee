@@ -117,6 +117,7 @@ class PPlayer(object):
             try:
                 if self._paused \
                 or self._play_timeout.running \
+                or self._volume_action.running \
                 or not self.playlist \
                 or self._seek_action.running:
                     # Do nothing if paused or actualy changing the song
