@@ -13,6 +13,8 @@ FUTURE:
 
  UI:
   Review alignments ?
+  Contextual menu in list (with delete etc...)
+  Volume Button
 
  Refactor:
   make actions separate files (split zshell.py)
@@ -21,6 +23,12 @@ BUGS:
   statusbar on search errors/next
   Scrollbar freezes
   Search is very limited (but fast) right now, add hybrid mode ?
+   Syntax proposal:
+     something
+     Artist: Björk
+     Artist: Björk or Artist: Noir
+     title: vesp and artist: björk and length > 500
+     (capitalized for case-sensitive search)
 
 LINKS:
 http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen/Tutorial
