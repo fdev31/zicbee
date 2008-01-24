@@ -18,6 +18,7 @@ import gobject
 import urllib
 import random
 import traceback
+import itertools
 
 from zicdb.zutils import duration_tidy, parse_line
 from pkg_resources import resource_filename
@@ -56,6 +57,7 @@ class PPlayer(object):
 
     def __init__(self):
         self.player = mp.MPlayer()
+        self._error_count = itertools.count()
         self.playlist = []
         self._cur_song_pos = -1
         gobject.timeout_add(1666, self._tick_generator().next)
@@ -136,8 +138,11 @@ class PPlayer(object):
                         self.cursor.set_value(float(self._position))
                         self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
+                if self._error_count.next() >= 3:
+                    self.play_next(None)
                 DEBUG()
             finally:
+                self._error_count = itertools.count()
                 yield True
 
     def change_volume(self, w, value):
@@ -249,6 +254,7 @@ class PPlayer(object):
         self._play_selected()
 
     def _play_selected(self):
+        self._error_count = itertools.count()
         m_d = self.selected
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
