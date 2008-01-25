@@ -172,6 +172,7 @@ def do_serve():
 
     class index:
         def GET(self, name):
+            t0 = time()
             if artist_form.validates():
                 artist_form.fill()
                 filename = artist_form['id'].value
@@ -212,6 +213,7 @@ def do_serve():
                     (home+urlencode({'id':r.filename}), r)
                     for r in songs.search(None, pat, **vars)
                     )
+            t_sel = time()
 
             if format == 'm3u':
                 yield render.playlist(web.http.url, res)
@@ -230,6 +232,7 @@ def do_serve():
                             )
                         # /tuple(uri, dict)
                         for s in res]
+                web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
                 yield jdump(dict_list)
             else:
                 yield render.index(artist_form, res)
