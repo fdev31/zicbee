@@ -114,6 +114,15 @@ class PPlayer(object):
     def _pop_status(self):
         self.status_w.pop(self.status_w_ctx)
 
+    def _new_error(self):
+        cnt = self._error_count.next()
+        if cnt >= 2:
+            try:
+                self.play_next(None)
+            except IndexError:
+                self._running = False
+                self.info_lbl.set_text('Not Playing.')
+
     def _tick_generator(self):
         while True:
             try:
@@ -129,20 +138,17 @@ class PPlayer(object):
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         self.cursor.set_value(self.selected['length'])
-                        try:
-                            self.play_next(None)
-                        except IndexError:
-                            self._running = False
-                            self.info_lbl.set_text('Not Playing.')
+                        self._new_error()
+                        raise Exception()
                     else:
                         self.cursor.set_value(float(self._position))
                         self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
-                if self._error_count.next() >= 3:
-                    self.play_next(None)
+                self._new_error()
                 DEBUG()
-            finally:
+            else:
                 self._error_count = itertools.count()
+            finally:
                 yield True
 
     def change_volume(self, w, value):
@@ -245,7 +251,7 @@ class PPlayer(object):
         self.player.loadfile(str(uri))
         try:
             self.volume_w.set_value(float(self.player.prop_volume))
-        except TypeError:
+        except (ValueError, TypeError):
             self.play_next()
         return False
 
