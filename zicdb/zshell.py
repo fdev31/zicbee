@@ -205,14 +205,17 @@ def do_serve():
                 format = 'html'
 
             pattern = artist_form['pattern'].value
-            pat, vars = parse_line(pattern)
-            web.debug(pattern, pat, vars)
-            home = web.ctx['homedomain']+'/get?'
-            urlencode = web.http.urlencode
-            res = (
-                    (home+urlencode({'id':r.filename}), r)
-                    for r in songs.search(None, pat, **vars)
-                    )
+            if pattern is None:
+                res = None
+            else:
+                pat, vars = parse_line(pattern)
+                web.debug(pattern, pat, vars)
+                home = web.ctx['homedomain']+'/get?'
+                urlencode = web.http.urlencode
+                res = (
+                        (home+urlencode({'id':r.filename}), r)
+                        for r in songs.search(None, pat, **vars)
+                        )
             t_sel = time()
 
             if format == 'm3u':
@@ -225,6 +228,15 @@ def do_serve():
                 except ImportError:
                     from simplejson import dumps as jdump
                 quote = urllib.quote
+                from itertools import izip
+
+# Experimental code:
+#                lbls = ('genre', 'artist', 'album', 'title', 'length')
+#                idxs = (3, 4, 5, 6, 8)
+#                fields = ('__id__', '__version__', 'filename', 'genre', 'artist', 'album', 'title', 'track', 'length')
+#                dict_list = [
+#                        (s0, dict(izip(lbls, s1._get_val_iter(*idxs))))
+#                        for (s0, s1) in res]
                 dict_list = [
                         (s[0],
                             dict( (f, getattr(s[1], f))
@@ -232,6 +244,7 @@ def do_serve():
                             )
                         # /tuple(uri, dict)
                         for s in res]
+
                 web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
                 yield jdump(dict_list)
             else:
