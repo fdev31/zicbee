@@ -18,9 +18,14 @@ import gobject
 import urllib
 import random
 import traceback
+import itertools
 
-from zicdb.zshell import duration_tidy
+from zicdb.zutils import duration_tidy, parse_line
 from pkg_resources import resource_filename
+
+def DEBUG():
+    traceback.print_stack()
+    traceback.print_exc()
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
@@ -35,8 +40,7 @@ class DelayedAction(object):
             self.fn(*self.args, **self.kw)
             self.running = None
         except Exception, e:
-            traceback.print_stack()
-            traceback.print_exc()
+            DEBUG()
         return False
 
     def start(self, delay):
@@ -53,6 +57,7 @@ class PPlayer(object):
 
     def __init__(self):
         self.player = mp.MPlayer()
+        self._error_count = itertools.count()
         self.playlist = []
         self._cur_song_pos = -1
         gobject.timeout_add(1666, self._tick_generator().next)
@@ -114,6 +119,7 @@ class PPlayer(object):
             try:
                 if self._paused \
                 or self._play_timeout.running \
+                or self._volume_action.running \
                 or not self.playlist \
                 or self._seek_action.running:
                     # Do nothing if paused or actualy changing the song
@@ -132,9 +138,11 @@ class PPlayer(object):
                         self.cursor.set_value(float(self._position))
                         self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
-                traceback.print_stack()
-                traceback.print_exc()
+                if self._error_count.next() >= 3:
+                    self.play_next(None)
+                DEBUG()
             finally:
+                self._error_count = itertools.count()
                 yield True
 
     def change_volume(self, w, value):
@@ -156,14 +164,7 @@ class PPlayer(object):
         self._seek_action.start(0.2)
 
     def validate_pattern(self, w):
-        txt = self.pat.get_text()
-        if not txt:
-            txt = 'True'
-
-        if len(txt) > 2 and txt[0] == txt[-1] == '"':
-            txt = txt.lower()
-            txt = '%(txt)s in artist@L or %(txt)s in title@L or %(txt)s in album@L or %(txt)s in filename@L'%dict(txt=txt)
-        params = {'pattern':txt}
+        params = {'pattern':self.pat.get_text()}
         hostname = self.hostname_w.get_text()
         if ':' not in hostname:
             hostname += ':9090'
@@ -178,6 +179,7 @@ class PPlayer(object):
             self.playlist = jload(urllib.urlopen(uri).read())
             DelayedAction(self._fill_playlist).start(0.5)
         except:
+            DEBUG()
             self._push_status('Connect to %s failed'%hostname)
         else:
             self._push_status('Connected' if len(self.playlist) else 'Empty')
@@ -252,6 +254,7 @@ class PPlayer(object):
         self._play_selected()
 
     def _play_selected(self):
+        self._error_count = itertools.count()
         m_d = self.selected
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])

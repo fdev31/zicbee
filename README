@@ -1,5 +1,10 @@
 FUTURE:
 
+ Separate artist db:
+  - artist view possible
+  - difflib matching on insert
+  much slower ?? (to test...)
+
  Tags edition ? add pure "tags" + ratings (user defined)
  Better tags management ? (check m4a files)
 
