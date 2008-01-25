@@ -129,17 +129,16 @@ class PPlayer(object):
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         self.cursor.set_value(self.selected['length'])
-                        try:
-                            self.play_next(None)
-                        except IndexError:
-                            self._running = False
-                            self.info_lbl.set_text('Not Playing.')
                     else:
                         self.cursor.set_value(float(self._position))
                         self.length_lbl.set_text( duration_tidy(self._position) )
             except Exception, e:
                 if self._error_count.next() >= 3:
-                    self.play_next(None)
+                    try:
+                        self.play_next(None)
+                    except IndexError:
+                        self._running = False
+                        self.info_lbl.set_text('Not Playing.')
                 DEBUG()
             finally:
                 self._error_count = itertools.count()
