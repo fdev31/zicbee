@@ -45,21 +45,23 @@
                                 <property name="has_tooltip">True</property>
                                 <property name="is_focus">True</property>
                                 <property name="tooltip_markup" context="yes" translatable="yes">Examples:
- System of a down
- artist: björk album: vespatine
- length: &amp;gt;3*100
- title: joga or title: bachelor
+ &amp;quot;System of a down&amp;quot; # search of a pattern, case insensitive
+ &amp;quot;Björk&amp;quot; in artist and &amp;quot;vespatine&amp;quot; in album
 
 Available fields: album, artist, title, genre, filename, length
-</property>
+Modifier: @L = lowercase, as in &amp;quot;désir&amp;quot; in artist@L
+
+Note:
+ Don&amp;apos;t forget &amp;quot;&amp;quot; !!</property>
                                 <property name="tooltip_text" context="yes" translatable="yes">Examples:
- System of a down
- artist: björk album: vespatine
- length: &gt;3*100
- title: joga or title: bachelor
+ "System of a down" # search of a pattern, case insensitive
+ "Björk" in artist and "vespatine" in album
 
 Available fields: album, artist, title, genre, filename, length
-</property>
+Modifier: @L = lowercase, as in "désir" in artist@L
+
+Note:
+ Don't forget "" !!</property>
                                 <property name="visible">True</property>
                                 <signal handler="validate_pattern" name="activate"/>
                             </widget>
@@ -78,8 +80,9 @@ Available fields: album, artist, title, genre, filename, length
                         <property name="spacing">1</property>
                         <property name="visible">True</property>
                         <child>
-                            <widget class="GtkVBox" id="vbox2">
+                            <widget class="GtkHBox" id="hbox21">
                                 <property name="visible">True</property>
+                                <property name="homogeneous">True</property>
                                 <child>
                                     <widget class="GtkHBox" id="hbox3">
                                         <property name="homogeneous">True</property>
@@ -149,15 +152,18 @@ Available fields: album, artist, title, genre, filename, length
                                     </packing>
                                 </child>
                                 <child>
-                                    <widget class="GtkHScale" id="volume">
-                                        <property name="draw_value">False</property>
-                                        <property name="is_focus">True</property>
-                                        <property name="visible">True</property>
-                                        <signal handler="change_volume" name="adjust-bounds"/>
-                                    </widget>
+                                    <widget class="GtkVolumeButton" id="volume">
+	                		  <property name="visible">True</property>
+			                  <property name="sensitive">True</property>
+                			  <signal name="value-changed" handler="volume_button_value_changed_cb"/>
+		                    </widget>
                                     <packing>
-                                        <property name="position">1</property>
-                                    </packing>
+		                          <property name="padding">0</property>
+                			  <property name="expand">False</property>
+		                	  <property name="fill">False</property>
+                			  <property name="pack_type">GTK_PACK_END</property>
+		                    </packing>
+
                                 </child>
                             </widget>
                             <packing>

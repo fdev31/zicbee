@@ -88,7 +88,6 @@ class PPlayer(object):
         self.cursor.set_range(0, 100)
         # volume
         self.volume_w = self._wtree.get_widget('volume')
-        self.volume_w.set_range(0, 100)
         self.volume_w.set_value(100)
         self._volume_action = DelayedAction(self.player.volume)
 
