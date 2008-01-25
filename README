@@ -1,4 +1,7 @@
 FUTURE:
+ Do chunked retrieving ?
+ Modify buzhug to return dicts (~25% boost)
+
 
  Separate artist db:
   - artist view possible
