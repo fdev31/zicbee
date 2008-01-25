@@ -245,7 +245,7 @@ class PPlayer(object):
         self.player.loadfile(str(uri))
         try:
             self.volume_w.set_value(float(self.player.prop_volume))
-        except TypeError:
+        except (ValueError, TypeError):
             self.play_next()
         return False
 
