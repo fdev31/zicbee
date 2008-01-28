@@ -20,7 +20,7 @@ import random
 import traceback
 import itertools
 
-from zicdb.zutils import duration_tidy, parse_line
+from zicdb.zutils import duration_tidy, parse_line, jload
 from pkg_resources import resource_filename
 
 def DEBUG():
@@ -88,7 +88,6 @@ class PPlayer(object):
         self.cursor.set_range(0, 100)
         # volume
         self.volume_w = self._wtree.get_widget('volume')
-        self.volume_w.set_range(0, 100)
         self.volume_w.set_value(100)
         self._volume_action = DelayedAction(self.player.volume)
 
@@ -175,10 +174,6 @@ class PPlayer(object):
         if ':' not in hostname:
             hostname += ':9090'
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
-        try:
-            from cjson import decode as jload
-        except ImportError:
-            from simplejson import loads as jload
 
         self._pop_status()
         try:
