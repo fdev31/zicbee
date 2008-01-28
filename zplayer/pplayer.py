@@ -87,6 +87,8 @@ class PPlayer(object):
         # position
         self.cursor = self._wtree.get_widget('cursor')
         self.cursor.set_range(0, 100)
+        # uri
+        self._song_uri = self._wtree.get_widget('song_uri')
         # volume
         self.volume_w = self._wtree.get_widget('volume')
         self.volume_w.set_value(100)
@@ -243,6 +245,7 @@ class PPlayer(object):
     def _play_now(self):
         self._pop_status()
         uri = self.selected_uri
+        self._song_uri.set_text(uri)
         idx = uri.index('id=')
         self._push_status(self._actual_infos + '| playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
