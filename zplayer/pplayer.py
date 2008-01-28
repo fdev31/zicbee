@@ -246,7 +246,8 @@ class PPlayer(object):
         self._push_status(self._actual_infos + '| playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
         self.player.loadfile(str(uri))
         try:
-            self.volume_w.set_value(float(self.player.prop_volume))
+            vol = self.player.prop_volume
+            self.volume_w.set_value(vol/100.0)
         except (ValueError, TypeError):
             self.play_next()
         return False
