@@ -108,7 +108,9 @@ class PPlayer(object):
             )
         self._wtree.signal_autoconnect(handlers)
         self.win.connect('destroy', gtk.main_quit)
+        self.win.set_geometry_hints(self.win, 370, 200)
         self.win.show()
+        self._old_size = self.win.get_size()
 
     def _push_status(self, txt):
         self.status_w.push(self.status_w_ctx, txt)
