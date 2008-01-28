@@ -151,9 +151,10 @@ class PPlayer(object):
                 yield True
 
     def change_volume(self, w, value):
+        value *= 100
         if not (0 <= value <= 100):
             return False
-        self._volume_action.args = (value, 1)
+        self._volume_action.args = (int(value), 1)
         self._volume_action.start(0.1)
 
     def _seek_now(self, val):

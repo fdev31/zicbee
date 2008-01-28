@@ -151,7 +151,7 @@ Note:
                                             <widget class="GtkVolumeButton" id="volume">
                                                 <property name="visible">True</property>
                                                 <property name="sensitive">True</property>
-                                                <signal name="value-changed" handler="volume_button_value_changed_cb"/>
+                                                <signal name="value-changed" handler="change_volume"/>
                                             </widget>
                                         </child>
                                     </widget>
