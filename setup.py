@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+try:
+	import setuptools
+except ImportError:
+	from ez_setup import use_setuptools
+	use_setuptools()
 from setuptools import setup, find_packages
 VERSION='0.2'
 
