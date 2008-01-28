@@ -1,6 +1,31 @@
-__all__ = ['parse_line', 'duration_tidy']
+__all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy']
 
 import string
+
+#
+# Try to get the most performant json backend
+#
+# cjson:
+# 10 loops, best of 3: 226 msec per loop
+# simplejson:
+# 1 loops, best of 3: 10.3 sec per loop
+# demjson:
+# 1 loops, best of 3: 65.2 sec per loop
+#
+
+json_engine = None
+try:
+    from cjson import encode as jdump, decode as jload
+    json_engine = 'cjson'
+except ImportError:
+    try:
+        from simplejson import dumps as jdump, loads as jload
+        json_engine = 'simplejson'
+    except ImportError:
+        from demjson import encode as jdump, decode as jload
+        json_engine = 'demjson'
+
+print "using %s."%json_engine
 
 _plur = lambda val: 's' if val > 1 else ''
 

@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 import itertools
-from zicdb.zutils import duration_tidy, parse_line
+from zicdb.zutils import duration_tidy, parse_line, jdump
 
 DEFAULT_NAME='songs'
 
@@ -223,10 +223,6 @@ def do_serve():
             elif format == 'plain':
                 yield render.plain(web.http.url, res)
             elif format == 'json':
-                try:
-                    from cjson import encode as jdump
-                except ImportError:
-                    from simplejson import dumps as jdump
                 quote = urllib.quote
                 from itertools import izip
 
