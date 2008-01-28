@@ -1,6 +1,7 @@
 # vim: et ts=4 sw=4
-import itertools
-from zicdb.zutils import duration_tidy, parse_line, jdump
+import os
+import sys
+from zicdb.dbe import Database
 
 DEFAULT_NAME='songs'
 
@@ -11,10 +12,4 @@ def init(args=None):
                 args=clean_args)
             )
     sys.argv = sys.argv[2:]
-
-### INTERNAL ###
-
-import os, sys
-from time import time
-from zicdb.dbe import Database, valid_tags, DB_DIR
 
