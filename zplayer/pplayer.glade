@@ -187,15 +187,41 @@ Note:
                             </packing>
                         </child>
                         <child>
-                            <widget class="GtkLabel" id="info_label">
-                                <property name="can_focus">True</property>
-                                <property name="is_focus">True</property>
-                                <property name="justify">right</property>
-                                <property name="selectable">True</property>
-                                <property name="use_markup">True</property>
+                            <widget class="GtkVBox" id="vbox3">
                                 <property name="visible">True</property>
-                                <property name="xalign">1.0</property>
-                                <property name="xpad">3</property>
+                                <child>
+                                    <widget class="GtkLabel" id="info_label">
+                                        <property name="can_focus">True</property>
+                                        <property name="has_tooltip">True</property>
+                                        <property name="is_focus">True</property>
+                                        <property name="justify">right</property>
+                                        <property name="label" context="yes" translatable="yes">Foo
+Bar
+Baz
+toto</property>
+                                        <property name="selectable">True</property>
+                                        <property name="tooltip_markup" context="yes" translatable="yes"></property>
+                                        <property name="tooltip_text" context="yes" translatable="yes"></property>
+                                        <property name="use_markup">True</property>
+                                        <property name="visible">True</property>
+                                        <property name="xalign">1.0</property>
+                                        <property name="xpad">3</property>
+                                    </widget>
+                                </child>
+                                <child>
+                                    <widget class="GtkHScale" id="cursor">
+                                        <property name="digits">0</property>
+                                        <property name="draw_value">False</property>
+                                        <property name="fill_level">300.0</property>
+                                        <property name="is_focus">True</property>
+                                        <property name="update_policy">delayed</property>
+                                        <property name="visible">True</property>
+                                        <signal handler="absolute_seek" name="change-value"/>
+                                    </widget>
+                                    <packing>
+                                        <property name="position">1</property>
+                                    </packing>
+                                </child>
                             </widget>
                             <packing>
                                 <property name="position">1</property>
@@ -217,44 +243,7 @@ Note:
                     </packing>
                 </child>
                 <child>
-                    <widget class="GtkHBox" id="hbox4">
-                        <property name="border_width">2</property>
-                        <property name="homogeneous">True</property>
-                        <property name="visible">True</property>
-                        <child>
-                            <widget class="GtkHScale" id="cursor">
-                                <property name="digits">0</property>
-                                <property name="draw_value">False</property>
-                                <property name="fill_level">300.0</property>
-                                <property name="is_focus">True</property>
-                                <property name="update_policy">delayed</property>
-                                <property name="visible">True</property>
-                                <signal handler="absolute_seek" name="change-value"/>
-                            </widget>
-                        </child>
-                        <child>
-                            <widget class="GtkLabel" id="song_uri">
-                                <property name="can_focus">True</property>
-                                <property name="has_tooltip">True</property>
-                                <property name="selectable">True</property>
-                                <property name="tooltip_markup" context="yes" translatable="yes">Current song uri (you can copy to clipboard)</property>
-                                <property name="tooltip_text" context="yes" translatable="yes">Current song uri (you can copy to clipboard)</property>
-                                <property name="visible">True</property>
-                                <property name="xalign">0.0</property>
-                            </widget>
-                            <packing>
-                                <property name="position">1</property>
-                            </packing>
-                        </child>
-                    </widget>
-                    <packing>
-                        <property name="expand">False</property>
-                        <property name="padding">2</property>
-                        <property name="position">2</property>
-                    </packing>
-                </child>
-                <child>
-                    <widget class="GtkExpander" id="expander1">
+                    <widget class="GtkExpander" id="playlist_expander">
                         <property name="expanded">True</property>
                         <property name="is_focus">True</property>
                         <property name="label" context="yes" translatable="yes">Playlist</property>
@@ -277,7 +266,7 @@ Note:
                         </child>
                     </widget>
                     <packing>
-                        <property name="position">3</property>
+                        <property name="position">2</property>
                     </packing>
                 </child>
                 <child>
@@ -289,7 +278,7 @@ Note:
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="pack_type">end</property>
-                        <property name="position">4</property>
+                        <property name="position">3</property>
                     </packing>
                 </child>
             </widget>
