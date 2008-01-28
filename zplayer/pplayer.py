@@ -59,6 +59,7 @@ class PPlayer(object):
         self.player = mp.MPlayer()
         self._error_count = itertools.count()
         self.playlist = []
+        self._old_size = (4, 4)
         self._cur_song_pos = -1
         gobject.timeout_add(1666, self._tick_generator().next)
         self._running = False
@@ -253,8 +254,8 @@ class PPlayer(object):
         return False
 
     def toggle_playlist(self, expander):
-        if expander.get_expanded():
-            self.win.resize(4, 4)
+        DelayedAction(self.win.resize, *self._old_size).start(0.3)
+        self._old_size = self.win.get_size()
 
     def force_change_song(self, treeview, path, treeview_col):
         self._cur_song_pos = path[0]
