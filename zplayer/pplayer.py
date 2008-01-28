@@ -252,6 +252,10 @@ class PPlayer(object):
             self.play_next()
         return False
 
+    def toggle_playlist(self, expander):
+        if expander.get_expanded():
+            self.win.resize(4, 4)
+
     def force_change_song(self, treeview, path, treeview_col):
         self._cur_song_pos = path[0]
         self._play_selected()
