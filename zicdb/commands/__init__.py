@@ -31,3 +31,4 @@ def do_bundle():
 def do_reset():
     songs.destroy()
     print "Database cleared!"
+

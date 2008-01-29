@@ -26,9 +26,11 @@ valid_tags = (
 filters_dict = dict(
         track = ('TRCK', 'tracknumber', u'WM/Track', 'trkn'),
         title = ('Title', 'TITLE', 'TIT1', 'TIT2', '\xa9nam'),
-        artist = ('Author', 'author', 'AUTHOR', 'TPE1', '\xa9ART'),
-        album = (u'WM/AlbumTitle',),
+        artist = ('Author', 'author', 'AUTHOR', 'TPE1', '\xa9ART', '\xa9aART', 'WM/Composer', 'WM/Writer', 'TCOM', 'TOPE', 'album artist'),
+        album = (u'WM/AlbumTitle', 'TALB', 'debut album'),
         genre = ('\xa9gen', u'WM/Genre'),
+        # disc = ('disknumber',),
+        # rating = ('Rating',),
         )
 
 
