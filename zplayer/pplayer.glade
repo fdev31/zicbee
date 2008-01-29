@@ -2,7 +2,7 @@
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
     <widget class="GtkWindow" id="main_window">
-        <property name="default_height">200</property>
+        <property name="default_height">180</property>
         <property name="default_width">370</property>
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <property name="visible">True</property>

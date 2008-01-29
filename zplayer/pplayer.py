@@ -16,6 +16,7 @@ except:
 import mp
 import gobject
 import urllib
+from cgi import escape
 import random
 import traceback
 import itertools
@@ -108,7 +109,7 @@ class PPlayer(object):
             )
         self._wtree.signal_autoconnect(handlers)
         self.win.connect('destroy', gtk.main_quit)
-        self.win.set_geometry_hints(self.win, 370, 200)
+        self.win.set_geometry_hints(self.win, 370, 180)
         self.win.show()
         self._old_size = self.win.get_size()
 
@@ -274,14 +275,16 @@ class PPlayer(object):
         self.cursor.set_fill_level(m_d['length'])
         self._play_timeout.start(1)
 
+        title_artist = escape('%s\n%s'%(
+                m_d.get('title', 'Untitled'),
+                m_d.get('artist', 'Anonymous')
+                ))
+
         if m_d.get('album'):
-            meta = '<span weight="bold">%s\n%s</span> - %s'%(
-                    m_d.get('title', 'Untitled'),
-                    m_d.get('artist', 'Anonymous'), m_d.get('album'))
+            meta = '<span weight="bold">%s</span> - %s'%( title_artist, escape(m_d.get('album')) )
         else:
-            meta = '<span weight="bold">%s\n%s</span>'%(
-                    m_d.get('title', 'Untitled'),
-                    m_d.get('artist', 'Anonymous'))
+            meta = '<span weight="bold">%s</span>'%(title_artist)
+
         if 'length' in m_d:
             meta += '\n%s'%duration_tidy(m_d['length'])
 
