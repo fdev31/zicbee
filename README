@@ -1,4 +1,5 @@
 FUTURE:
+ pass __id__ of songs instead of filename (in json/http requests)
  Do chunked retrieving ?
  Modify buzhug to return dicts (~25% boost)
 
