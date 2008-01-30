@@ -167,9 +167,8 @@ class PPlayer(object):
                     continue
                 if self._running:
                     self._position = self.player.get_time_pos()
-                    sel_length = self.selected['length']
                     if self._position is None:
-                        self.cursor.set_value(sel_length)
+                        self.cursor.set_value(self.selected['length'])
                         raise Exception()
                     else:
                         self.cursor.set_value(float(self._position))
