@@ -218,23 +218,26 @@ class PPlayer(object):
                 self.list_store.clear()
                 yield
                 add = self.list_store.append
+                append = self.playlist.append
                 total = 0
                 try:
-                    while True:
-                        line = site.readline()
-                        if not line:
-                            break
-                        infos = jload(line)
-                        self.playlist.append(infos)
-                        infos = infos[1]
-                        total += infos['length']
-                        add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
+                    done = False
+                    while not done:
+                        for n in xrange(10):
+                            line = site.readline()
+                            if not line:
+                                done = True
+                                break
+                            infos = jload(line)
+                            append(infos)
+                            infos = infos[1]
+                            total += infos['length']
+                            add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
                         yield True
                 finally:
                     self._actual_infos = duration_tidy(total)
                     self._paused = False
-#                    DelayedAction(self._fill_playlist).start(0.5)
-            IterableAction(_fill_it()).start(0.01)
+            IterableAction(_fill_it()).start(0.00001)
         except:
             DEBUG()
             self._push_status('Connect to %s failed'%hostname)
