@@ -1,6 +1,8 @@
 HIGH PRIO:
  Modify buzhug to return dicts (~25% boost) or lists ? (even more ?)
  Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
+ Refactor player ! (it's a mess...)
+ Add Generic Pack/Unpack (tar, zip...) facilities and use it to create a pull command (over http)
 
 LOW PRIO:
  Manage some configuration (list of hosts etc...)
