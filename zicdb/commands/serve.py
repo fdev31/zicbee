@@ -1,13 +1,12 @@
 # vim: et ts=4 sw=4
-import itertools
+
 import os
 import sys
+import web
+from pkg_resources import resource_filename
 from time import time
 from zicdb.zshell import songs
-from zicdb.zutils import jdump, parse_line, compact_int, uncompact_int
-import web
-import urllib
-from pkg_resources import resource_filename
+from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int
 
 render = web.template.render(resource_filename('zicdb', 'web_templates'))
 web.template.Template.globals['jdump'] = jdump

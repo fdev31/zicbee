@@ -13,16 +13,15 @@ try:
 except:
     sys.exit(1)
 
-import mp
 import gobject
-import urllib
-from cgi import escape
+import itertools
+import mp
 import random
 import traceback
-import itertools
-
-from zicdb.zutils import duration_tidy, parse_line, jload
+import urllib
+from cgi import escape
 from pkg_resources import resource_filename
+from zicdb.zutils import duration_tidy, jload
 
 def DEBUG():
     traceback.print_stack()
