@@ -23,22 +23,37 @@ def test2(test_fn, nb):
     if cumul:
         test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
 
+def test3(test_fn, nb):
+    result = []
+    cumul = []
+    for n in xrange(10000):
+        cumul.append(n)
+        if n>0 and nb%100 == 0:
+            res = test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
+            result.extend(res)
+            cumul = []
+    if cumul:
+        res = test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
+        result.extend(res)
+
+    return result
+
 from simplejson import dumps as simplejson
 from cjson import encode as cjson
 from demjson import encode as demjson
 
 from itertools import count
-cnt = count()
-
-#def test(stuff):
-#    cnt.next()
-#    return repr(stuff)
 
 if __name__ == '__main__':
     modules = ('cjson', 'simplejson', 'demjson')
     from timeit import Timer
-#    modules = ('test',)
-    def _get_best(t, num, best_val, best_time):
+    def _get_best(name, mod_name, modules, num, best_val, best_time):
+        if isinstance(num, str):
+            cmd = '%s(%s)'%(name, mod_name)
+        else:
+            cmd = '%s(%s, %s)'%(name, mod_name, repr(num))
+        t = Timer(cmd,
+                'from bensh import %s, %s'%(name, ', '.join(modules)))
         tnum = t.timeit(100)
         if best_val is None:
             best_val = num
@@ -46,24 +61,41 @@ if __name__ == '__main__':
         elif best_time > tnum:
             best_time = tnum
             best_val = num
-        print "%d = %.2fs"%(num, tnum)
-        return (best_val, best_time)
+        print "%s = %.2fs"%('%%%d'%num if isinstance(num, int) else num, tnum)
+        return best_val, best_time
 
-    for mod_name in modules:
-        print mod_name
+    def _full_bensh(module_name):
+        print module_name
 
+        print "method1 (direct):"
         best_val = None
         best_time = None
-        print "test1 (one shot)"
-        t = Timer('test1(%s)'%(mod_name), 'from bensh import test1, %s'%(', '.join(modules)))
-        best_val, best_time = _get_best(t, 1, best_val, best_time)
+        _get_best('test1',
+                module_name, modules,
+                'direct',
+                best_val, best_time)
 
+#        print "method2:"
+#        best_val = None
+#        best_time = None
+#        for num in xrange(2, 1000, 50):
+#            best_val, best_time = _get_best('test2',
+#                    module_name, modules,
+#                    num,
+#                    best_val, best_time)
+#        print "the BEST VAL is for N=%s"%best_val
+
+        print "method3:"
         best_val = None
         best_time = None
         for num in xrange(2, 1000, 50):
-            t = Timer('test2(%s, %d); cnt.next()'%(mod_name, num), 'from bensh import cnt, test2, %s'%(', '.join(modules)))
-            best_val, best_time = _get_best(t, num, best_val, best_time)
-        print "BEST VAL for N=%d"%best_val
+            best_val, best_time = _get_best('test3',
+                    module_name, modules,
+                    num,
+                    best_val, best_time)
+        print "the BEST VAL is for N=%s"%best_val
 
-    print cnt.next()
+    for mod_name in modules:
+        _full_bensh(mod_name)
+
 
