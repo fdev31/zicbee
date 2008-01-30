@@ -215,18 +215,26 @@ class PPlayer(object):
             def _fill_it():
                 site = urllib.urlopen(uri)
                 self.playlist = []
+                self.list_store.clear()
                 yield
+                add = self.list_store.append
+                total = 0
                 try:
                     while True:
                         line = site.readline()
                         if not line:
                             break
-                        self.playlist.append(jload(line))
+                        infos = jload(line)
+                        self.playlist.append(infos)
+                        infos = infos[1]
+                        total += infos['length']
+                        add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
                         yield True
                 finally:
+                    self._actual_infos = duration_tidy(total)
                     self._paused = False
-                    DelayedAction(self._fill_playlist).start(0.5)
-            IterableAction(_fill_it()).start()
+#                    DelayedAction(self._fill_playlist).start(0.5)
+            IterableAction(_fill_it()).start(0.01)
         except:
             DEBUG()
             self._push_status('Connect to %s failed'%hostname)
@@ -234,7 +242,7 @@ class PPlayer(object):
             self._push_status('Connected' if len(self.playlist) else 'Empty')
         self._cur_song_pos = 0
         try:
-            DelayedAction(self._play_selected).start(0.5)
+            DelayedAction(self._play_selected).start(0.2)
         except:
             return
         else:
@@ -305,7 +313,10 @@ class PPlayer(object):
 
     def _play_selected(self):
         self._error_count = itertools.count()
-        m_d = self.selected
+        try:
+            m_d = self.selected
+        except IndexError:
+            return
         self.length_lbl.set_text( duration_tidy(0) )
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
