@@ -30,7 +30,7 @@ def DEBUG():
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
         self.fn = fn
-        self.args = args
+        self.args = list(args)
         self.kw = kw
         self.running = None
         self._delay = 1
@@ -119,7 +119,7 @@ class PPlayer(object):
         # volume
         self.volume_w = self._wtree.get_widget('volume')
         self.volume_w.set_value(100)
-        self._volume_action = DelayedAction(lambda self, v: self.player.volume(v, 1))
+        self._volume_action = DelayedAction(lambda v: self.player.volume(v, 1), 0.5)
 
         self.hostname_w = self._wtree.get_widget('hostname')
         if len(sys.argv) == 2:
@@ -302,6 +302,10 @@ class PPlayer(object):
         idx = uri.index('id=')
         self._push_status(self._actual_infos + ' over %d songs'%len(self.playlist))
         self.player.loadfile(str(uri))
+        def _set_volume():
+            vol = self.player.prop_volume
+            self.volume_w.set_value(vol/100.0)
+        DelayedAction(_set_volume).start(0.5)
         return False
 
     def toggle_playlist(self, expander):
