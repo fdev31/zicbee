@@ -3,7 +3,7 @@ FUTURE:
  Modify buzhug to return dicts (~25% boost) or lists ? (even more ?)
  
  Mettre le supprimer dans la barre de playlist
- Icone pour cacher le pattern, localhost et la barre de playlist (à droite de l'uri ?)
+ Icone pour cacher le pattern, localhost et la barre de playlist (à cote de shuffle ?)
 
  Separate artist db:
   - artist view possible
