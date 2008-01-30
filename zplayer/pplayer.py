@@ -223,7 +223,7 @@ class PPlayer(object):
                 try:
                     done = False
                     while not done:
-                        for n in xrange(10):
+                        for n in xrange(100):
                             line = site.readline()
                             if not line:
                                 done = True
@@ -237,7 +237,7 @@ class PPlayer(object):
                 finally:
                     self._actual_infos = duration_tidy(total)
                     self._paused = False
-            IterableAction(_fill_it()).start(0.00001)
+            IterableAction(_fill_it()).start(0.1)
         except:
             DEBUG()
             self._push_status('Connect to %s failed'%hostname)
