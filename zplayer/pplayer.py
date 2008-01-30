@@ -88,6 +88,7 @@ class PPlayer(object):
         self.playlist = []
         self._old_size = (4, 4)
         self._cur_song_pos = -1
+        self._info_list = ['', '']
         gobject.timeout_add(1666, self._tick_generator().next)
         self._running = False
         self._paused = False
@@ -109,7 +110,6 @@ class PPlayer(object):
 
         self.pat = self._wtree.get_widget('pattern_entry')
         self.pat.grab_focus()
-        self.length_lbl = self._wtree.get_widget('song_length')
         self.info_lbl = self._wtree.get_widget('info_label')
         # position
         self.cursor = self._wtree.get_widget('cursor')
@@ -135,7 +135,7 @@ class PPlayer(object):
             )
         self._wtree.signal_autoconnect(handlers)
         self.win.connect('destroy', gtk.main_quit)
-        self.win.set_geometry_hints(self.win, 370, 180)
+        self.win.set_geometry_hints(self.win, 386, 188)
         self.win.show()
         self._old_size = self.win.get_size()
 
@@ -167,12 +167,18 @@ class PPlayer(object):
                     continue
                 if self._running:
                     self._position = self.player.get_time_pos()
+                    sel_length = self.selected['length']
                     if self._position is None:
-                        self.cursor.set_value(self.selected['length'])
+                        self.cursor.set_value(sel_length)
                         raise Exception()
                     else:
                         self.cursor.set_value(float(self._position))
-                        self.length_lbl.set_text( duration_tidy(self._position) )
+                        cur_pos = duration_tidy(self._position)
+                        if self._info_list[1]:
+                            cut_vals = self._info_list[1].split('/')
+                            cur_pos = '%s / %s'%(cur_pos, cut_vals[-1].strip())
+                        self._info_list[1] = cur_pos
+                        self._update_infos()
             except Exception, e:
                 self._new_error()
                 DEBUG()
@@ -322,7 +328,6 @@ class PPlayer(object):
             m_d = self.selected
         except IndexError:
             return
-        self.length_lbl.set_text( duration_tidy(0) )
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
         self.cursor.set_fill_level(m_d['length'])
@@ -339,10 +344,17 @@ class PPlayer(object):
             meta = '<span weight="bold">%s</span>'%(title_artist)
 
         if 'length' in m_d:
-            meta += '\n%s'%duration_tidy(m_d['length'])
+            self._info_list[1] = duration_tidy(m_d['length'])
+        else:
+            self._info_list[1] = ''
 
-        self.info_lbl.set_markup(meta)
+        self._info_list[0] = meta
+
+        self._update_infos()
         self.list_w.set_cursor( (self._cur_song_pos, 0) )
+
+    def _update_infos(self):
+        self.info_lbl.set_markup('\n'.join(self._info_list))
 
     selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos >= 0 else None)
 
