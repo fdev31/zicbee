@@ -31,8 +31,9 @@ def do_serve():
             if artist_form.validates():
                 try:
                     artist_form.fill()
-                    song_id = uncompact_int(artist_form['id'].value)
+                    song_id = artist_form['id'].value
                     if name.startswith("get") and song_id:
+                        song_id = uncompact_int(song_id)
                         filename = songs[song_id].filename
                         web.header('Content-Type', 'application/x-audio')
                         web.header('Content-Disposition',
