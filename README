@@ -1,9 +1,23 @@
-FUTURE:
- Manage some configuration (list of hosts etc...)
+HIGH PRIO:
  Modify buzhug to return dicts (~25% boost) or lists ? (even more ?)
- 
- Mettre le supprimer dans la barre de playlist
- Icone pour cacher le pattern, localhost et la barre de playlist (à cote de shuffle ?)
+ Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
+
+LOW PRIO:
+ Manage some configuration (list of hosts etc...)
+ Add tooltip for shuffle button
+
+ Add playlist management to the view
+  - inject (local file or directory)
+  - delete
+  - drag & drop
+ Add a Delete button under playlist (should hide with playlist)
+
+ UI:
+  Review alignments ?
+  Contextual menu in list (with delete etc...)
+
+FUTURE:
+ Add tarball download to http interface
 
  Separate artist db:
   - artist view possible
@@ -11,34 +25,12 @@ FUTURE:
   much slower ?? (to test...)
 
  Tags edition ? add pure "tags" + ratings (user defined)
- Better tags management ? (check m4a files)
 
- Add tarball download to http interface
-
- Add playlist management to the view
-  - display
-  - inject (local file or directory)
-
-  Add shoutcast/jamendo/lastfm support
-
- UI:
-  Review alignments ?
-  Contextual menu in list (with delete etc...)
-  Volume Button
-
- Refactor:
-  make actions separate files (split zshell.py)
+ Add shoutcast/jamendo/lastfm support
 
 BUGS:
-  statusbar on search errors/next
-  Scrollbar freezes
-  Search is very limited (but fast) right now, add hybrid mode ?
-   Syntax proposal:
-     something
-     Artist: Björk
-     Artist: Björk or Artist: Noir
-     title: vesp and artist: björk and length > 500
-     (capitalized for case-sensitive search)
+  statusbar on search errors/next sometimes takes time to refresh
+  Scrollbar freezes (mplayer is blocking the notifier: thread ?)
 
 LINKS:
 http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen/Tutorial
