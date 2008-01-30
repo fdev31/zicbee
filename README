@@ -2,9 +2,7 @@ FUTURE:
  Manage some configuration (list of hosts etc...)
  Modify buzhug to return dicts (~25% boost) or lists ? (even more ?)
  
- Mettre le supprimer et shuffle dans la barre de playlist (ou une petite icone pour le shuffle) 
- La duree ecoulée dans le textblock d'infos ("elapsed / total")
- Progressbar sous les icones
+ Mettre le supprimer dans la barre de playlist
  Icone pour cacher le pattern, localhost et la barre de playlist (à droite de l'uri ?)
 
  Separate artist db:

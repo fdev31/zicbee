@@ -2,7 +2,8 @@
 <!DOCTYPE glade-interface SYSTEM "http://gazpacho.sicem.biz/gazpacho-0.1.dtd">
 <glade-interface>
     <widget class="GtkWindow" id="main_window">
-        <property name="default_height">188</property>
+        <property name="border_width">2</property>
+        <property name="default_height">176</property>
         <property name="default_width">386</property>
         <property name="title" context="yes" translatable="yes">ZDB Player</property>
         <property name="visible">True</property>
@@ -11,7 +12,6 @@
                 <property name="visible">True</property>
                 <child>
                     <widget class="GtkHBox" id="hbox1">
-                        <property name="border_width">2</property>
                         <property name="visible">True</property>
                         <child>
                             <widget class="GtkEntry" id="hostname">
@@ -70,6 +70,23 @@ Note:
                                 <property name="position">2</property>
                             </packing>
                         </child>
+                        <child>
+                            <widget class="GtkButton" id="button1">
+                                <property name="is_focus">True</property>
+                                <property name="visible">True</property>
+                                <signal handler="shuffle_playlist" name="clicked"/>
+                                <child>
+                                    <widget class="GtkImage" id="image3">
+                                        <property name="stock">gtk-refresh</property>
+                                        <property name="visible">True</property>
+                                    </widget>
+                                </child>
+                            </widget>
+                            <packing>
+                                <property name="expand">False</property>
+                                <property name="position">3</property>
+                            </packing>
+                        </child>
                     </widget>
                     <packing>
                         <property name="expand">False</property>
@@ -94,7 +111,6 @@ Note:
                 </child>
                 <child>
                     <widget class="GtkHBox" id="hbox2">
-                        <property name="border_width">3</property>
                         <property name="spacing">1</property>
                         <property name="visible">True</property>
                         <child>
@@ -165,28 +181,14 @@ Note:
                                     </widget>
                                 </child>
                                 <child>
-                                    <widget class="GtkHBox" id="hbox5">
+                                    <widget class="GtkHScale" id="cursor">
+                                        <property name="digits">0</property>
+                                        <property name="draw_value">False</property>
+                                        <property name="fill_level">300.0</property>
+                                        <property name="is_focus">True</property>
+                                        <property name="update_policy">delayed</property>
                                         <property name="visible">True</property>
-                                        <child>
-                                            <widget class="GtkButton" id="delete_but">
-                                                <property name="is_focus">True</property>
-                                                <property name="label">gtk-delete</property>
-                                                <property name="use_stock">True</property>
-                                                <property name="visible">True</property>
-                                                <signal handler="delete" name="clicked"/>
-                                            </widget>
-                                        </child>
-                                        <child>
-                                            <widget class="GtkButton" id="button1">
-                                                <property name="is_focus">True</property>
-                                                <property name="label" context="yes" translatable="yes">Shuffle</property>
-                                                <property name="visible">True</property>
-                                                <signal handler="shuffle_playlist" name="clicked"/>
-                                            </widget>
-                                            <packing>
-                                                <property name="position">1</property>
-                                            </packing>
-                                        </child>
+                                        <signal handler="absolute_seek" name="change-value"/>
                                     </widget>
                                     <packing>
                                         <property name="position">1</property>
@@ -211,20 +213,6 @@ Note:
                                         <property name="xalign">0.0</property>
                                         <property name="xpad">3</property>
                                     </widget>
-                                </child>
-                                <child>
-                                    <widget class="GtkHScale" id="cursor">
-                                        <property name="digits">0</property>
-                                        <property name="draw_value">False</property>
-                                        <property name="fill_level">300.0</property>
-                                        <property name="is_focus">True</property>
-                                        <property name="update_policy">delayed</property>
-                                        <property name="visible">True</property>
-                                        <signal handler="absolute_seek" name="change-value"/>
-                                    </widget>
-                                    <packing>
-                                        <property name="position">1</property>
-                                    </packing>
                                 </child>
                             </widget>
                             <packing>
@@ -274,7 +262,7 @@ Note:
                 </child>
                 <child>
                     <widget class="GtkStatusbar" id="statusbar">
-                        <property name="border_width">3</property>
+                        <property name="spacing">0</property>
                         <property name="visible">True</property>
                     </widget>
                     <packing>
