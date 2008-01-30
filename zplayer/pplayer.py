@@ -54,6 +54,33 @@ class DelayedAction(object):
             gobject.source_remove(self.running)
         self.running = None
 
+class IterableAction(object):
+    def __init__(self, it):
+        self.it = it
+        self.running = None
+        self._delay = 1
+
+    def _run(self):
+        if self.running is None:
+            return False
+        try:
+            self.it.next()
+        except StopIteration:
+            self.running = None
+        else:
+            return True
+        return False
+
+    def start(self, delay=0):
+        """ start action after 'delay' seconds. """
+        self.stop()
+        self.running = gobject.timeout_add(int(delay*1000), self._run)
+
+    def stop(self):
+        if self.running is not None:
+            gobject.source_remove(self.running)
+        self.running = None
+
 class PPlayer(object):
 
     def __init__(self):
@@ -93,7 +120,7 @@ class PPlayer(object):
         # volume
         self.volume_w = self._wtree.get_widget('volume')
         self.volume_w.set_value(100)
-        self._volume_action = DelayedAction(self.player.volume)
+        self._volume_action = DelayedAction(lambda self, v: self.player.volume(v, 1))
 
         self.hostname_w = self._wtree.get_widget('hostname')
         if len(sys.argv) == 2:
@@ -160,7 +187,7 @@ class PPlayer(object):
         value *= 100
         if not (0 <= value <= 100):
             return False
-        self._volume_action.args = (int(value), 1)
+        self._volume_action.args[0] = int(value)
         self._volume_action.start(0.1)
 
     def _seek_now(self, val):
@@ -181,18 +208,25 @@ class PPlayer(object):
         params = {'pattern':self.pat.get_text()}
         hostname = self.hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
-        print uri
 
         self._pop_status()
+        self._paused = True
         try:
-            site = urllib.urlopen(uri)
-            self.playlist = []
-            while True:
-                line = site.readline()
-                if not line:
-                    break
-                self.playlist.append(jload(line))
-            DelayedAction(self._fill_playlist).start(0.5)
+            def _fill_it():
+                site = urllib.urlopen(uri)
+                self.playlist = []
+                yield
+                try:
+                    while True:
+                        line = site.readline()
+                        if not line:
+                            break
+                        self.playlist.append(jload(line))
+                        yield True
+                finally:
+                    self._paused = False
+                    DelayedAction(self._fill_playlist).start(0.5)
+            IterableAction(_fill_it()).start()
         except:
             DEBUG()
             self._push_status('Connect to %s failed'%hostname)
@@ -200,7 +234,7 @@ class PPlayer(object):
             self._push_status('Connected' if len(self.playlist) else 'Empty')
         self._cur_song_pos = 0
         try:
-            self._play_selected()
+            DelayedAction(self._play_selected).start(0.5)
         except:
             return
         else:
@@ -257,13 +291,8 @@ class PPlayer(object):
         uri = self.selected_uri
         self._song_uri.set_text(uri)
         idx = uri.index('id=')
-        self._push_status(self._actual_infos + '| playing %s'%repr(urllib.unquote_plus(uri[idx+3:])))
+        self._push_status(self._actual_infos + ' over %d songs'%len(self.playlist))
         self.player.loadfile(str(uri))
-        try:
-            vol = self.player.prop_volume
-            self.volume_w.set_value(vol/100.0)
-        except (ValueError, TypeError):
-            self.play_next()
         return False
 
     def toggle_playlist(self, expander):
@@ -277,6 +306,7 @@ class PPlayer(object):
     def _play_selected(self):
         self._error_count = itertools.count()
         m_d = self.selected
+        self.length_lbl.set_text( duration_tidy(0) )
         self.cursor.set_value(0.0)
         self.cursor.set_range(0, m_d['length'])
         self.cursor.set_fill_level(m_d['length'])
