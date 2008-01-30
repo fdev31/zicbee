@@ -3,10 +3,9 @@ __all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy']
 import itertools
 
 # int (de)compacter [int <> small str convertors]
-# convert to base36...
+# convert to base62...
 base = 62
 chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-# can be 62, but int() only supports until 36 :(
 
 def compact_int(ival):
     result = []
@@ -21,6 +20,7 @@ def compact_int(ival):
     return "".join(reversed(result))
 
 def uncompact_int(str_val):
+    # int(x, base) not used because it's limited to base 36
     unit = 1
     result = 0
     for char in reversed(str_val):
@@ -28,7 +28,6 @@ def uncompact_int(str_val):
         unit *= base
     return result
 
-#uncompact_int = lambda x: int(x, base)
 
 
 import string
