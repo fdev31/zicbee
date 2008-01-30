@@ -169,7 +169,6 @@ class PPlayer(object):
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         self.cursor.set_value(self.selected['length'])
-                        self._new_error()
                         raise Exception()
                     else:
                         self.cursor.set_value(float(self._position))
