@@ -90,7 +90,9 @@ class index:
                         for f in fields) )
                     for r in res )
             try:
-                yield render.json(dict_list)
+                for r in dict_list:
+                    yield jdump(r)
+                    yield '\n'
                 web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
             except Exception, e:
                 web.debug(e)
