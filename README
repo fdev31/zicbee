@@ -17,7 +17,7 @@ LOW PRIO:
   Contextual menu in list (with delete etc...)
 
 FUTURE:
- Add tarball download to http interface
+ Add tarball/zip download to http interface
 
  Separate artist db:
   - artist view possible
@@ -27,6 +27,9 @@ FUTURE:
  Tags edition ? add pure "tags" + ratings (user defined)
 
  Add shoutcast/jamendo/lastfm support
+ Add player in server (integrate in player ? only web ui ?)
+ uPnP/DLNA support ?
+ daap support ?
 
 BUGS:
   statusbar on search errors/next sometimes takes time to refresh
