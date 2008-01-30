@@ -45,8 +45,12 @@ def do_serve():
                         while True:
                             data = in_fd.read(CHUNK)
                             if not data: break
-                            yield data
+                            y = (yield data)
+                            if y:
+                                web.debug()
                         return
+                except GeneratorExit:
+                    raise
                 except Exception, e:
                     web.debug(e)
 
@@ -103,10 +107,8 @@ def do_serve():
                             if (f == '__id__' or f[0] not in 'f_')) )
                         for r in res ]
                 web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
-                web.debug(dict_list[:10])
                 try:
                     yield render.json(dict_list)
-                    web.debug('rendered')
                 except Exception, e:
                     web.debug(e)
             else:
