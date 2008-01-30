@@ -75,7 +75,7 @@ class index:
             home = web.ctx['homedomain']+'/get?'
             urlencode = web.http.urlencode
             ci = compact_int
-            res = (['/get/%s?id=%s'%(r.filename.rsplit('/', 1)[-1], ci(int(r.__id__))), r]
+            res = (['/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(fields)+['filename'], pat, **vars)
                     )
         t_sel = time()
@@ -85,13 +85,13 @@ class index:
         elif format == 'plain':
             yield render.plain(web.http.url, res)
         elif format == 'json':
-            dict_list = [
+            dict_list = (
                     (r[0], dict( (f, getattr(r[1], f) )
                         for f in fields) )
-                    for r in res ]
-            web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
+                    for r in res )
             try:
                 yield render.json(dict_list)
+                web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
             except Exception, e:
                 web.debug(e)
         else:
