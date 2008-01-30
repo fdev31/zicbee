@@ -175,16 +175,23 @@ class PPlayer(object):
         self._seek_action.args = (val,)
         self._seek_action.start(0.2)
 
+    hostname = property(lambda self: self.hostname_w.get_text() if ':' in self.hostname_w.get_text() else self.hostname_w.get_text()+':9090')
+
     def validate_pattern(self, w):
         params = {'pattern':self.pat.get_text()}
-        hostname = self.hostname_w.get_text()
-        if ':' not in hostname:
-            hostname += ':9090'
+        hostname = self.hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
+        print uri
 
         self._pop_status()
         try:
-            self.playlist = jload(urllib.urlopen(uri).read())
+            site = urllib.urlopen(uri)
+            self.playlist = []
+            while True:
+                line = site.readline()
+                if not line:
+                    break
+                self.playlist.append(jload(line))
             DelayedAction(self._fill_playlist).start(0.5)
         except:
             DEBUG()
@@ -204,7 +211,7 @@ class PPlayer(object):
         self.list_store.clear()
         add = self.list_store.append
         total = 0
-        for uri, infos in self.playlist:
+        for _uri, infos in self.playlist:
             total += infos['length']
             add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
         self._actual_infos = duration_tidy(total)
@@ -291,9 +298,9 @@ class PPlayer(object):
         self.info_lbl.set_markup(meta)
         self.list_w.set_cursor( (self._cur_song_pos, 0) )
 
-    selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos != -1 else None)
+    selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos >= 0 else None)
 
-    selected_uri = property(lambda self: self.playlist[self._cur_song_pos][0] if self._cur_song_pos != -1 else None)
+    selected_uri = property(lambda self: 'http://' + self.hostname + self.playlist[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
 
 def main():
     pp = PPlayer()

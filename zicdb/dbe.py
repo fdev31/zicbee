@@ -46,6 +46,9 @@ class Database(object):
         self.search = self.db.select
         self.destroy = self.db.destroy
 
+    __getitem__ = property(lambda self: self.db.__getitem__)
+    __len__ = property(lambda self: len(self.db))
+
     def _open(self, db=None):
         if db is None:
             db = self.db

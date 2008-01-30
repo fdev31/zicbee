@@ -7,6 +7,6 @@ $def with (form, results)
     $if results:
         $for uri, res in results:
             <div class="answer">
-            <div><a href="/get/${res.filename.rsplit('/', 1)[-1]}?id=$res.filename">$res.filename</a></div>
+            <div><a href="$uri">$res.filename</a></div>
             $res.artist - $res.album - $res.title
             </div>

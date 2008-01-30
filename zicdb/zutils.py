@@ -1,5 +1,26 @@
 __all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy']
 
+# int (de)compacter [int <> small str convertors]
+# convert to base36...
+base = 36
+chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+# can be 62, but int() only supports until 36 :(
+
+def compact_int(ival):
+    result = []
+    rest = ival
+    b = base
+    while True:
+        int_part, rest = divmod(rest, b)
+        result.append(chars[rest])
+        if not int_part:
+            break
+        rest = int_part
+    return "".join(reversed(result))
+
+uncompact_int = lambda x: int(x, 36)
+
+
 import string
 
 #
