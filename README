@@ -30,8 +30,9 @@ FUTURE:
 
  Add shoutcast/jamendo/lastfm support
  Add player in server (integrate in player ? only web ui ?)
- uPnP/DLNA support ?
- daap support ?
+ MTP support ? https://launchpad.net/pylibmtp
+ uPnP/DLNA support ? https://coherence.beebits.net/
+ daap support ? http://jerakeen.org/code/PythonDaap/
 
 BUGS:
   statusbar on search errors/next sometimes takes time to refresh
