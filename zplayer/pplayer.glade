@@ -250,6 +250,7 @@ Note:
                                         <property name="reorderable">True</property>
                                         <property name="search_column">0</property>
                                         <property name="visible">True</property>
+                                        <property name="fixed-height-mode">True</property>
                                         <signal handler="force_change_song" name="row-activated"/>
                                     </widget>
                                 </child>

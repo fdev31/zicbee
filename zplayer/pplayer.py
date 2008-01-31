@@ -105,6 +105,8 @@ class PPlayer(object):
         self.list_w.set_model(self.list_store)
         for i, name in enumerate(('Artist', 'Album', 'Title')):
             col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i)
+            col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+            col.set_fixed_width(120)
             col.set_resizable(True)
             self.list_w.append_column( col )
 
