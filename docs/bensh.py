@@ -16,7 +16,7 @@ def test2(test_fn, nb):
     cumul = []
     for n in xrange(10000):
         cumul.append(n)
-        if n>0 and nb%100 == 0:
+        if n>0 and n%nb == 0:
             test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
             print len(cumul)
             cumul = []
@@ -28,7 +28,7 @@ def test3(test_fn, nb):
     cumul = []
     for n in xrange(10000):
         cumul.append(n)
-        if n>0 and nb%100 == 0:
+        if n>0 and n%nb == 0:
             res = test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
             result.extend(res)
             cumul = []
@@ -43,7 +43,7 @@ def test4(test_fn, nb):
     cumul = []
     for n in xrange(10000):
         cumul.append(n)
-        if n>0 and nb%100 == 0:
+        if n>0 and n%nb == 0:
             res = test_fn(['A%d'%n for n in cumul])
             result.extend(res)
             cumul = []
@@ -99,11 +99,12 @@ if __name__ == '__main__':
 #                    num,
 #                    best_val, best_time)
 #        print "the BEST VAL is for N=%s"%best_val
+        chunk_sizes = (1, 2, 10, 50, 100)
 
         print "method3:"
         best_val = None
         best_time = None
-        for num in (2, 10, 100):
+        for num in chunk_sizes:
             best_val, best_time = _get_best('test3',
                     module_name, modules,
                     num,
@@ -113,7 +114,7 @@ if __name__ == '__main__':
         print "method4:"
         best_val = None
         best_time = None
-        for num in (2, 10, 100):
+        for num in chunk_sizes:
             best_val, best_time = _get_best('test3',
                     module_name, modules,
                     num,
@@ -122,5 +123,6 @@ if __name__ == '__main__':
 
     for mod_name in modules:
         _full_bensh(mod_name)
+        print "-*-"
 
 
