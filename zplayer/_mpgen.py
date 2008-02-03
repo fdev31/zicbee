@@ -133,7 +133,7 @@ while True:
             raise TypeError('%(name)s takes %(argc)d arguments (%%d given)'%%len(args))
         return self.command('%(name)s', *args)\n\n'''%dict(
             doc = doc,
-            condition = ('len(args) != %d'%len(args)) if len(args) == minargc else ('not (%d <= len(arg) <= %d)'%(minargc, len(args))),
+            condition = ('len(args) != %d'%len(args)) if len(args) == minargc else ('not (%d <= len(args) <= %d)'%(minargc, len(args))),
             argc = len(args),
             name = cmd_name,
             )
@@ -156,7 +156,7 @@ for line in _slave_txt:
         doc = %(doc)s)
         """%dict(
                 name = name,
-                doc = ('"""%s"""'%('\n'.join(comments))) if any(comments) else 'None',
+                doc = ("'''%s'''"%('\n'.join(comments))) if any(comments) else 'None',
                 setter = 'None' if ro else 'lambda self, val: self.set_property("%s", val)'%name
                 )
 

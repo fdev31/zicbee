@@ -93,7 +93,7 @@ class MPlayer(object):
     Write the current position into the EDL file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('edl_mark takes 0 arguments (%d given)'%len(args))
         return self.command('edl_mark', *args)
 
@@ -113,7 +113,7 @@ class MPlayer(object):
     Add <value> to the current playback speed.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('speed_incr takes 1 arguments (%d given)'%len(args))
         return self.command('speed_incr', *args)
 
@@ -122,7 +122,7 @@ class MPlayer(object):
     Multiply the current speed by <value>.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('speed_mult takes 1 arguments (%d given)'%len(args))
         return self.command('speed_mult', *args)
 
@@ -131,7 +131,7 @@ class MPlayer(object):
     Set the speed to <value>.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('speed_set takes 1 arguments (%d given)'%len(args))
         return self.command('speed_set', *args)
 
@@ -150,7 +150,7 @@ class MPlayer(object):
     Pause/unpause the playback.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('pause takes 0 arguments (%d given)'%len(args))
         return self.command('pause', *args)
 
@@ -159,16 +159,9 @@ class MPlayer(object):
     Play one frame, then pause again.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('frame_step takes 0 arguments (%d given)'%len(args))
         return self.command('frame_step', *args)
-
-    def grab_frames(self, *args):
-        """ grab_frames()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('grab_frames takes 0 arguments (%d given)'%len(args))
-        return self.command('grab_frames', *args)
 
     def pt_step(self, *args):
         """ pt_step <value> [force]
@@ -196,9 +189,19 @@ class MPlayer(object):
     When more than one source is available it selects the next/previous one.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('alt_src_step takes 1 arguments (%d given)'%len(args))
         return self.command('alt_src_step', *args)
+
+    def loop(self, *args):
+        """ loop <value> [abs]
+    Adjust/set how many times the movie should be looped. -1 means no loop,
+    and 0 forever.
+
+        """
+        if not (1 <= len(args) <= 2):
+            raise TypeError('loop takes 2 arguments (%d given)'%len(args))
+        return self.command('loop', *args)
 
     def sub_delay(self, *args):
         """ sub_delay <value> [abs]
@@ -259,12 +262,19 @@ class MPlayer(object):
             raise TypeError('volume takes 2 arguments (%d given)'%len(args))
         return self.command('volume', *args)
 
+    def balance(self, *args):
+        """ balance(float, integer=None)
+        """
+        if not (1 <= len(args) <= 2):
+            raise TypeError('balance takes 2 arguments (%d given)'%len(args))
+        return self.command('balance', *args)
+
     def use_master(self, *args):
         """ use_master
     Switch volume control between master and PCM.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('use_master takes 0 arguments (%d given)'%len(args))
         return self.command('use_master', *args)
 
@@ -357,7 +367,7 @@ class MPlayer(object):
     Loads subtitles from <subtitle_file>.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('sub_load takes 1 arguments (%d given)'%len(args))
         return self.command('sub_load', *args)
 
@@ -404,16 +414,26 @@ class MPlayer(object):
     fixed while watching the movie.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('sub_log takes 0 arguments (%d given)'%len(args))
         return self.command('sub_log', *args)
+
+    def sub_scale(self, *args):
+        """ sub_scale <value> [abs]
+    Adjust the subtitle size by +/- <value> or set it to <value> when [abs]
+    is nonzero.
+
+        """
+        if not (1 <= len(args) <= 2):
+            raise TypeError('sub_scale takes 2 arguments (%d given)'%len(args))
+        return self.command('sub_scale', *args)
 
     def get_percent_pos(self, *args):
         """ get_percent_pos
     Print out the current position in the file, as integer percentage [0-100).
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_percent_pos takes 0 arguments (%d given)'%len(args))
         return self.command('get_percent_pos', *args)
 
@@ -422,7 +442,7 @@ class MPlayer(object):
     Print out the current position in the file in seconds, as float.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_time_pos takes 0 arguments (%d given)'%len(args))
         return self.command('get_time_pos', *args)
 
@@ -431,7 +451,7 @@ class MPlayer(object):
     Print out the length of the current file in seconds.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_time_length takes 0 arguments (%d given)'%len(args))
         return self.command('get_time_length', *args)
 
@@ -440,7 +460,7 @@ class MPlayer(object):
     Print out the name of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_file_name takes 0 arguments (%d given)'%len(args))
         return self.command('get_file_name', *args)
 
@@ -449,7 +469,7 @@ class MPlayer(object):
     Print out the video codec name of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_video_codec takes 0 arguments (%d given)'%len(args))
         return self.command('get_video_codec', *args)
 
@@ -458,7 +478,7 @@ class MPlayer(object):
     Print out the video bitrate of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_video_bitrate takes 0 arguments (%d given)'%len(args))
         return self.command('get_video_bitrate', *args)
 
@@ -467,7 +487,7 @@ class MPlayer(object):
     Print out the video resolution of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_video_resolution takes 0 arguments (%d given)'%len(args))
         return self.command('get_video_resolution', *args)
 
@@ -476,7 +496,7 @@ class MPlayer(object):
     Print out the audio codec name of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_audio_codec takes 0 arguments (%d given)'%len(args))
         return self.command('get_audio_codec', *args)
 
@@ -485,7 +505,7 @@ class MPlayer(object):
     Print out the audio bitrate of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_audio_bitrate takes 0 arguments (%d given)'%len(args))
         return self.command('get_audio_bitrate', *args)
 
@@ -494,7 +514,7 @@ class MPlayer(object):
     Print out the audio frequency and number of channels of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_audio_samples takes 0 arguments (%d given)'%len(args))
         return self.command('get_audio_samples', *args)
 
@@ -503,7 +523,7 @@ class MPlayer(object):
     Print out the 'Title' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_title takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_title', *args)
 
@@ -512,7 +532,7 @@ class MPlayer(object):
     Print out the 'Artist' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_artist takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_artist', *args)
 
@@ -521,7 +541,7 @@ class MPlayer(object):
     Print out the 'Album' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_album takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_album', *args)
 
@@ -530,7 +550,7 @@ class MPlayer(object):
     Print out the 'Year' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_year takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_year', *args)
 
@@ -539,7 +559,7 @@ class MPlayer(object):
     Print out the 'Comment' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_comment takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_comment', *args)
 
@@ -548,7 +568,7 @@ class MPlayer(object):
     Print out the 'Track Number' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_track takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_track', *args)
 
@@ -557,13 +577,13 @@ class MPlayer(object):
     Print out the 'Genre' metadata of the current file.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_meta_genre takes 0 arguments (%d given)'%len(args))
         return self.command('get_meta_genre', *args)
 
     def switch_audio(self, *args):
         """ switch_audio [value] (currently MPEG*, AVI, Matroska and streams handled by libavformat)
-    Switch to the audio track with the id [value]. Cycle through the
+    Switch to the audio track with the ID [value]. Cycle through the
     available tracks if [value] is omitted or negative.
 
         """
@@ -571,12 +591,21 @@ class MPlayer(object):
             raise TypeError('switch_audio takes 1 arguments (%d given)'%len(args))
         return self.command('switch_audio', *args)
 
+    def tv_start_scan(self, *args):
+        """ tv_start_scan
+    Start automatic TV channel scanning.
+
+        """
+        if len(args) != 0:
+            raise TypeError('tv_start_scan takes 0 arguments (%d given)'%len(args))
+        return self.command('tv_start_scan', *args)
+
     def tv_step_channel(self, *args):
         """ tv_step_channel <channel>
     Select next/previous TV channel.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('tv_step_channel takes 1 arguments (%d given)'%len(args))
         return self.command('tv_step_channel', *args)
 
@@ -585,7 +614,7 @@ class MPlayer(object):
     Change TV norm.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('tv_step_norm takes 0 arguments (%d given)'%len(args))
         return self.command('tv_step_norm', *args)
 
@@ -594,7 +623,7 @@ class MPlayer(object):
     Change channel list.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('tv_step_chanlist takes 0 arguments (%d given)'%len(args))
         return self.command('tv_step_chanlist', *args)
 
@@ -603,7 +632,7 @@ class MPlayer(object):
     Set the current TV channel.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('tv_set_channel takes 1 arguments (%d given)'%len(args))
         return self.command('tv_set_channel', *args)
 
@@ -612,7 +641,7 @@ class MPlayer(object):
     Set the current TV channel to the last one.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('tv_last_channel takes 0 arguments (%d given)'%len(args))
         return self.command('tv_last_channel', *args)
 
@@ -621,16 +650,25 @@ class MPlayer(object):
     Set the TV tuner frequency.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('tv_set_freq takes 1 arguments (%d given)'%len(args))
         return self.command('tv_set_freq', *args)
+
+    def tv_step_freq(self, *args):
+        """ tv_step_freq <frequency offset in MHz>
+    Set the TV tuner frequency relative to current value.
+
+        """
+        if len(args) != 1:
+            raise TypeError('tv_step_freq takes 1 arguments (%d given)'%len(args))
+        return self.command('tv_step_freq', *args)
 
     def tv_set_norm(self, *args):
         """ tv_set_norm <norm>
     Set the TV tuner norm (PAL, SECAM, NTSC, ...).
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('tv_set_norm takes 1 arguments (%d given)'%len(args))
         return self.command('tv_set_norm', *args)
 
@@ -684,7 +722,7 @@ class MPlayer(object):
     Set DVB channel.
 
         """
-        if not (2 <= len(args) <= 2):
+        if len(args) != 2:
             raise TypeError('dvb_set_channel takes 2 arguments (%d given)'%len(args))
         return self.command('dvb_set_channel', *args)
 
@@ -720,7 +758,7 @@ class MPlayer(object):
     def file_filter(self, *args):
         """ file_filter(integer)
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('file_filter takes 1 arguments (%d given)'%len(args))
         return self.command('file_filter', *args)
 
@@ -803,7 +841,7 @@ class MPlayer(object):
     are through the video output driver.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('run takes 1 arguments (%d given)'%len(args))
         return self.command('run', *args)
 
@@ -827,65 +865,40 @@ class MPlayer(object):
                 right/down and negative values move the rectangle left/up.
 
         """
-        if not (2 <= len(args) <= 2):
+        if len(args) != 2:
             raise TypeError('change_rectangle takes 2 arguments (%d given)'%len(args))
         return self.command('change_rectangle', *args)
 
-    def gui_loadfile(self, *args):
-        """ gui_loadfile()
+    def teletext_add_dec(self, *args):
+        """ teletext_add_dec(string)
         """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_loadfile takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_loadfile', *args)
+        if len(args) != 1:
+            raise TypeError('teletext_add_dec takes 1 arguments (%d given)'%len(args))
+        return self.command('teletext_add_dec', *args)
 
-    def gui_loadsubtitle(self, *args):
-        """ gui_loadsubtitle()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_loadsubtitle takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_loadsubtitle', *args)
+    def teletext_go_link(self, *args):
+        """ teletext_go_link <1-6>
+    Follow given link on current teletext page.
 
-    def gui_about(self, *args):
-        """ gui_about()
         """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_about takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_about', *args)
+        if len(args) != 1:
+            raise TypeError('teletext_go_link takes 1 arguments (%d given)'%len(args))
+        return self.command('teletext_go_link', *args)
 
-    def gui_play(self, *args):
-        """ gui_play()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_play takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_play', *args)
+    def dvdnav(self, *args):
+        """ dvdnav <button>
+    Press the given dvdnav button.
+        1 up
+        2 down
+        3 left
+        4 right
+        5 menu
+        6 select
 
-    def gui_stop(self, *args):
-        """ gui_stop()
         """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_stop takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_stop', *args)
-
-    def gui_playlist(self, *args):
-        """ gui_playlist()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_playlist takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_playlist', *args)
-
-    def gui_preferences(self, *args):
-        """ gui_preferences()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_preferences takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_preferences', *args)
-
-    def gui_skinbrowser(self, *args):
-        """ gui_skinbrowser()
-        """
-        if not (0 <= len(args) <= 0):
-            raise TypeError('gui_skinbrowser takes 0 arguments (%d given)'%len(args))
-        return self.command('gui_skinbrowser', *args)
+        if len(args) != 1:
+            raise TypeError('dvdnav takes 1 arguments (%d given)'%len(args))
+        return self.command('dvdnav', *args)
 
     def menu(self, *args):
         """ menu <command>
@@ -897,7 +910,7 @@ class MPlayer(object):
         hide   Hide the OSD menu.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('menu takes 1 arguments (%d given)'%len(args))
         return self.command('menu', *args)
 
@@ -915,7 +928,7 @@ class MPlayer(object):
     Displays help text, currently empty.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('help takes 0 arguments (%d given)'%len(args))
         return self.command('help', *args)
 
@@ -924,7 +937,7 @@ class MPlayer(object):
     Exits from OSD menu console. Unlike 'quit', does not quit MPlayer.
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('exit takes 0 arguments (%d given)'%len(args))
         return self.command('exit', *args)
 
@@ -943,7 +956,7 @@ class MPlayer(object):
     Print out fullscreen status (1 == fullscreened, 0 == windowed).
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_vo_fullscreen takes 0 arguments (%d given)'%len(args))
         return self.command('get_vo_fullscreen', *args)
 
@@ -952,7 +965,7 @@ class MPlayer(object):
     Print out subtitle visibility (1 == on, 0 == off).
 
         """
-        if not (0 <= len(args) <= 0):
+        if len(args) != 0:
             raise TypeError('get_sub_visibility takes 0 arguments (%d given)'%len(args))
         return self.command('get_sub_visibility', *args)
 
@@ -961,7 +974,7 @@ class MPlayer(object):
     Inject <value> key code event into MPlayer.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('key_down_event takes 1 arguments (%d given)'%len(args))
         return self.command('key_down_event', *args)
 
@@ -970,7 +983,7 @@ class MPlayer(object):
     Set a property.
 
         """
-        if not (2 <= len(args) <= 2):
+        if len(args) != 2:
             raise TypeError('set_property takes 2 arguments (%d given)'%len(args))
         return self.command('set_property', *args)
 
@@ -979,9 +992,20 @@ class MPlayer(object):
     Print out the current value of a property.
 
         """
-        if not (1 <= len(args) <= 1):
+        if len(args) != 1:
             raise TypeError('get_property takes 1 arguments (%d given)'%len(args))
         return self.command('get_property', *args)
+
+    def step_property(self, *args):
+        """ step_property <property> [value] [direction]
+    Change a property by value, or increase by a default if value is
+    not given or zero. The direction is reversed if direction is less
+    than zero.
+
+        """
+        if not (1 <= len(args) <= 3):
+            raise TypeError('step_property takes 3 arguments (%d given)'%len(args))
+        return self.command('step_property', *args)
 
     def seek_chapter(self, *args):
         """ seek_chapter <value> [type]
@@ -1000,408 +1024,352 @@ class MPlayer(object):
     This command doesn't move the mouse!
 
         """
-        if not (2 <= len(args) <= 2):
+        if len(args) != 2:
             raise TypeError('set_mouse_pos takes 2 arguments (%d given)'%len(args))
         return self.command('set_mouse_pos', *args)
 
-    # properties
+#Properties
 
     prop_osdlevel = property(
         lambda self: self.get_property("osdlevel"),
         lambda self, val: self.set_property("osdlevel", val),
         doc = '''as -osdlevel''')
-            # properties
-
+        
     prop_speed = property(
         lambda self: self.get_property("speed"),
         lambda self, val: self.set_property("speed", val),
         doc = '''as -speed''')
-            # properties
-
+        
     prop_loop = property(
         lambda self: self.get_property("loop"),
         lambda self, val: self.set_property("loop", val),
         doc = '''as -loop''')
-            # properties
-
+        
     prop_filename = property(
         lambda self: self.get_property("filename"),
         None,
         doc = '''file playing wo path''')
-            # properties
-
+        
     prop_path = property(
         lambda self: self.get_property("path"),
         None,
         doc = '''file playing''')
-            # properties
-
+        
     prop_demuxer = property(
         lambda self: self.get_property("demuxer"),
         None,
         doc = '''demuxer used''')
-            # properties
-
+        
     prop_stream_pos = property(
         lambda self: self.get_property("stream_pos"),
         lambda self, val: self.set_property("stream_pos", val),
         doc = '''position in stream''')
-            # properties
-
+        
     prop_stream_start = property(
         lambda self: self.get_property("stream_start"),
         None,
         doc = '''start pos in stream''')
-            # properties
-
+        
     prop_stream_end = property(
         lambda self: self.get_property("stream_end"),
         None,
         doc = '''end pos in stream''')
-            # properties
-
+        
     prop_stream_length = property(
         lambda self: self.get_property("stream_length"),
         None,
         doc = '''(end - start)''')
-            # properties
-
+        
     prop_chapter = property(
         lambda self: self.get_property("chapter"),
         lambda self, val: self.set_property("chapter", val),
         doc = '''select chapter''')
-            # properties
-
+        
     prop_angle = property(
         lambda self: self.get_property("angle"),
         lambda self, val: self.set_property("angle", val),
         doc = '''select angle''')
-            # properties
-
+        
     prop_length = property(
         lambda self: self.get_property("length"),
         None,
         doc = '''length of file in seconds''')
-            # properties
-
+        
     prop_percent_pos = property(
         lambda self: self.get_property("percent_pos"),
         lambda self, val: self.set_property("percent_pos", val),
         doc = '''position in percent''')
-            # properties
-
+        
     prop_time_pos = property(
         lambda self: self.get_property("time_pos"),
         lambda self, val: self.set_property("time_pos", val),
         doc = '''position in seconds''')
-            # properties
-
+        
     prop_metadata = property(
         lambda self: self.get_property("metadata"),
         None,
         doc = '''list of metadata key/value''')
-            # properties
-
+        
     prop_volume = property(
         lambda self: self.get_property("volume"),
         lambda self, val: self.set_property("volume", val),
         doc = '''change volume''')
-            # properties
-
+        
     prop_balance = property(
         lambda self: self.get_property("balance"),
         lambda self, val: self.set_property("balance", val),
         doc = '''change audio balance''')
-            # properties
-
+        
     prop_mute = property(
         lambda self: self.get_property("mute"),
         lambda self, val: self.set_property("mute", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_audio_delay = property(
         lambda self: self.get_property("audio_delay"),
         lambda self, val: self.set_property("audio_delay", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_audio_format = property(
         lambda self: self.get_property("audio_format"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_audio_codec = property(
         lambda self: self.get_property("audio_codec"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_audio_bitrate = property(
         lambda self: self.get_property("audio_bitrate"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_samplerate = property(
         lambda self: self.get_property("samplerate"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_channels = property(
         lambda self: self.get_property("channels"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_switch_audio = property(
         lambda self: self.get_property("switch_audio"),
         lambda self, val: self.set_property("switch_audio", val),
         doc = '''select audio stream''')
-            # properties
-
+        
+    prop_switch_angle = property(
+        lambda self: self.get_property("switch_angle"),
+        lambda self, val: self.set_property("switch_angle", val),
+        doc = '''select DVD angle''')
+        
+    prop_switch_title = property(
+        lambda self: self.get_property("switch_title"),
+        lambda self, val: self.set_property("switch_title", val),
+        doc = '''select DVD title''')
+        
     prop_fullscreen = property(
         lambda self: self.get_property("fullscreen"),
         lambda self, val: self.set_property("fullscreen", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_deinterlace = property(
         lambda self: self.get_property("deinterlace"),
         lambda self, val: self.set_property("deinterlace", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_ontop = property(
         lambda self: self.get_property("ontop"),
         lambda self, val: self.set_property("ontop", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_rootwin = property(
         lambda self: self.get_property("rootwin"),
         lambda self, val: self.set_property("rootwin", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_border = property(
         lambda self: self.get_property("border"),
         lambda self, val: self.set_property("border", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_framedropping = property(
         lambda self: self.get_property("framedropping"),
         lambda self, val: self.set_property("framedropping", val),
         doc = '''1 = soft, 2 = hard''')
-            # properties
-
+        
     prop_gamma = property(
         lambda self: self.get_property("gamma"),
         lambda self, val: self.set_property("gamma", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_brightness = property(
         lambda self: self.get_property("brightness"),
         lambda self, val: self.set_property("brightness", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_contrast = property(
         lambda self: self.get_property("contrast"),
         lambda self, val: self.set_property("contrast", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_saturation = property(
         lambda self: self.get_property("saturation"),
         lambda self, val: self.set_property("saturation", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_hue = property(
         lambda self: self.get_property("hue"),
         lambda self, val: self.set_property("hue", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_panscan = property(
         lambda self: self.get_property("panscan"),
         lambda self, val: self.set_property("panscan", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_vsync = property(
         lambda self: self.get_property("vsync"),
         lambda self, val: self.set_property("vsync", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_video_format = property(
         lambda self: self.get_property("video_format"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_video_codec = property(
         lambda self: self.get_property("video_codec"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_video_bitrate = property(
         lambda self: self.get_property("video_bitrate"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_width = property(
         lambda self: self.get_property("width"),
         None,
         doc = '''"display" width''')
-            # properties
-
+        
     prop_height = property(
         lambda self: self.get_property("height"),
         None,
         doc = '''"display" height''')
-            # properties
-
+        
     prop_fps = property(
         lambda self: self.get_property("fps"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_aspect = property(
         lambda self: self.get_property("aspect"),
         None,
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_switch_video = property(
         lambda self: self.get_property("switch_video"),
         lambda self, val: self.set_property("switch_video", val),
         doc = '''select video stream''')
-            # properties
-
+        
     prop_switch_program = property(
         lambda self: self.get_property("switch_program"),
         lambda self, val: self.set_property("switch_program", val),
         doc = '''(see TAB default keybind)''')
-            # properties
-
+        
     prop_sub = property(
         lambda self: self.get_property("sub"),
         lambda self, val: self.set_property("sub", val),
         doc = '''select subtitle stream''')
-            # properties
-
+        
     prop_sub_source = property(
         lambda self: self.get_property("sub_source"),
         lambda self, val: self.set_property("sub_source", val),
         doc = '''select subtitle source''')
-            # properties
-
+        
     prop_sub_file = property(
         lambda self: self.get_property("sub_file"),
         lambda self, val: self.set_property("sub_file", val),
         doc = '''select file subtitles''')
-            # properties
-
+        
     prop_sub_vob = property(
         lambda self: self.get_property("sub_vob"),
         lambda self, val: self.set_property("sub_vob", val),
         doc = '''select vobsubs''')
-            # properties
-
+        
     prop_sub_demux = property(
         lambda self: self.get_property("sub_demux"),
         lambda self, val: self.set_property("sub_demux", val),
         doc = '''select subs from demux''')
-            # properties
-
+        
     prop_sub_delay = property(
         lambda self: self.get_property("sub_delay"),
         lambda self, val: self.set_property("sub_delay", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_sub_pos = property(
         lambda self: self.get_property("sub_pos"),
         lambda self, val: self.set_property("sub_pos", val),
         doc = '''subtitle position''')
-            # properties
-
+        
     prop_sub_alignment = property(
         lambda self: self.get_property("sub_alignment"),
         lambda self, val: self.set_property("sub_alignment", val),
         doc = '''subtitle alignment''')
-            # properties
-
+        
     prop_sub_visibility = property(
         lambda self: self.get_property("sub_visibility"),
         lambda self, val: self.set_property("sub_visibility", val),
         doc = '''show/hide subtitles''')
-            # properties
-
+        
     prop_sub_forced_only = property(
         lambda self: self.get_property("sub_forced_only"),
         lambda self, val: self.set_property("sub_forced_only", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_sub_scale = property(
         lambda self: self.get_property("sub_scale"),
         lambda self, val: self.set_property("sub_scale", val),
         doc = '''subtitles font size''')
-            # properties
-
+        
     prop_tv_brightness = property(
         lambda self: self.get_property("tv_brightness"),
         lambda self, val: self.set_property("tv_brightness", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_tv_contrast = property(
         lambda self: self.get_property("tv_contrast"),
         lambda self, val: self.set_property("tv_contrast", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_tv_saturation = property(
         lambda self: self.get_property("tv_saturation"),
         lambda self, val: self.set_property("tv_saturation", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_tv_hue = property(
         lambda self: self.get_property("tv_hue"),
         lambda self, val: self.set_property("tv_hue", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_teletext_page = property(
         lambda self: self.get_property("teletext_page"),
         lambda self, val: self.set_property("teletext_page", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_teletext_subpage = property(
         lambda self: self.get_property("teletext_subpage"),
         lambda self, val: self.set_property("teletext_subpage", val),
-        doc = '''''')
-            # properties
-
+        doc = None)
+        
     prop_teletext_mode = property(
         lambda self: self.get_property("teletext_mode"),
         lambda self, val: self.set_property("teletext_mode", val),
         doc = '''0 - off, 1 - on''')
-            # properties
-
+        
     prop_teletext_format = property(
         lambda self: self.get_property("teletext_format"),
         lambda self, val: self.set_property("teletext_format", val),
