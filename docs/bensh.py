@@ -38,6 +38,21 @@ def test3(test_fn, nb):
 
     return result
 
+def test4(test_fn, nb):
+    result = []
+    cumul = []
+    for n in xrange(10000):
+        cumul.append(n)
+        if n>0 and nb%100 == 0:
+            res = test_fn(['A%d'%n for n in cumul])
+            result.extend(res)
+            cumul = []
+    if cumul:
+        res = test_fn('[%s]'%(','.join('A%d'%n for n in cumul)))
+        result.extend(res)
+
+    return result
+
 from simplejson import dumps as simplejson
 from cjson import encode as cjson
 from demjson import encode as demjson
@@ -88,7 +103,17 @@ if __name__ == '__main__':
         print "method3:"
         best_val = None
         best_time = None
-        for num in xrange(2, 1000, 50):
+        for num in (2, 10, 100):
+            best_val, best_time = _get_best('test3',
+                    module_name, modules,
+                    num,
+                    best_val, best_time)
+        print "the BEST VAL is for N=%s"%best_val
+
+        print "method4:"
+        best_val = None
+        best_time = None
+        for num in (2, 10, 100):
             best_val, best_time = _get_best('test3',
                     module_name, modules,
                     num,
