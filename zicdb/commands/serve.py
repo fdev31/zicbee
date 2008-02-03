@@ -64,7 +64,7 @@ class index:
             format = 'html'
 
         pattern = artist_form['pattern'].value
-        fields = tuple('title length artist album __id__'.split())
+        fields = tuple('artist album title length __id__'.split())
 
         if pattern is None:
             res = None
@@ -84,12 +84,16 @@ class index:
         elif format == 'plain':
             yield render.plain(web.http.url, res)
         elif format == 'json':
-            dict_list = (
-                    (r[0], dict( (f, getattr(r[1], f) )
-                        for f in fields) )
+            # try to pre-compute useful things
+            field_decoder = zip( fields,
+                    (songs.db.f_decode[songs.db.fields[fname]] for fname in fields)
+                    )
+
+            infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
                     for r in res )
             try:
-                for r in dict_list:
+                # TODO: optimise this (jdump by 100 size blocks)
+                for r in infos_iterator:
                     yield jdump(r)
                     yield '\n'
                 web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))

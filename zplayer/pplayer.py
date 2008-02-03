@@ -100,10 +100,10 @@ class PPlayer(object):
 
         self.win = self._wtree.get_widget('main_window')
         self.list_w = self._wtree.get_widget('songlist_tv')
-        self.list_store = gtk.ListStore(str, str, str, str, int, str)
+        self.list_store = gtk.ListStore(str, str, str, str, int, int)
         self.list_w.set_model(self.list_store)
         for i, name in enumerate(('Artist', 'Album', 'Title')):
-            col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i)
+            col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i+1)
             col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             col.set_fixed_width(120)
             col.set_resizable(True)
@@ -230,13 +230,12 @@ class PPlayer(object):
                             if not line:
                                 done = True
                                 break
-                            infos = jload(line)
-                            (track_uri, infos) = infos
-                            total += infos['length']
-                            add((infos.get('artist', ''), infos.get('album', ''),\
-                                    infos.get('title', ''), infos.get('length', ''), infos.get('__id__', ''),\
-                                    track_uri))
+                            r = jload(line)
+                            total += r[4]
+                            add(r)
                         yield True
+                except Exception, e:
+                    DEBUG()
                 finally:
                     self._actual_infos = duration_tidy(total)
                     self._paused = False
@@ -352,16 +351,16 @@ class PPlayer(object):
         if self._cur_song_pos >= 0 and len(self.list_store) > 0:
             l = self.list_store[self._cur_song_pos]
             return dict(album = l[1],
-                        length = float(l[3]),
-                        title = l[2],
-                        __id__ = l[4],
-                        artist = l[0])
+                        length = float(l[4]),
+                        title = l[3],
+                        __id__ = l[5],
+                        artist = l[1])
         else:
             return None
 
     selected = property(_get_selected)
 
-    selected_uri = property(lambda self: 'http://' + self.hostname + self.list_store[self._cur_song_pos][5] if self._cur_song_pos >= 0 else None)
+    selected_uri = property(lambda self: 'http://' + self.hostname + self.list_store[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
 
 def main():
     pp = PPlayer()
