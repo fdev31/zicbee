@@ -55,7 +55,6 @@ class MPlayer(object):
         ''' Very basic interface
         Sends command 'name' to process, with given args
         '''
-        print "---cmd---", name
         ret = self._readlines(0.01) # Flush
         if DEBUG:
             print "FLUSH LINES:", ret
