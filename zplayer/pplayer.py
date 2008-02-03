@@ -85,7 +85,6 @@ class PPlayer(object):
     def __init__(self):
         self.player = mp.MPlayer()
         self._error_count = itertools.count()
-        #self.playlist = []
         self._old_size = (4, 4)
         self._cur_song_pos = -1
         self._info_list = ['', '']
@@ -255,23 +254,12 @@ class PPlayer(object):
         else:
             self._running = True
 
-    def _fill_playlist(self):
-        # Fills the gtk list store
-        self.list_store.clear()
-        add = self.list_store.append
-        total = 0
-        for _uri, infos in self.playlist:
-            total += infos['length']
-            add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
-        self._actual_infos = duration_tidy(total)
-
     def shuffle_playlist(self, w):
         print "Mixing", len(self.list_store), "elements."
         pos_list = range(len(self.list_store))
         random.shuffle(pos_list)
         self.list_store.reorder(pos_list)
         self._cur_song_pos = -1
-        #self._fill_playlist()
 
     def toggle_pause(self, w):
         self.player.pause()
@@ -371,7 +359,6 @@ class PPlayer(object):
         else:
             return None
 
-    #selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos >= 0 else None)
     selected = property(_get_selected)
 
     selected_uri = property(lambda self: 'http://' + self.hostname + self.list_store[self._cur_song_pos][5] if self._cur_song_pos >= 0 else None)
