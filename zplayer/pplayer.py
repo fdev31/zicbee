@@ -85,7 +85,7 @@ class PPlayer(object):
     def __init__(self):
         self.player = mp.MPlayer()
         self._error_count = itertools.count()
-        self.playlist = []
+        #self.playlist = []
         self._old_size = (4, 4)
         self._cur_song_pos = -1
         self._info_list = ['', '']
@@ -101,7 +101,7 @@ class PPlayer(object):
 
         self.win = self._wtree.get_widget('main_window')
         self.list_w = self._wtree.get_widget('songlist_tv')
-        self.list_store = gtk.ListStore(str, str, str)
+        self.list_store = gtk.ListStore(str, str, str, str, int, str)
         self.list_w.set_model(self.list_store)
         for i, name in enumerate(('Artist', 'Album', 'Title')):
             col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i)
@@ -162,7 +162,7 @@ class PPlayer(object):
                 if self._paused \
                 or self._play_timeout.running \
                 or self._volume_action.running \
-                or not self.playlist \
+                or not self.list_store \
                 or self._seek_action.running:
                     # Do nothing if paused or actualy changing the song
                     yield True
@@ -219,11 +219,9 @@ class PPlayer(object):
         try:
             def _fill_it():
                 site = urllib.urlopen(uri)
-                self.playlist = []
                 self.list_store.clear()
                 yield
                 add = self.list_store.append
-                append = self.playlist.append
                 total = 0
                 try:
                     done = False
@@ -234,10 +232,11 @@ class PPlayer(object):
                                 done = True
                                 break
                             infos = jload(line)
-                            append(infos)
-                            infos = infos[1]
+                            (track_uri, infos) = infos
                             total += infos['length']
-                            add((infos.get('artist', ''), infos.get('album', ''), infos.get('title', '')))
+                            add((infos.get('artist', ''), infos.get('album', ''),\
+                                    infos.get('title', ''), infos.get('length', ''), infos.get('__id__', ''),\
+                                    track_uri))
                         yield True
                 finally:
                     self._actual_infos = duration_tidy(total)
@@ -247,10 +246,10 @@ class PPlayer(object):
             DEBUG()
             self._push_status('Connect to %s failed'%hostname)
         else:
-            self._push_status('Connected' if len(self.playlist) else 'Empty')
+            self._push_status('Connected' if len(self.list_store) else 'Empty')
         self._cur_song_pos = 0
         try:
-            DelayedAction(self._play_selected).start(0.2)
+            DelayedAction(self._play_selected).start(0.4)
         except:
             return
         else:
@@ -267,10 +266,12 @@ class PPlayer(object):
         self._actual_infos = duration_tidy(total)
 
     def shuffle_playlist(self, w):
-        print "Mixing", len(self.playlist), "elements."
-        random.shuffle(self.playlist)
+        print "Mixing", len(self.list_store), "elements."
+        pos_list = range(len(self.list_store))
+        random.shuffle(pos_list)
+        self.list_store.reorder(pos_list)
         self._cur_song_pos = -1
-        self._fill_playlist()
+        #self._fill_playlist()
 
     def toggle_pause(self, w):
         self.player.pause()
@@ -291,7 +292,7 @@ class PPlayer(object):
                 self._push_status('seeking...')
 
     def play_next(self, *args):
-        if self._cur_song_pos > len(self.playlist):
+        if self._cur_song_pos > len(self.list_store):
             return
         self._cur_song_pos += 1
         try:
@@ -307,11 +308,12 @@ class PPlayer(object):
         uri = self.selected_uri
         self._song_uri.set_text(uri)
         idx = uri.index('id=')
-        self._push_status(self._actual_infos + ' over %d songs'%len(self.playlist))
+        self._push_status(self._actual_infos + ' over %d songs'%len(self.list_store))
         self.player.loadfile(str(uri))
         def _set_volume():
             vol = self.player.prop_volume
-            self.volume_w.set_value(vol/100.0)
+            if vol:
+                self.volume_w.set_value(float(vol)/100.0)
         DelayedAction(_set_volume).start(0.5)
         return False
 
@@ -329,9 +331,15 @@ class PPlayer(object):
             m_d = self.selected
         except IndexError:
             return
+
         self.cursor.set_value(0.0)
-        self.cursor.set_range(0, m_d['length'])
-        self.cursor.set_fill_level(m_d['length'])
+        if 'length' in m_d:
+            length = m_d['length']
+            self.cursor.set_range(0, length)
+            self.cursor.set_fill_level(length)
+            self._info_list[1] = duration_tidy(length)
+        else:
+            self._info_list[1] = ''
         self._play_timeout.start(1)
 
         title_artist = escape('%s\n%s'%(
@@ -344,11 +352,6 @@ class PPlayer(object):
         else:
             meta = '<span weight="bold">%s</span>'%(title_artist)
 
-        if 'length' in m_d:
-            self._info_list[1] = duration_tidy(m_d['length'])
-        else:
-            self._info_list[1] = ''
-
         self._info_list[0] = meta
 
         self._update_infos()
@@ -357,9 +360,21 @@ class PPlayer(object):
     def _update_infos(self):
         self.info_lbl.set_markup('\n'.join(self._info_list))
 
-    selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos >= 0 else None)
+    def _get_selected(self):
+        if self._cur_song_pos >= 0 and len(self.list_store) > 0:
+            l = self.list_store[self._cur_song_pos]
+            return dict(album = l[1],
+                        length = float(l[3]),
+                        title = l[2],
+                        __id__ = l[4],
+                        artist = l[0])
+        else:
+            return None
 
-    selected_uri = property(lambda self: 'http://' + self.hostname + self.playlist[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
+    #selected = property(lambda self: self.playlist[self._cur_song_pos][1] if self._cur_song_pos >= 0 else None)
+    selected = property(_get_selected)
+
+    selected_uri = property(lambda self: 'http://' + self.hostname + self.list_store[self._cur_song_pos][5] if self._cur_song_pos >= 0 else None)
 
 def main():
     pp = PPlayer()
