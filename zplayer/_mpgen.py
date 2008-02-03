@@ -8,6 +8,8 @@ import os
 import select
 import subprocess
 
+DEBUG='DEBUG' in os.environ
+
 class MPlayer(object):
     ''' A class to access a slave mplayer process
     you may also want to use command(name, args*) directly
@@ -53,11 +55,16 @@ class MPlayer(object):
         ''' Very basic interface
         Sends command 'name' to process, with given args
         '''
+        print "---cmd---", name
         ret = self._readlines(0.01) # Flush
+        if DEBUG:
+            print "FLUSH LINES:", ret
         cmd = '%s%s%s\\n'%(name,
                 ' ' if args else '',
                 ' '.join(repr(a) for a in args)
                 )
+        if DEBUG:
+            print "CMD:", cmd
         try:
             self._mplayer.stdin.write(cmd)
         except IOError:
@@ -67,6 +74,8 @@ class MPlayer(object):
         if name == 'quit':
             return
         ret = self._readlines()
+        if DEBUG:
+            print "READ LINES:", ret
 
         if not ret:
             return None
