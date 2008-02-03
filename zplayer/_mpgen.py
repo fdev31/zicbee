@@ -125,14 +125,15 @@ while True:
     cmd_name = args.pop(0)
     arguments = ', '.join(args_pprint(a) for a in args)
     doc = _find_doc_for(cmd_name) or '%s(%s)'%(cmd_name, arguments)
+    minargc = len([a for a in args if a[0] != '['])
     func_str = '''    def %(name)s(self, *args):
         """ %(doc)s
         """
-        if not (%(minargc)d <= len(args) <= %(argc)d):
+        if %(condition)s:
             raise TypeError('%(name)s takes %(argc)d arguments (%%d given)'%%len(args))
         return self.command('%(name)s', *args)\n\n'''%dict(
             doc = doc,
-            minargc = len([a for a in args if a[0] != '[']),
+            condition = ('len(args) != %d'%len(args)) if len(args) == minargc else ('not (%d <= len(arg) <= %d)'%(minargc, len(args))),
             argc = len(args),
             name = cmd_name,
             )
@@ -144,18 +145,18 @@ for line in _slave_txt:
     if _not_properties:
         if line.startswith('==================='):
             _not_properties = False
+            class_code += '#Properties\n'
     else:
         if line[0].isalpha():
             if name is not None and name[-1] != '*':
-                class_code += """    # properties
-
+                class_code += """
     prop_%(name)s = property(
         lambda self: self.get_property("%(name)s"),
         %(setter)s,
-        doc = '''%(doc)s''')
+        doc = %(doc)s)
         """%dict(
                 name = name,
-                doc = '\n'.join(comments),
+                doc = ('"""%s"""'%('\n'.join(comments))) if any(comments) else 'None',
                 setter = 'None' if ro else 'lambda self, val: self.set_property("%s", val)'%name
                 )
 
