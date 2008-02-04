@@ -22,7 +22,7 @@ def startup(action='help'):
         params = action.split('::')
         action = params.pop(0)
         kparams = dict()
-        for p in params:
+        for p in list(params):
             if '=' in p:
                 k, v = p.split('=', 1)
                 kparams[k] = v
