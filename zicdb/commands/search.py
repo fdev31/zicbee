@@ -1,9 +1,9 @@
 from time import time
 from zicdb.dbe import valid_tags
 from zicdb.zshell import args, songs
-from zicdb.zutils import duration_tidy, parse_line
+from zicdb.zutils import duration_tidy, parse_line, jload
 
-def do_search(out=None):
+def do_search(out=None, host=None):
     duration = 0
     start_t = time()
 
@@ -11,7 +11,9 @@ def do_search(out=None):
     fields.remove('filename')
     fields = tuple(fields)
 
-    if out == 'm3u':
+    if callable(out):
+        song_output = out
+    elif out == 'm3u':
         def song_output(song):
             print song.filename
     elif out == 'null':
@@ -22,10 +24,23 @@ def do_search(out=None):
             print txt.decode('utf8').encode('utf8')
 
     num = 0
-    pat, kw = parse_line(' '.join(args))
-    for num, res in enumerate(songs.search(None, pat, **kw)):
-        song_output(res)
-        duration += res.length
+    if host is not None:
+        import urllib
+        params = {'pattern':' '.join(args)}
+        uri = 'http://%s/?json=1&%s'%(host, urllib.urlencode(params))
+        site = urllib.urlopen(uri)
+        while True:
+            line = site.readline()
+            if not line:
+                break
+            r = jload(line)
+            song_output(r)
+            duration += r[4]
+    else:
+        pat, kw = parse_line(' '.join(args))
+        for num, res in enumerate(songs.search(None, pat, **kw)):
+            song_output(res)
+            duration += res.length
 
     print "# %d results in %s for a total of %s!"%(
             num,

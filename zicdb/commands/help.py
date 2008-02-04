@@ -24,12 +24,24 @@ bundle <filename>
 scan <directory|archive> [directory|archive...]
     Scan directories/archive for files and add them to the database
 
+get[::host][::out] <match command>
+  host:
+    the host to connect to
+
+  out:
+    the output directory
+
+  Example:
+    %% %(prog)s get::out=/tmp/download::host=gunter.biz artist: black
+    %% %(prog)s get::gunter.biz artist: black
+
 search[::out] <match command>
 
   out:
     specifies the output format (for now: m3u or null or default)
 
-  Match commands composition:
+--- Match commands composition: ---
+
     field: value [ [or|and] field2: value2 ]...
     for length, value may be preceded by "<" or ">"
     if field name starts with a capital, the search is case-sensitive
