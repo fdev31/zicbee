@@ -36,6 +36,7 @@ def do_search(out=None, host=None):
             r = jload(line)
             song_output(r)
             duration += r[4]
+            num += 1
     else:
         pat, kw = parse_line(' '.join(args))
         for num, res in enumerate(songs.search(None, pat, **kw)):
