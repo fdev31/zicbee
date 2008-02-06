@@ -47,17 +47,12 @@ class Downloader(object):
 
 
         def manage_ui():
-            write_out = sys.stdout.write
-            counter = cycle(xrange(1, self._nb_dl + 1))
-            to_write = None
-
             from weakref import WeakKeyDictionary
             percent_memory = WeakKeyDictionary()
+            write_out = sys.stdout.write
+            to_write = None
 
             yield
-
-            activity_str = None
-            old_nb_downloads = -1
 
             while True:
                 dl, to_write, nb_downloads = (yield)
@@ -105,7 +100,7 @@ class Downloader(object):
 
         while True:
             _download()
-            if len(downloaders) <= 0:
+            if downloaders == []:
                 break
 
         t = time.time() - _download_infos['start_ts']
