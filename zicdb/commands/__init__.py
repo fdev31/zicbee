@@ -9,6 +9,7 @@ from .search import do_search
 from .scan import do_scan
 from .help import do_help
 from .serve import do_serve
+from .get import do_get
 
 def do_list():
     for i in os.listdir(DB_DIR):
@@ -30,15 +31,4 @@ def do_reset():
     songs.destroy()
     print "Database cleared!"
 
-def do_get(host='localhost', out='/tmp'):
-    if ':' not in host:
-        host += ':9090'
-
-    def _p(*args):
-        args = args[0]
-        filename = os.path.join(out, ' - '.join(a for a in args[1:4] if a) + args[0].split('?', 1)[0][-4:])
-        uri = 'http://%s%s'%(host, args[0])
-        print "wget -O %s %s"%(repr(str(filename)), repr(uri))
-
-    do_search(out=_p, host=host)
 
