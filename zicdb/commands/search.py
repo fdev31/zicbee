@@ -1,4 +1,5 @@
 from time import time
+import sys
 from zicdb.dbe import valid_tags
 from zicdb.zshell import args, songs
 from zicdb.zutils import duration_tidy, parse_line, jload
@@ -43,10 +44,10 @@ def do_search(out=None, host=None):
             song_output(res)
             duration += res.length
 
-    print "# %d results in %s for a total of %s!"%(
+    sys.stderr.write("# %d results in %s for a total of %s!\n"%(
             num,
             duration_tidy(time()-start_t),
             duration_tidy(duration)
-            )
+            ))
 
 

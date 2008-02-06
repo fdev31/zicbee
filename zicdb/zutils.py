@@ -1,6 +1,8 @@
 __all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy']
 
 import itertools
+import string
+import sys
 
 # int (de)compacter [int <> small str convertors]
 # convert to base62...
@@ -28,9 +30,7 @@ def uncompact_int(str_val):
         unit *= base
     return result
 
-
-
-import string
+################################################################################
 
 #
 # Try to get the most performant json backend
@@ -55,7 +55,8 @@ except ImportError:
         from demjson import encode as jdump, decode as jload
         json_engine = 'demjson'
 
-print "using %s."%json_engine
+sys.stderr.write("using %s.\n"%json_engine)
+################################################################################
 
 _plur = lambda val: 's' if val > 1 else ''
 
@@ -80,6 +81,7 @@ def duration_tidy(orig):
         return '%d:%d.%ds.'%(hours, minutes, seconds)
     return '%d.%02ds.'%(minutes, seconds)
 
+################################################################################
 # line parser
 
 properties = []
