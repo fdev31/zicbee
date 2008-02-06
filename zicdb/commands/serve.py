@@ -107,5 +107,9 @@ class index:
 def do_serve():
     # UGLY !
     sys.argv = ['zicdb', '9090']
-    web.run(urls, globals())
+    try:
+        web.run(urls, globals())
+    except:
+        print 'kill', os.getpid()
+        print os.kill(os.getpid())
 
