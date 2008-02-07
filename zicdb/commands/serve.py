@@ -103,7 +103,6 @@ class index:
             yield render.index(artist_form, res)
 
 
-
 def do_serve():
     # UGLY !
     sys.argv = ['zicdb', '9090']

@@ -1,4 +1,5 @@
 HIGH PRIO:
+ Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
  Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
  Refactor player ! (it's a mess...)
  Add Generic Pack/Unpack (tar, zip...) facilities and use it to create a pull command (over http)

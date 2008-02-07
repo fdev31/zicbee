@@ -18,7 +18,7 @@ def DownloadGenerator(uri):
 
     site = urllib.urlopen(uri)
     out_file = file(filename, 'w')
-    BUF_SZ = 2**14
+    BUF_SZ = 2**16
     total_size = int(site.info().getheader('Content-Length'))
     actual_size = 0
     progress_p = 0
