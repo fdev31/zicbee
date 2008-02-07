@@ -13,9 +13,9 @@ from zicdb.zutils import duration_tidy
 
 def DownloadGenerator(uri):
     uri, filename = uri
+
     if os.path.exists(filename):
         return
-    yield
 
     site = urllib.urlopen(uri)
     out_file = file(filename, 'w')
@@ -47,9 +47,6 @@ class Downloader(object):
     def run(self, uri_list):
         downloaders = [] # Generators to handle
         in_queue = [] # List of "TODO" uris
-
-        ui_manager = UIManager()
-        ui_manager.next() # Start the UI manager
 
         _download_infos = dict(count=0, start_ts = time.time())
         percent_memory = WeakKeyDictionary()
@@ -86,6 +83,7 @@ class Downloader(object):
                 # iterate
                 _download()
 
+        # Terminate the job
         while True:
             _download()
             if downloaders == []:
