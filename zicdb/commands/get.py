@@ -4,8 +4,7 @@ import os
 import sys
 import time
 import urllib
-from itertools import cycle, chain
-from subprocess import Popen, PIPE
+from itertools import chain
 from weakref import WeakKeyDictionary
 
 from .search import do_search
