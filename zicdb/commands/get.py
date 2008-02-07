@@ -42,6 +42,7 @@ def DownloadGenerator(uri):
 class Downloader(object):
     def __init__(self, nb_dl=2):
         self._nb_dl = nb_dl
+        self._last_display = time.time()
 
     def run(self, uri_list):
         downloaders = [] # Generators to handle
@@ -63,11 +64,15 @@ class Downloader(object):
                         percent_memory[dl] = ret
 
             # Display things
-            sumup = ', '.join('%3d%%'%(val if int(val)<=100 else 0)
-                    for val in percent_memory.itervalues())
-            write_out(' [ %s ] %d               \r'%(sumup, _download_infos['count']))
+            t = time.time()
 
-            sys.stdout.flush()
+            if self._last_display + 0.1 < t:
+                self._last_display = t
+                sumup = ', '.join('%3d%%'%(val if int(val)<=100 else 0)
+                        for val in percent_memory.itervalues())
+                write_out(' [ %s ] %d               \r'%(sumup, _download_infos['count']))
+
+                sys.stdout.flush()
 
         for uri in chain( uri_list, in_queue ):
             if len(downloaders) < self._nb_dl:
@@ -83,10 +88,8 @@ class Downloader(object):
                 _download()
 
         # Terminate the job
-        while True:
+        while downloaders:
             _download()
-            if downloaders == []:
-                break
 
         t = time.time() - _download_infos['start_ts']
         write_out("                         \nGot %d files in %s. Enjoy ;)\n"%(
