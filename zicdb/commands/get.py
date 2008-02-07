@@ -6,6 +6,8 @@ import time
 import urllib
 from itertools import cycle, chain
 from subprocess import Popen, PIPE
+from weakref import WeakKeyDictionary
+
 from .search import do_search
 from zicdb.zutils import duration_tidy
 
@@ -37,6 +39,7 @@ def DownloadGenerator(uri):
         else:
             yield '.'
 
+
 class Downloader(object):
     def __init__(self, nb_dl=2):
         self._nb_dl = nb_dl
@@ -45,45 +48,30 @@ class Downloader(object):
         downloaders = [] # Generators to handle
         in_queue = [] # List of "TODO" uris
 
-
-        def manage_ui():
-            from weakref import WeakKeyDictionary
-            percent_memory = WeakKeyDictionary()
-            write_out = sys.stdout.write
-            to_write = None
-
-            yield
-
-            while True:
-                dl, to_write, nb_downloads = (yield)
-                if to_write is None:
-                    break
-
-                if isinstance(to_write, int):
-                    percent_memory[dl] = to_write
-
-                sumup = ', '.join('%3d%%'%(val if int(val)<=100 else 0)
-                        for val in percent_memory.itervalues())
-                write_out(' [ %s ] %d               \r'%(sumup, nb_downloads))
-
-                sys.stdout.flush()
-
-
-        ui_manager = manage_ui()
+        ui_manager = UIManager()
         ui_manager.next() # Start the UI manager
 
         _download_infos = dict(count=0, start_ts = time.time())
+        percent_memory = WeakKeyDictionary()
+        write_out = sys.stdout.write
 
         def _download():
             for dl in downloaders:
                 try:
                     ret = dl.next()
                 except StopIteration:
-                    ret = '-'
                     downloaders.remove(dl)
                     _download_infos['count'] += 1
+                else:
+                    if isinstance(ret, int):
+                        percent_memory[dl] = ret
 
-                ui_manager.send((dl, ret, _download_infos['count']))
+            # Display things
+            sumup = ', '.join('%3d%%'%(val if int(val)<=100 else 0)
+                    for val in percent_memory.itervalues())
+            write_out(' [ %s ] %d               \r'%(sumup, _download_infos['count']))
+
+            sys.stdout.flush()
 
         for uri in chain( uri_list, in_queue ):
             if len(downloaders) < self._nb_dl:
@@ -104,19 +92,23 @@ class Downloader(object):
                 break
 
         t = time.time() - _download_infos['start_ts']
-        print "                         \nGot %d files in %s. Enjoy ;)"%(
-                _download_infos['count'], duration_tidy(t))
+        write_out("                         \nGot %d files in %s. Enjoy ;)\n"%(
+                _download_infos['count'], duration_tidy(t)))
+
 
 def do_get(host='localhost', out='/tmp'):
     if ':' not in host:
         host += ':9090'
 
     uri_list = []
-    def _p(*args):
+    def _append_uri_filename(*args):
         args = args[0]
-        filename = os.path.join(out, ' - '.join(a for a in args[1:4] if a) + args[0].split('?', 1)[0][-4:])
+        filename = os.path.join(out,
+                ' - '.join(a for a in args[1:4] if a)
+                + args[0].split('?', 1)[0][-4:])
         uri = 'http://%s%s'%(host, args[0])
         uri_list.append((uri, filename))
-    do_search(out=_p, host=host)
+
+    do_search(out=_append_uri_filename, host=host)
     Downloader().run(uri_list)
 
