@@ -41,3 +41,11 @@ BUGS:
 LINKS:
 http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen/Tutorial
 http://www.pygtk.org/docs/pygtk/index.html
+
+interesting modules:
+http://pypi.python.org/pypi/validate/0.3.1 (configuration)
+http://pypi.python.org/pypi/magicdate/0.1.2 (date lookup)
+http://code.google.com/p/pyffmpeg/ (decoding backend)
+http://svn.xiph.org/trunk/ao-python/ (playback)
+ http://www.vorbis.com/files/1.0.1/unix/py/pyao-0.81.tar.gz
+http://www.luga.de/pytone/ (player)
