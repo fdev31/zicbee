@@ -213,7 +213,6 @@ class PPlayer(object):
         hostname = self.hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
 
-        self._pop_status()
         self._paused = True
         try:
             def _fill_it():
@@ -233,17 +232,21 @@ class PPlayer(object):
                             r = jload(line)
                             total += r[4]
                             add(r)
+                        self._pop_status()
+                        self._actual_infos = duration_tidy(total)
+                        self._push_status('%d songs | %s'%(len(self.list_store), self._actual_infos))
                         yield True
                 except Exception, e:
                     DEBUG()
                 finally:
-                    self._actual_infos = duration_tidy(total)
                     self._paused = False
-            IterableAction(_fill_it()).start(0.1)
+            IterableAction(_fill_it()).start(0.05)
         except:
             DEBUG()
+            self._pop_status()
             self._push_status('Connect to %s failed'%hostname)
         else:
+            self._pop_status()
             self._push_status('Connected' if len(self.list_store) else 'Empty')
         self._cur_song_pos = 0
         try:
