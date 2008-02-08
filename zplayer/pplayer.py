@@ -15,6 +15,7 @@ except:
 
 import gobject
 import itertools
+#import mmap
 import mp
 import random
 import traceback
@@ -195,8 +196,7 @@ class PPlayer(object):
         self._volume_action.start(0.1)
 
     def _seek_now(self, val):
-        if 0 <= val <= 100:
-            self.player.seek('%d'%val, 1)
+        self.player.seek(int(val), 2)
 
     def absolute_seek(self, w, type, val):
         #     |      Seek to some place in the movie.
@@ -299,7 +299,18 @@ class PPlayer(object):
         self._song_uri.set_text(uri)
         idx = uri.index('id=')
         self._push_status(self._actual_infos + ' over %d songs'%len(self.list_store))
-        self.player.loadfile(str(uri))
+        BUF_SZ = 2**14
+        site = urllib.urlopen(uri)
+#        total_size = int(site.info().getheader('Content-Length'))
+        fd = file('/tmp/zsong', 'w')
+#        map_file = mmap.mmap(fd, total_size)
+        while True:
+            data = site.read(BUF_SZ)
+            if not data:
+                break
+            fd.write(data)
+        fd.close()
+        self.player.loadfile('/tmp/zsong')
         def _set_volume():
             vol = self.player.prop_volume
             if vol:
