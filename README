@@ -49,3 +49,4 @@ http://code.google.com/p/pyffmpeg/ (decoding backend)
 http://svn.xiph.org/trunk/ao-python/ (playback)
  http://www.vorbis.com/files/1.0.1/unix/py/pyao-0.81.tar.gz
 http://www.luga.de/pytone/ (player)
+http://pyglet.org/ (gfx + sound backend)
