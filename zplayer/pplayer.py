@@ -14,15 +14,15 @@ except:
     sys.exit(1)
 
 import gobject
+gobject.threads_init()
 import itertools
-#import mmap
-import mp
 import random
 import traceback
 import urllib
 from cgi import escape
 from pkg_resources import resource_filename
 from zicdb.zutils import duration_tidy, jload
+from .soundplayer import SoundPlayer
 
 def DEBUG():
     traceback.print_stack()
@@ -84,12 +84,12 @@ class IterableAction(object):
 class PPlayer(object):
 
     def __init__(self):
-        self.player = mp.MPlayer()
+        self.player = SoundPlayer('alsa')
         self._error_count = itertools.count()
         self._old_size = (4, 4)
         self._cur_song_pos = -1
         self._info_list = ['', '']
-        gobject.timeout_add(1666, self._tick_generator().next)
+        gobject.timeout_add(500, self._tick_generator().next)
         self._running = False
         self._paused = False
         self._position = None
@@ -165,9 +165,11 @@ class PPlayer(object):
                 or not self.list_store \
                 or self._seek_action.running:
                     # Do nothing if paused or actualy changing the song
-                    yield True
                     continue
                 if self._running:
+                    if not self.player.running:
+                        raise Exception()
+
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         self.cursor.set_value(self.selected['length'])
@@ -182,7 +184,6 @@ class PPlayer(object):
                         self._update_infos()
             except Exception, e:
                 self._new_error()
-                DEBUG()
             else:
                 self._error_count = itertools.count()
             finally:

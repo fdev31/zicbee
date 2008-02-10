@@ -5,7 +5,7 @@ except ImportError:
 	from ez_setup import use_setuptools
 	use_setuptools()
 from setuptools import setup, find_packages
-VERSION='0.3'
+VERSION='0.4'
 
 setup (
         name='zicdb',
@@ -34,6 +34,9 @@ setup (
             'buzhug>=0.9',
             'mutagen>=1.13',
             'web.py>=0.22',
+            'web.py>=0.22',
+            'pyglet>=1.0',
+            'pyao>=0.82',
             'python-cjson>=1.0.5',
 #            'simplejson>=1.7.3',
 #            'demjson>=1.1',
