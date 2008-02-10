@@ -25,8 +25,10 @@ class SoundFeeder(Thread):
             if self.paused:
                 sleep(0.2)
             else:
-                data = self._src._get_audio_data(65000)
-                if data is None:
+                try:
+                    data = self._src._get_audio_data(65000)
+                    assert data is not None
+                except:
                     self.stop()
                 else:
                     self._fn(data.data)
