@@ -1,11 +1,31 @@
 #!/usr/bin/env python
+import sys
 try:
 	import setuptools
 except ImportError:
 	from ez_setup import use_setuptools
 	use_setuptools()
 from setuptools import setup, find_packages
+
 VERSION='0.4'
+
+if 'install' in sys.argv:
+    print """Warning:
+You will need to install some parts manually:
+
+pyglet      http://pyglet.org/
+            (with avbin support: http://code.google.com/p/avbin/)
+
+pyao        http://ekyo.nerim.net/software/pyogg/index.html
+
+If it can't build, try to comment the line:
+            'python-cjson>=1.0.5',
+
+and uncomment one of those (recommended alternative: simplejson):
+#            'simplejson>=1.7.3',
+#            'demjson>=1.1',
+
+Good luck !"""
 
 setup (
         name='zicdb',
@@ -44,7 +64,6 @@ setup (
 
         dependency_links = [
             'eggs',
-#            'http://box.gnux.info/fab/eggs'
             ],
         )
 
