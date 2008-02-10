@@ -1,4 +1,6 @@
 HIGH PRIO:
+ m4a & more wma support on player (regression since not using mplayer anymore)
+
  Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
  Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
  Refactor player ! (it's a mess...)
@@ -33,10 +35,6 @@ FUTURE:
  MTP support ? https://launchpad.net/pylibmtp
  uPnP/DLNA support ? https://coherence.beebits.net/
  daap support ? http://jerakeen.org/code/PythonDaap/
-
-BUGS:
-  statusbar on search errors/next sometimes takes time to refresh
-  Scrollbar freezes (mplayer is blocking the notifier: thread ?)
 
 LINKS:
 http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen/Tutorial
