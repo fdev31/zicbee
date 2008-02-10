@@ -1,4 +1,8 @@
+BUGS:
+ Should adapt samplerate to current song (time is bended now)
+
 HIGH PRIO:
+ Rip avbin.py to something similar in aspect but much simpler
  m4a & more wma support on player (regression since not using mplayer anymore)
 
  Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
