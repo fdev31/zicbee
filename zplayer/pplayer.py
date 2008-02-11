@@ -75,6 +75,7 @@ class IterableAction(object):
         """ start action after 'delay' seconds. """
         self.stop()
         self.running = gobject.timeout_add(int(delay*1000), self._run)
+        return self
 
     def stop(self):
         if self.running is not None:
@@ -96,6 +97,7 @@ class PPlayer(object):
         self._actual_infos = ''
         self._play_timeout = DelayedAction(self._play_now)
         self._seek_action = DelayedAction(self._seek_now)
+        self._song_dl = None
 
         self._wtree = gtk.glade.XML(resource_filename('zplayer', 'pplayer.glade'))
 
@@ -294,29 +296,37 @@ class PPlayer(object):
             if not self._play_timeout.running:
                 self._push_status('seeking...')
 
+    def _download_zic(self, uri):
+        site = urllib.urlopen(uri)
+        fd = file('/tmp/zsong', 'w')
+        fd.write(site.read(2**19)) # read 500k
+        try:
+            yield
+            BUF_SZ = 2**14
+            while True:
+                data = site.read(BUF_SZ)
+                if not data:
+                    break
+                fd.write(data)
+                yield
+            fd.close()
+            print "Downloaded %s"%uri
+        finally:
+            self._song_dl = None
+
     def _play_now(self):
         self._pop_status()
         uri = self.selected_uri
         self._song_uri.set_text(uri)
         idx = uri.index('id=')
         self._push_status(self._actual_infos + ' over %d songs'%len(self.list_store))
-        BUF_SZ = 2**14
-        site = urllib.urlopen(uri)
-#        total_size = int(site.info().getheader('Content-Length'))
-        fd = file('/tmp/zsong', 'w')
-#        map_file = mmap.mmap(fd, total_size)
-        while True:
-            data = site.read(BUF_SZ)
-            if not data:
-                break
-            fd.write(data)
-        fd.close()
+        if self._song_dl:
+            self._song_dl.stop()
+
+        it = self._download_zic(self.selected_uri)
+        it.next() # Start the download
+        self._song_dl = IterableAction(it).start(0.01)
         self.player.loadfile('/tmp/zsong')
-        def _set_volume():
-            vol = self.player.prop_volume
-            if vol:
-                self.volume_w.set_value(float(vol)/100.0)
-        DelayedAction(_set_volume).start(0.5)
         return False
 
     def toggle_playlist(self, expander):
