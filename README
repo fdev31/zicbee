@@ -1,17 +1,18 @@
 BUGS:
  Should adapt samplerate to current song (time is bended now)
+ Pause is messed-up if NEXT or PREV is pressed (should un-pause)
+ Check why m4a & wma support is variable (ffmpeg options ?)
 
 HIGH PRIO:
+ Manage some configuration (list of hosts etc...)
+ Manage status icon/menu http://www.pygtk.org/docs/pygtk/class-gtkstatusicon.html
  Rip avbin.py to something similar in aspect but much simpler
- m4a & more wma support on player (regression since not using mplayer anymore)
 
- Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
  Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
  Refactor player ! (it's a mess...)
- Add Generic Pack/Unpack (tar, zip...) facilities and use it to create a pull command (over http)
+ Add Generic Pack/Unpack (tar, zip...) facilities and enhance get cmd
 
 LOW PRIO:
- Manage some configuration (list of hosts etc...)
  Add tooltip for shuffle button
 
  Add playlist management to the view
@@ -19,6 +20,7 @@ LOW PRIO:
   - delete
   - drag & drop
  Add a Delete button under playlist (should hide with playlist)
+ Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
 
  UI:
   Review alignments ?

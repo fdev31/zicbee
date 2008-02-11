@@ -64,6 +64,7 @@ setup (
 
         dependency_links = [
             'eggs',
+            'http://code.google.com/p/pyglet/downloads/list',
             ],
         )
 
