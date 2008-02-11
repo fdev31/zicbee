@@ -120,6 +120,7 @@ class PPlayer(object):
         self.pat = self._wtree.get_widget('pattern_entry')
         self.pat.grab_focus()
         self.info_lbl = self._wtree.get_widget('info_label')
+        self.time_lbl = self._wtree.get_widget('elapsed_time')
         # position
         self.cursor = self._wtree.get_widget('cursor')
         self.cursor.set_range(0, 100)
@@ -184,11 +185,7 @@ class PPlayer(object):
                     else:
                         self.cursor.set_value(float(self._position))
                         cur_pos = duration_tidy(self._position)
-                        if self._info_list[1]:
-                            cut_vals = self._info_list[1].split('/')
-                            cur_pos = '%s / %s'%(cur_pos, cut_vals[-1].strip())
-                        self._info_list[1] = cur_pos
-                        self._update_infos()
+                        self.time_lbl.set_text(cur_pos)
             except Exception, e:
                 self._new_error()
             else:
