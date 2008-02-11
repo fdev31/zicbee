@@ -124,6 +124,8 @@ class PPlayer(object):
         # position
         self.cursor = self._wtree.get_widget('cursor')
         self.cursor.set_range(0, 100)
+        self.cursor.set_show_fill_level(True)
+        self.cursor.set_fill_level(0)
         # uri
         self._song_uri = self._wtree.get_widget('song_uri')
         # volume
@@ -300,19 +302,30 @@ class PPlayer(object):
             if not self._play_timeout.running:
                 self._push_status('seeking...')
 
-    def _play_now(self):
+    def _play_now(self, selected):
 
         def _download_zic(uri, fname):
+            self.cursor.set_fill_level(0)
             site = urllib.urlopen(uri)
             fd = file(fname, 'w')
-            fd.write(site.read(2**17)) # read ~130k
+            self._download_progress = 0
+            total = float(site.info().getheader('Content-Length'))
+            total_length = float(selected['length'])
+            achieved = 0
+
+            data = site.read(2**17)
+            fd.write(data) # read ~130k
+            achieved += len(data)
+            yield site.fileno()
+
             try:
-                yield site.fileno()
                 BUF_SZ = 2**14 # 512B micro chunks
                 while True:
                     data = site.read(BUF_SZ)
+                    self.cursor.set_fill_level(total_length * (achieved / total))
                     if not data:
                         break
+                    achieved += len(data)
                     fd.write(data)
                     yield
                 fd.close()
@@ -353,10 +366,11 @@ class PPlayer(object):
         if 'length' in m_d:
             length = m_d['length']
             self.cursor.set_range(0, length)
-            self.cursor.set_fill_level(length)
             self._info_list[1] = duration_tidy(length)
         else:
             self._info_list[1] = ''
+
+        self._play_timeout.args = [m_d]
         self._play_timeout.start(1)
 
         title_artist = escape('%s\n%s'%(
