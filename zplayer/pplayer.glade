@@ -115,11 +115,12 @@ Available fields: album, artist, title, genre, filename, length
                                 <property name="position">1</property>
                             </packing>
                         </child>
+                    </widget>
                         <packing>
                             <property name="expand">False</property>
-                            <property name="fill">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
                         </packing>
-                    </widget>
                 </child>
                 <child>
                     <widget class="GtkHBox" id="hbox2">
