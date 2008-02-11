@@ -1,8 +1,12 @@
-__all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy']
+__all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy', 'DEBUG']
 
 import itertools
 import string
 import sys
+
+def DEBUG():
+    traceback.print_stack()
+    traceback.print_exc()
 
 # int (de)compacter [int <> small str convertors]
 # convert to base62...
