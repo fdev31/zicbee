@@ -241,7 +241,7 @@ class PPlayer(object):
                     DEBUG()
                 finally:
                     self._paused = False
-            IterableAction(_fill_it()).start(0.05)
+            IterableAction(_fill_it()).start(0.07)
         except:
             DEBUG()
             self._pop_status()
