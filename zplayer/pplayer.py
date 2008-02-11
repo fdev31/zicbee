@@ -1,20 +1,17 @@
 #!/usr/bin/env python
-# http://www.micahcarrick.com/12-24-2007/gtk-glade-tutorial-part-1.html
 
-import sys
 try:
     import pygtk
     pygtk.require("2.0")
-except:
-    pass
-try:
-    import gtk
-    import gtk.glade
-except:
-    sys.exit(1)
+finally:
+    try:
+        import gtk
+        import gtk.glade
+    except:
+        raise SystemExit("Can't load gtk+")
 
+import sys
 import gobject
-gobject.threads_init()
 import itertools
 import random
 import traceback
@@ -23,6 +20,8 @@ from cgi import escape
 from pkg_resources import resource_filename
 from zicdb.zutils import duration_tidy, jload
 from .soundplayer import SoundPlayer
+
+gobject.threads_init()
 
 def DEBUG():
     traceback.print_stack()
@@ -296,25 +295,26 @@ class PPlayer(object):
             if not self._play_timeout.running:
                 self._push_status('seeking...')
 
-    def _download_zic(self, uri):
-        site = urllib.urlopen(uri)
-        fd = file('/tmp/zsong', 'w')
-        fd.write(site.read(2**19)) # read 500k
-        try:
-            yield
-            BUF_SZ = 2**14
-            while True:
-                data = site.read(BUF_SZ)
-                if not data:
-                    break
-                fd.write(data)
-                yield
-            fd.close()
-            print "Downloaded %s"%uri
-        finally:
-            self._song_dl = None
-
     def _play_now(self):
+
+        def _download_zic(uri):
+            site = urllib.urlopen(uri)
+            fd = file('/tmp/zsong', 'w')
+            fd.write(site.read(2**19)) # read 500k
+            try:
+                yield
+                BUF_SZ = 2**14
+                while True:
+                    data = site.read(BUF_SZ)
+                    if not data:
+                        break
+                    fd.write(data)
+                    yield
+                fd.close()
+                print "Downloaded %s"%uri
+            finally:
+                self._song_dl = None
+
         self._pop_status()
         uri = self.selected_uri
         self._song_uri.set_text(uri)
@@ -323,7 +323,7 @@ class PPlayer(object):
         if self._song_dl:
             self._song_dl.stop()
 
-        it = self._download_zic(self.selected_uri)
+        it = _download_zic(self.selected_uri)
         it.next() # Start the download
         self._song_dl = IterableAction(it).start(0.01)
         self.player.loadfile('/tmp/zsong')
