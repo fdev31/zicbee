@@ -30,7 +30,7 @@
                         </child>
                         <child>
                             <widget class="GtkLabel" id="label1">
-                                <property name="label" context="yes" translatable="yes">Pattern:</property>
+                                <property name="label" context="yes" translatable="yes">Search:</property>
                                 <property name="visible">True</property>
                                 <property name="xalign">0.0</property>
                                 <property name="xpad">3</property>
@@ -45,24 +45,15 @@
                             <widget class="GtkEntry" id="pattern_entry">
                                 <property name="has_tooltip">True</property>
                                 <property name="is_focus">True</property>
-                                <property name="tooltip_markup" context="yes" translatable="yes">Examples:
- &amp;quot;System of a down&amp;quot; # search of a pattern, case insensitive
- &amp;quot;Björk&amp;quot; in artist and &amp;quot;vespatine&amp;quot; in album
+                                <property name="tooltip_markup" context="yes" translatable="yes">Examples: (pattern is bold)
+&lt;span weight="bold"&gt;System of a down&lt;/span&gt; (WARN: case sensitive)
+&lt;span weight="bold"&gt;artist: björk album: vespatine&lt;/span&gt;
+&lt;span weight="bold"&gt;artist: björk and album: vespatine&lt;/span&gt; (equivalent)
+&lt;span weight="bold"&gt;artist: björk or artist: Archive&lt;/span&gt;
+&lt;span weight="bold"&gt;Artist: Björk&lt;/span&gt; (WARN: case sensitive)
 
 Available fields: album, artist, title, genre, filename, length
-Modifier: @L = lowercase, as in &amp;quot;désir&amp;quot; in artist@L
-
-Note:
- Don&amp;apos;t forget &amp;quot;&amp;quot; !!</property>
-                                <property name="tooltip_text" context="yes" translatable="yes">Examples:
- "System of a down" # search of a pattern, case insensitive
- "Björk" in artist and "vespatine" in album
-
-Available fields: album, artist, title, genre, filename, length
-Modifier: @L = lowercase, as in "désir" in artist@L
-
-Note:
- Don't forget "" !!</property>
+</property>
                                 <property name="visible">True</property>
                                 <signal handler="validate_pattern" name="activate"/>
                             </widget>
