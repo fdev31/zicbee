@@ -12,7 +12,6 @@ class SoundFeeder(Thread):
         self._fn = play_fn
         self._lock = Lock()
         self.filename = filename
-        self.setDaemon(True)
         self.paused = False
 
     def run(self):
@@ -80,4 +79,8 @@ class SoundPlayer(object):
             self._feeder.paused = False
         else:
             self._feeder.paused = True
+
+    def quit(self):
+        if self._feeder:
+            self._feeder.stop()
 
