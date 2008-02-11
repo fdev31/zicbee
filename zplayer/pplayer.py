@@ -35,7 +35,7 @@ class DelayedAction(object):
         self.running = None
         self._delay = 1
 
-    def _run(self):
+    def _run(self, *args):
         try:
             self.fn(*self.args, **self.kw)
             self.running = None
@@ -43,10 +43,10 @@ class DelayedAction(object):
             DEBUG()
         return False
 
-    def start(self, delay):
+    def start(self, delay, prio=gobject.PRIORITY_DEFAULT_IDLE):
         """ start action after 'delay' seconds. """
         self.stop()
-        self.running = gobject.timeout_add(int(delay*1000), self._run)
+        self.running = gobject.timeout_add(int(delay*1000), self._run, priority=prio)
 
     def stop(self):
         if self.running is not None:
@@ -59,21 +59,27 @@ class IterableAction(object):
         self.running = None
         self._delay = 1
 
-    def _run(self):
+    def _run(self, *args):
         if self.running is None:
             return False
         try:
             self.it.next()
         except StopIteration:
-            self.running = None
+            self.stop()
         else:
             return True
         return False
 
-    def start(self, delay=0):
+    def start(self, delay=0, prio=gobject.PRIORITY_DEFAULT_IDLE):
         """ start action after 'delay' seconds. """
         self.stop()
-        self.running = gobject.timeout_add(int(delay*1000), self._run)
+        self.running = gobject.timeout_add(int(delay*1000), self._run, priority=prio)
+        return self
+
+    def start_on_fd(self, fd, prio=gobject.PRIORITY_DEFAULT_IDLE):
+        """ start action if 'fd' is readable. """
+        self.stop()
+        self.running = gobject.io_add_watch(fd, gobject.IO_IN, self._run, priority=prio)
         return self
 
     def stop(self):
@@ -89,7 +95,7 @@ class PPlayer(object):
         self._old_size = (4, 4)
         self._cur_song_pos = -1
         self._info_list = ['', '']
-        gobject.timeout_add(500, self._tick_generator().next)
+        IterableAction(self._tick_generator()).start(0.5, prio=gobject.PRIORITY_HIGH_IDLE)
         self._running = False
         self._paused = False
         self._position = None
@@ -242,7 +248,9 @@ class PPlayer(object):
                     DEBUG()
                 finally:
                     self._paused = False
-            IterableAction(_fill_it()).start(0.07)
+            it = _fill_it()
+            it.next()
+            IterableAction(it).start(0.001, prio=gobject.PRIORITY_DEFAULT_IDLE)
         except:
             DEBUG()
             self._pop_status()
@@ -297,13 +305,13 @@ class PPlayer(object):
 
     def _play_now(self):
 
-        def _download_zic(uri):
+        def _download_zic(uri, fname):
             site = urllib.urlopen(uri)
-            fd = file('/tmp/zsong', 'w')
-            fd.write(site.read(2**19)) # read 500k
+            fd = file(fname, 'w')
+            fd.write(site.read(2**17)) # read ~130k
             try:
-                yield
-                BUF_SZ = 2**14
+                yield site.fileno()
+                BUF_SZ = 2**14 # 512B micro chunks
                 while True:
                     data = site.read(BUF_SZ)
                     if not data:
@@ -323,9 +331,9 @@ class PPlayer(object):
         if self._song_dl:
             self._song_dl.stop()
 
-        it = _download_zic(self.selected_uri)
-        it.next() # Start the download
-        self._song_dl = IterableAction(it).start(0.01)
+        it = _download_zic(self.selected_uri, '/tmp/zsong')
+        fd = it.next() # Start the download
+        self._song_dl = IterableAction(it).start_on_fd(fd)
         self.player.loadfile('/tmp/zsong')
         return False
 
