@@ -110,5 +110,5 @@ def do_serve():
         web.run(urls, globals())
     except:
         print 'kill', os.getpid()
-        print os.kill(os.getpid())
+        print os.kill(os.getpid(), 9)
 
