@@ -56,7 +56,6 @@ class SoundPlayer(object):
         self._feeder = SoundFeeder(self._audio_out.play, filename)
 
         if autoplay:
-            print "Starting..."
             self._feeder.start()
 
     def volume(self, *args):

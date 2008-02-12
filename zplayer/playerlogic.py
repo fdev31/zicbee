@@ -35,7 +35,7 @@ class PlayerCtl(object):
         cnt = self._error_count.next()
         if cnt >= 2:
             try:
-                self.play_next(None)
+                self.select(1)
             except IndexError:
                 self.signal_view('status_changed', 'stopped')
                 self._running = False
@@ -106,7 +106,7 @@ class PlayerCtl(object):
         uri = self.selected_uri
         self.signal_view('song_uri', uri)
         idx = uri.index('id=')
-        self.signal_view('update_total', len(self.playlist))
+        self.signal_view('update_total', self._total_length)
         if self._song_dl:
             self._song_dl.stop()
 
@@ -118,6 +118,10 @@ class PlayerCtl(object):
 
     def _seek_now(self, val):
         self.player.seek(int(val), 2)
+
+    def seek(self, val):
+        self._seek_action.args = (val, )
+        self._seek_action.start(0.2)
 
     def shuffle(self):
         print "Mixing", len(self.playlist), "elements."
@@ -197,6 +201,7 @@ class PlayerCtl(object):
         except Exception, e:
             DEBUG()
         finally:
+            self._total_length = total
             self._paused = False
 
     def _get_selected(self):

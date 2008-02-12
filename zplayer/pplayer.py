@@ -12,11 +12,10 @@ finally:
 
 import gobject
 import sys
-import urllib
 from .events import DelayedAction, IterableAction
 from .playerlogic import PlayerCtl
 from pkg_resources import resource_filename
-from zicdb.zutils import DEBUG, duration_tidy
+from zicdb.zutils import duration_tidy, DEBUG
 
 class PPlayer(object):
 
@@ -93,8 +92,7 @@ class PPlayer(object):
         #     |          0 is a relative seek of +/- <value> seconds (default).
         #     |          1 is a seek to <value> % in the movie.
         #     |          2 is a seek to an absolute position of <value> seconds.
-        self._seek_action.args = (val,)
-        self._seek_action.start(0.2)
+        self.player_ctl.seek(val)
 
     hostname = property(lambda self: self.hostname_w.get_text() if ':' in self.hostname_w.get_text() else self.hostname_w.get_text()+':9090')
 
