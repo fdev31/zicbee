@@ -76,7 +76,6 @@ class PlayerCtl(object):
     def _play_now(self, selected):
 
         def _download_zic(uri, fname):
-            self.signal_view('download_progress', 0)
             site = urllib.urlopen(uri)
             fd = file(fname, 'w')
             total = float(site.info().getheader('Content-Length'))
@@ -106,11 +105,10 @@ class PlayerCtl(object):
         uri = self.selected_uri
         self.signal_view('song_uri', uri)
         idx = uri.index('id=')
-        self.signal_view('update_total', self._total_length)
         if self._song_dl:
             self._song_dl.stop()
-
         it = _download_zic(uri, '/tmp/zsong')
+#        self.signal_view('update_total', self._total_length)
         fd = it.next() # Start the download (try to not starve the soundcard)
         self._song_dl = IterableAction(it).start_on_fd(fd)
         self.player.loadfile('/tmp/zsong')
@@ -148,6 +146,7 @@ class PlayerCtl(object):
             except IndexError:
                 return
 
+            self.signal_view('download_progress', 0)
             self.signal_view('progress', 0.0)
             if 'length' in m_d:
                 length = m_d['length']
