@@ -256,7 +256,7 @@ Available fields: album, artist, title, genre, filename, length
                                 <property name="visible">True</property>
                                 <child>
                                     <widget class="GtkTreeView" id="songlist_tv">
-                                        <property name="enable_grid_lines">both</property>
+                                        <property name="enable_grid_lines">horizontal</property>
                                         <property name="is_focus">True</property>
                                         <property name="reorderable">True</property>
                                         <property name="search_column">0</property>

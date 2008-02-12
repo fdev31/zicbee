@@ -1,5 +1,6 @@
 __all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy', 'DEBUG']
 
+import traceback
 import itertools
 import string
 import sys

@@ -11,39 +11,27 @@ finally:
         raise SystemExit("Can't load gtk+")
 
 import gobject
-import itertools
-import random
 import sys
 import urllib
-from .soundplayer import SoundPlayer
-from cgi import escape
-from pkg_resources import resource_filename
-from zicdb.zutils import duration_tidy, jload, DEBUG
 from .events import DelayedAction, IterableAction
+from .playerlogic import PlayerCtl
+from pkg_resources import resource_filename
+from zicdb.zutils import DEBUG, duration_tidy
 
 class PPlayer(object):
 
-    def __init__(self):
-        self.player = SoundPlayer('alsa')
-        self._error_count = itertools.count()
+    def __init__(self, player_ctl):
+        self.player_ctl = player_ctl
+
         self._old_size = (4, 4)
-        self._cur_song_pos = -1
-        self._info_list = ['', '']
-        IterableAction(self._tick_generator()).start(0.5, prio=gobject.PRIORITY_HIGH_IDLE)
-        self._running = False
-        self._paused = False
-        self._position = None
         self._actual_infos = ''
-        self._play_timeout = DelayedAction(self._play_now)
-        self._seek_action = DelayedAction(self._seek_now)
-        self._song_dl = None
 
         self._wtree = gtk.glade.XML(resource_filename('zplayer', 'pplayer.glade'))
 
         self.win = self._wtree.get_widget('main_window')
         self.list_w = self._wtree.get_widget('songlist_tv')
-        self.list_store = gtk.ListStore(str, str, str, str, int, int)
-        self.list_w.set_model(self.list_store)
+
+        self.list_w.set_model(self.player_ctl.playlist)
         for i, name in enumerate(('Artist', 'Album', 'Title')):
             col = gtk.TreeViewColumn(name, gtk.CellRendererText(), text=i+1)
             col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
@@ -61,11 +49,10 @@ class PPlayer(object):
         self.cursor.set_show_fill_level(True)
         self.cursor.set_fill_level(0)
         # uri
-        self._song_uri = self._wtree.get_widget('song_uri')
+        self._song_uri_lbl = self._wtree.get_widget('song_uri')
         # volume
-        self.volume_w = self._wtree.get_widget('volume')
-        self.volume_w.set_value(100)
-        self._volume_action = DelayedAction(lambda v: self.player.volume(v, 1), 0.5)
+#        self.volume_w = self._wtree.get_widget('volume')
+#        self.volume_w.set_value(100)
 
         self.hostname_w = self._wtree.get_widget('hostname')
         if len(sys.argv) == 2:
@@ -86,58 +73,20 @@ class PPlayer(object):
         self._old_size = self.win.get_size()
 
     def _push_status(self, txt):
-        self.status_w.push(self.status_w_ctx, txt)
+        if txt is None:
+            self._pop_status()
+        else:
+            self.status_w.push(self.status_w_ctx, txt)
 
     def _pop_status(self):
         self.status_w.pop(self.status_w_ctx)
 
-    def _new_error(self):
-        cnt = self._error_count.next()
-        if cnt >= 2:
-            try:
-                self.play_next(None)
-            except IndexError:
-                self._running = False
-                self.info_lbl.set_text('Not Playing.')
-
-    def _tick_generator(self):
-        while True:
-            try:
-                if self._paused \
-                or self._play_timeout.running \
-                or self._volume_action.running \
-                or not self.list_store \
-                or self._seek_action.running:
-                    # Do nothing if paused or actualy changing the song
-                    continue
-                if self._running:
-                    if not self.player.running:
-                        raise Exception()
-
-                    self._position = self.player.get_time_pos()
-                    if self._position is None:
-                        self.cursor.set_value(self.selected['length'])
-                        raise Exception()
-                    else:
-                        self.cursor.set_value(float(self._position))
-                        cur_pos = duration_tidy(self._position)
-                        self.time_lbl.set_text(cur_pos)
-            except Exception, e:
-                self._new_error()
-            else:
-                self._error_count = itertools.count()
-            finally:
-                yield True
-
-    def change_volume(self, w, value):
-        value *= 100
-        if not (0 <= value <= 100):
-            return False
-        self._volume_action.args[0] = int(value)
-        self._volume_action.start(0.1)
-
-    def _seek_now(self, val):
-        self.player.seek(int(val), 2)
+#    def change_volume(self, w, value):
+#        value *= 100
+#        if not (0 <= value <= 100):
+#            return False
+#        self._volume_action.args[0] = int(value)
+#        self._volume_action.start(0.1)
 
     def absolute_seek(self, w, type, val):
         #     |      Seek to some place in the movie.
@@ -150,200 +99,85 @@ class PPlayer(object):
     hostname = property(lambda self: self.hostname_w.get_text() if ':' in self.hostname_w.get_text() else self.hostname_w.get_text()+':9090')
 
     def validate_pattern(self, w):
-        params = {'pattern':self.pat.get_text()}
-        hostname = self.hostname
-        uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(params))
-
-        self._paused = True
         try:
-            def _fill_it():
-                site = urllib.urlopen(uri)
-                self.list_store.clear()
-                yield
-                add = self.list_store.append
-                total = 0
-                try:
-                    done = False
-                    while not done:
-                        for n in xrange(100):
-                            line = site.readline()
-                            if not line:
-                                done = True
-                                break
-                            r = jload(line)
-                            total += r[4]
-                            add(r)
-                        self._pop_status()
-                        self._actual_infos = duration_tidy(total)
-                        self._push_status('%d songs | %s'%(len(self.list_store), self._actual_infos))
-                        yield True
-                except Exception, e:
-                    DEBUG()
-                finally:
-                    self._paused = False
-            it = _fill_it()
+            it = self.player_ctl.fetch_playlist(self.hostname, pattern=self.pat.get_text())
             it.next()
             IterableAction(it).start(0.001, prio=gobject.PRIORITY_DEFAULT_IDLE)
         except:
             DEBUG()
             self._pop_status()
-            self._push_status('Connect to %s failed'%hostname)
+            self._push_status('Connection to %s failed'%self.hostname)
         else:
             self._pop_status()
-            self._push_status('Connected' if len(self.list_store) else 'Empty')
-        self._cur_song_pos = 0
-        try:
-            DelayedAction(self._play_selected).start(0.4)
-        except:
-            return
-        else:
-            self._running = True
+            self._push_status('Connected' if len(self.player_ctl.playlist) else 'Empty')
+
+        DelayedAction(self.player_ctl._play_selected, 0).start(0.5)
 
     def shuffle_playlist(self, w):
-        print "Mixing", len(self.list_store), "elements."
-        pos_list = range(len(self.list_store))
-        random.shuffle(pos_list)
-        self.list_store.reorder(pos_list)
-        self._cur_song_pos = -1
+        self.player_ctl.shuffle()
 
     def toggle_pause(self, w):
-        self.player.pause()
-        self._paused = not self._paused
+        self.player_ctl.pause()
 
     def play_prev(self, w):
-        if self._cur_song_pos <= 0:
-            return
-        self._cur_song_pos -= 1
-        if self._cur_song_pos < 0:
-            raise IndexError()
         try:
-            self._play_selected()
-        except:
+            self.player_ctl.select(-1)
+        except IndexError:
             pass
         else:
-            if not self._play_timeout.running:
-                self._push_status('seeking...')
+            self._push_status('seeking...')
 
     def play_next(self, *args):
-        if self._cur_song_pos > len(self.list_store):
-            return
-        self._cur_song_pos += 1
         try:
-            self._play_selected()
-        except:
+            self.player_ctl.select(1)
+        except IndexError:
             pass
         else:
-            if not self._play_timeout.running:
-                self._push_status('seeking...')
-
-    def _play_now(self, selected):
-
-        def _download_zic(uri, fname):
-            self.cursor.set_fill_level(0)
-            site = urllib.urlopen(uri)
-            fd = file(fname, 'w')
-            self._download_progress = 0
-            total = float(site.info().getheader('Content-Length'))
-            total_length = float(selected['length'])
-            achieved = 0
-
-            data = site.read(2**17)
-            fd.write(data) # read ~130k
-            achieved += len(data)
-            yield site.fileno()
-
-            try:
-                BUF_SZ = 2**14 # 512B micro chunks
-                while True:
-                    data = site.read(BUF_SZ)
-                    self.cursor.set_fill_level(total_length * (achieved / total))
-                    if not data:
-                        break
-                    achieved += len(data)
-                    fd.write(data)
-                    yield
-                fd.close()
-                print "Downloaded %s"%uri
-            finally:
-                self._song_dl = None
-
-        self._pop_status()
-        uri = self.selected_uri
-        self._song_uri.set_text(uri)
-        idx = uri.index('id=')
-        self._push_status(self._actual_infos + ' over %d songs'%len(self.list_store))
-        if self._song_dl:
-            self._song_dl.stop()
-
-        it = _download_zic(self.selected_uri, '/tmp/zsong')
-        fd = it.next() # Start the download
-        self._song_dl = IterableAction(it).start_on_fd(fd)
-        self.player.loadfile('/tmp/zsong')
-        return False
+            self._push_status('seeking...')
 
     def toggle_playlist(self, expander):
         DelayedAction(self.win.resize, *self._old_size).start(0.3)
         self._old_size = self.win.get_size()
 
     def force_change_song(self, treeview, path, treeview_col):
-        self._cur_song_pos = path[0]
-        self._play_selected()
+        self.player_ctl._play_selected(path[0])
 
-    def _play_selected(self):
-        self._error_count = itertools.count()
-        try:
-            m_d = self.selected
-        except IndexError:
-            return
+    def SIG_update_infos(self, infos):
+        # XXX: refactor this
+        self.info_lbl.set_markup('\n'.join(infos))
 
-        self.cursor.set_value(0.0)
-        if 'length' in m_d:
-            length = m_d['length']
-            self.cursor.set_range(0, length)
-            self._info_list[1] = duration_tidy(length)
-        else:
-            self._info_list[1] = ''
+    def SIG_update_total(self, total):
+        self._actual_infos = duration_tidy(total)
+        self._pop_status()
+        self._push_status('%d songs | %s'%(len(self.player_ctl.playlist), self._actual_infos))
 
-        self._play_timeout.args = [m_d]
-        self._play_timeout.start(1)
+    def SIG_status_changed(self, status):
+        if status == 'stopped':
+            self.info_lbl.set_text('Not Playing.')
 
-        title_artist = escape('%s\n%s'%(
-                m_d.get('title', 'Untitled'),
-                m_d.get('artist', 'Anonymous')
-                ))
+    def SIG_progress(self, val):
+        self.cursor.set_value(val)
+        self.time_lbl.set_text(duration_tidy(val))
 
-        if m_d.get('album'):
-            meta = '<span weight="bold">%s</span> - %s'%( title_artist, escape(m_d.get('album')) )
-        else:
-            meta = '<span weight="bold">%s</span>'%(title_artist)
+    def SIG_download_progress(self, val):
+        self.cursor.set_fill_level(val)
 
-        self._info_list[0] = meta
+    def SIG_song_length(self, length):
+        self.cursor.set_range(0, length)
 
-        self._update_infos()
-        self.list_w.set_cursor( (self._cur_song_pos, 0) )
+    def SIG_song_uri(self, uri):
+        self._song_uri_lbl.set_text(uri)
 
-    def _update_infos(self):
-        self.info_lbl.set_markup('\n'.join(self._info_list))
+    def SIG_select(self, pos):
+        self.list_w.set_cursor( (pos, 0) )
 
-    def _get_selected(self):
-        if self._cur_song_pos >= 0 and len(self.list_store) > 0:
-            l = self.list_store[self._cur_song_pos]
-            return dict(album = l[1],
-                        length = float(l[4]),
-                        title = l[3],
-                        __id__ = l[5],
-                        artist = l[1])
-        else:
-            return None
-
-    selected = property(_get_selected)
-
-    selected_uri = property(lambda self: 'http://' + self.hostname + self.list_store[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
 
 def main():
-    pp = PPlayer()
+    player_ctl = PlayerCtl()
+    pp = PPlayer(player_ctl)
+    player_ctl.views.append(pp)
     gtk.main()
-    pp.player.quit()
+    player_ctl.player.quit()
 
 if __name__ == '__main__':
     main()
