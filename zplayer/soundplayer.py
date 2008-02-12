@@ -12,7 +12,7 @@ class SoundFeeder(Thread):
         self._fn = play_fn
         self._lock = Lock()
         self.filename = filename
-        self.paused = False
+        self.paused = True
 
     def run(self):
         self._src = avbin.AVbinSource(self.filename)
@@ -57,6 +57,7 @@ class SoundPlayer(object):
 
         if autoplay:
             self._feeder.start()
+            self._feeder.paused = False
 
     def volume(self, *args):
         print "Volume not managed yet"
@@ -74,10 +75,12 @@ class SoundPlayer(object):
         self._feeder.seek(pos)
 
     def pause(self):
-        if self._feeder.paused:
+        if self.paused:
             self._feeder.paused = False
         else:
             self._feeder.paused = True
+
+    paused = property(lambda self: self._feeder.paused if self._feeder else True)
 
     def quit(self):
         if self._feeder:

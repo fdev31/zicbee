@@ -16,7 +16,6 @@ class PlayerCtl(object):
         self._cur_song_pos = -1
         self._error_count = itertools.count()
         self._running = False
-        self._paused = False
         self._position = None
         self._song_dl = None
         self.hostname = None
@@ -44,7 +43,7 @@ class PlayerCtl(object):
 #                or self._volume_action.running \
         while True:
             try:
-                if self._paused \
+                if self.player.paused \
                 or self._play_timeout.running \
                 or not self.playlist \
                 or self._seek_action.running:
@@ -129,7 +128,7 @@ class PlayerCtl(object):
         self._cur_song_pos = -1
 
     def pause(self):
-        self._paused = not self._paused
+        self.player.pause()
 
     def select(self, sense):
         self._cur_song_pos += sense
@@ -163,6 +162,7 @@ class PlayerCtl(object):
                     m_d.get('artist', 'Anonymous')
                     ))
 
+            # FIXME: don't put XML in here
             if m_d.get('album'):
                 meta = '<span weight="bold">%s</span> - %s'%( title_artist, escape(m_d.get('album')) )
             else:
@@ -178,7 +178,6 @@ class PlayerCtl(object):
     def fetch_playlist(self, hostname, **kw):
         self.hostname = hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(kw))
-        self._paused = True
         site = urllib.urlopen(uri)
         self.playlist.clear()
         yield
@@ -201,7 +200,6 @@ class PlayerCtl(object):
             DEBUG()
         finally:
             self._total_length = total
-            self._paused = False
 
     def _get_selected(self):
         pos = self._cur_song_pos
