@@ -11,7 +11,7 @@ from zicdb.zutils import duration_tidy, jload, DEBUG
 
 class PlayerCtl(object):
     def __init__(self):
-        self.player = SoundPlayer('alsa')
+        self.player = SoundPlayer()
         self.views = []
         self._cur_song_pos = -1
         self._error_count = itertools.count()

@@ -14,7 +14,7 @@ def _eventdispatcher():
 start_new_thread(_eventdispatcher, tuple())
 
 class SoundPlayer(object):
-    def __init__(self, backend=0):
+    def __init__(self):
         self._player = None
         self._source = None
 
