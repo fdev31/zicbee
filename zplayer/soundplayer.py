@@ -27,6 +27,7 @@ class SoundPlayer(object):
             self._player = self._source.play()
 
     running = property(lambda self: self._player and self._player.playing)
+    starved = property(lambda self: not bool(self._player._next_audio_data))
 
     def stop(self):
         self._player.stop()
