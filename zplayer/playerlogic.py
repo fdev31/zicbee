@@ -107,7 +107,12 @@ class PlayerCtl(object):
 #        self.signal_view('update_total', self._total_length)
         fd = it.next() # Start the download (try to not starve the soundcard)
         self._song_dl = IterableAction(it).start_on_fd(fd)
-        self.player.loadfile('/tmp/zsong')
+        try:
+            self.player.loadfile('/tmp/zsong')
+        except:
+            self._running = False
+            DEBUG()
+            self.select(1)
         return False
 
     def _seek_now(self, val):
