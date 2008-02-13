@@ -8,6 +8,7 @@ from .soundplayer import SoundPlayer
 from cgi import escape
 from gtk import ListStore
 from zicdb.zutils import duration_tidy, jload, DEBUG
+from zicdb.config import config
 
 class PlayerCtl(object):
     def __init__(self):
@@ -105,12 +106,13 @@ class PlayerCtl(object):
         idx = uri.index('id=')
         if self._song_dl:
             self._song_dl.stop()
-        it = _download_zic(uri, '/tmp/zsong')
+        song_name = config.streaming_file
+        it = _download_zic(uri, song_name)
 #        self.signal_view('update_total', self._total_length)
         fd = it.next() # Start the download (try to not starve the soundcard)
         self._song_dl = IterableAction(it).start_on_fd(fd)
         try:
-            self.player.loadfile('/tmp/zsong')
+            self.player.loadfile(song_name)
         except:
             self._running = False
             DEBUG()

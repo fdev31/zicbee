@@ -13,6 +13,7 @@ web.template.Template.globals['jdump'] = jdump
 os.chdir( resource_filename('zicdb', 'static')[:-6] )
 
 urls = (
+        '/player/(.*)', 'webplayer',
         '/(.*)', 'index',
         )
 
@@ -21,6 +22,12 @@ artist_form = web.form.Form(
         web.form.Textbox('pattern'),
         web.form.Checkbox('m3u'),
         )
+
+class webplayer:
+    GET = web.autodelegate('REQ_')
+
+    def REQ_play(self, *args):
+        web.debug(repr(args))
 
 class index:
     def GET(self, name):
@@ -39,6 +46,7 @@ class index:
                     CHUNK=1024
                     in_fd = file(filename)
                     web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+                    yield
 
                     while True:
                         data = in_fd.read(CHUNK)
@@ -88,6 +96,7 @@ class index:
             field_decoder = zip( fields,
                     (songs.db.f_decode[songs.db.fields[fname]] for fname in fields)
                     )
+            yield
 
             infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
                     for r in res )

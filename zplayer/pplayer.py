@@ -16,6 +16,7 @@ from .events import DelayedAction, IterableAction
 from .playerlogic import PlayerCtl
 from pkg_resources import resource_filename
 from zicdb.zutils import duration_tidy, DEBUG
+from zicdb.config import config
 
 class PPlayer(object):
 
@@ -39,6 +40,7 @@ class PPlayer(object):
             self.list_w.append_column( col )
 
         self.pat = self._wtree.get_widget('pattern_entry')
+        self.pat.set_text(config.default_search)
         self.pat.grab_focus()
         self.info_lbl = self._wtree.get_widget('info_label')
         self.time_lbl = self._wtree.get_widget('elapsed_time')
@@ -56,6 +58,8 @@ class PPlayer(object):
         self.hostname_w = self._wtree.get_widget('hostname')
         if len(sys.argv) == 2:
             self.hostname_w.set_text(sys.argv[1])
+        else:
+            self.hostname_w.set_text(config.db_host)
 
         self.status_w = self._wtree.get_widget('statusbar')
         self.status_w_ctx = self.status_w.get_context_id('player')
@@ -98,7 +102,8 @@ class PPlayer(object):
 
     def validate_pattern(self, w):
         try:
-            it = self.player_ctl.fetch_playlist(self.hostname, pattern=self.pat.get_text())
+            pat = self.pat.get_text()
+            it = self.player_ctl.fetch_playlist(self.hostname, pattern=pat)
             it.next()
             IterableAction(it).start(0.001, prio=gobject.PRIORITY_DEFAULT_IDLE)
         except:
@@ -106,6 +111,7 @@ class PPlayer(object):
             self._pop_status()
             self._push_status('Connection to %s failed'%self.hostname)
         else:
+            config.default_search = pat
             self._pop_status()
             self._push_status('Connected' if len(self.player_ctl.playlist) else 'Empty')
 

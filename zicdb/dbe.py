@@ -3,13 +3,7 @@ __all__ = ['Database', 'valid_tags']
 
 import os
 import buzhug
-
-DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
-
-try: # Ensure personal dir exists
-    os.mkdir(DB_DIR)
-except:
-    pass
+from zicdb.config import DB_DIR
 
 valid_ext = ('.ogg','.mp3', '.mp4',
     '.aac', '.vqf', '.wmv', '.wma', '.m4a', 'asf')
