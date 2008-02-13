@@ -51,8 +51,7 @@ class PlayerCtl(object):
                     continue
                 if self._running:
                     if self.player.starved: # End of track
-                        self.select(1)
-                        continue
+                        raise Exception()
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         raise Exception()
