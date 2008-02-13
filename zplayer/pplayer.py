@@ -50,8 +50,8 @@ class PPlayer(object):
         # uri
         self._song_uri_lbl = self._wtree.get_widget('song_uri')
         # volume
-#        self.volume_w = self._wtree.get_widget('volume')
-#        self.volume_w.set_value(100)
+        self.volume_w = self._wtree.get_widget('volume')
+        self.volume_w.set_value(100)
 
         self.hostname_w = self._wtree.get_widget('hostname')
         if len(sys.argv) == 2:
@@ -80,12 +80,12 @@ class PPlayer(object):
     def _pop_status(self):
         self.status_w.pop(self.status_w_ctx)
 
-#    def change_volume(self, w, value):
-#        value *= 100
-#        if not (0 <= value <= 100):
-#            return False
-#        self._volume_action.args[0] = int(value)
-#        self._volume_action.start(0.1)
+    def change_volume(self, w, value):
+        value *= 100
+        if not (0 <= value <= 100):
+            return False
+        self.player_ctl._volume_action.args[0] = int(value)
+        self.player_ctl._volume_action.start(0.1)
 
     def absolute_seek(self, w, type, val):
         #     |      Seek to some place in the movie.
@@ -122,16 +122,12 @@ class PPlayer(object):
             self.player_ctl.select(-1)
         except IndexError:
             pass
-        else:
-            self._push_status('seeking...')
 
     def play_next(self, *args):
         try:
             self.player_ctl.select(1)
         except IndexError:
             pass
-        else:
-            self._push_status('seeking...')
 
     def toggle_playlist(self, expander):
         DelayedAction(self.win.resize, *self._old_size).start(0.3)

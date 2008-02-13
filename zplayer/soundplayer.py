@@ -1,88 +1,54 @@
 from __future__ import with_statement
-import ao
-from pyglet.media import avbin
-from Queue import Queue
-from threading import Thread, Lock
-from time import sleep, time
 
-class SoundFeeder(Thread):
-    def __init__(self, play_fn, filename):
-        Thread.__init__(self)
-        self.running = False
-        self._fn = play_fn
-        self._lock = Lock()
-        self.filename = filename
-        self.paused = True
+import pyglet
+pyglet.options['audio'] = ('alsa', 'directsound', 'openal', 'silent')
+from pyglet import media
+from thread import start_new_thread
+from time import sleep
 
-    def run(self):
-        self._src = avbin.AVbinSource(self.filename)
-        self.seek = self._src._seek
-        self.running = True
-        lock = self._lock
+def _eventdispatcher():
+    while True:
+        media.dispatch_events()
+        sleep(0.01)
 
-        while self.running:
-            if self.paused:
-                sleep(0.2)
-            else:
-                try:
-                    data = self._src._get_audio_data(65000)
-                    assert data is not None
-                except:
-                    self.stop()
-                else:
-                    self._fn(data.data)
-
-    def __del__(self):
-        self.stop()
-
-    def stop(self):
-        self.running = False
+start_new_thread(_eventdispatcher, tuple())
 
 class SoundPlayer(object):
     def __init__(self, backend=0):
-        self._audio_out = ao.AudioDevice(backend)
-        self._feeder = None
-
-    running = property(lambda self: self._feeder.running if self._feeder else False)
-
-    def stop(self):
-        self._running = False
+        self._player = None
+        self._source = None
 
     def loadfile(self, filename, autoplay=True):
-        if self._feeder:
-            self._feeder.stop()
-            self._feeder.join()
-
-        self._feeder = SoundFeeder(self._audio_out.play, filename)
+        if self._player:
+            self._player.stop()
+        self._source = media.load(filename)
 
         if autoplay:
-            self._feeder.start()
-            self._feeder.paused = False
+            self._player = self._source.play()
 
-    def volume(self, *args):
-        print "Volume not managed yet"
-        return 0
+    running = property(lambda self: self._player and self._player.playing)
+
+    def stop(self):
+        self._player.stop()
+
+    def volume(self, val):
+        self._player.volume = val /100.0
 
     prop_volume = property(volume)
 
     def get_time_pos(self):
-        if self._feeder:
-            return self._feeder._src._packet.timestamp/1000000.0
-        else:
-            return 0
+        return (self._source and self._source._packet.timestamp/1000000.0) or 0
 
     def seek(self, pos, t):
-        self._feeder.seek(pos)
+        self._source._seek(pos)
 
     def pause(self):
-        if self.paused:
-            self._feeder.paused = False
+        if self._player.playing:
+            self._player.pause()
         else:
-            self._feeder.paused = True
-
-    paused = property(lambda self: self._feeder.paused if self._feeder else True)
+            self._player.play()
 
     def quit(self):
-        if self._feeder:
-            self._feeder.stop()
+        if self._player:
+            self._player.stop()
 

@@ -24,7 +24,7 @@ class PlayerCtl(object):
 
         self._play_timeout = DelayedAction(self._play_now)
         self._seek_action = DelayedAction(self._seek_now)
-#        self._volume_action = DelayedAction(lambda v: self.player.volume(v, 1), 0.5)
+        self._volume_action = DelayedAction(lambda v: self.player.volume(v), 0.5)
         self.playlist = ListStore(str, str, str, str, int, int)
 
     def __del__(self):
@@ -43,16 +43,13 @@ class PlayerCtl(object):
 #                or self._volume_action.running \
         while True:
             try:
-                if self.player.paused \
+                if not self.player.running \
                 or self._play_timeout.running \
                 or not self.playlist \
                 or self._seek_action.running:
                     # Do nothing if paused or actualy changing the song
                     continue
                 if self._running:
-                    if not self.player.running:
-                        raise Exception()
-
                     self._position = self.player.get_time_pos()
                     if self._position is None:
                         raise Exception()
