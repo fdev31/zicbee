@@ -20,7 +20,10 @@ class SoundPlayer(object):
 
     def loadfile(self, filename, autoplay=True):
         if self._player:
-            self._player.stop()
+            try:
+                self._player.stop()
+            except ValueError:
+                pass # Stream not in play list
         self._source = media.load(filename)
 
         if autoplay:
