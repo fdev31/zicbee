@@ -13,7 +13,7 @@ defaults_dict = {
         'download_dir' : '/tmp',
         'db_host' : 'localhost:9090',
         'player_host' : 'localhost:9090',
-        'default_search' : 'artist: no length: <200',
+        'default_search' : '',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
@@ -36,3 +36,4 @@ class ConfigObj(object):
 
 atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 config = ConfigObj()
+

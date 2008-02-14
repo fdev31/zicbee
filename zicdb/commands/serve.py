@@ -6,12 +6,23 @@ import web
 from pkg_resources import resource_filename
 from time import time
 from zicdb.zshell import songs
-from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int
+from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
+import gobject
+from thread import start_new_thread
+from zplayer import playerlogic
+from zplayer.events import DelayedAction, IterableAction
 
+web.internalerror = web.debugerror
+
+# Set default headers & go to templates directory
+web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicdb', 'web_templates'))
-web.template.Template.globals['jdump'] = jdump
 os.chdir( resource_filename('zicdb', 'static')[:-6] )
 
+# Allow glib calls (notifier)
+start_new_thread(gobject.MainLoop().run, tuple())
+
+# Prepare some web stuff
 urls = (
         '/player/(.*)', 'webplayer',
         '/(.*)', 'index',
@@ -23,11 +34,38 @@ artist_form = web.form.Form(
         web.form.Checkbox('m3u'),
         )
 
-class webplayer:
-    GET = web.autodelegate('REQ_')
 
-    def REQ_play(self, *args):
-        web.debug(repr(args))
+class webplayer:
+    player = playerlogic.PlayerCtl()
+
+    GET = web.autodelegate('REQ_')
+    lastlog = []
+
+    def REQ_search(self):
+        i = web.input()
+        if i.get('pat'):
+            it = self.player.fetch_playlist(i.host, pattern=i.pat)
+            it.next()
+            IterableAction(it).start(0.01)
+            DelayedAction(self.player.select, 1).start(1)
+        yield "OK"
+
+    def REQ_infos(self):
+        yield 'current track: %s\n'%self.player._cur_song_pos
+        yield 'playlist size: %s\n'%len(self.player.playlist)
+        yield '\n'.join('%s: %s'%(k, v) for k,v in self.player.selected.iteritems())
+
+    def REQ_lastlog(self):
+        return '\n'.join(self.lastlog)
+
+    def REQ_pause(self):
+        self.player.pause()
+
+    def REQ_prev(self):
+        self.player.select(-1)
+
+    def REQ_next(self):
+        self.player.select(1)
 
 class index:
     def GET(self, name):
@@ -62,10 +100,8 @@ class index:
             web.header('Content-Type', 'audio/x-mpegurl')
             format = 'm3u'
         elif web.input().get('plain'):
-            web.header('Content-Type', 'text/plain')
             format = 'plain'
         elif web.input().get('json'):
-            web.header('Content-Type', 'text/plain')
             format = 'json'
         else:
             web.header('Content-Type', 'text/html; charset=utf-8')
@@ -118,6 +154,7 @@ def do_serve():
     try:
         web.run(urls, globals())
     except:
+        DEBUG()
         print 'kill', os.getpid()
         print os.kill(os.getpid(), 9)
 

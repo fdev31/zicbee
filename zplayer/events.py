@@ -5,11 +5,25 @@ from zicdb.zutils import DEBUG
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
+        """ You may pass _prio & _delay as keyword arguments
+        """
         self.fn = fn
-        self.args = list(args)
-        self.kw = kw
         self.running = None
-        self._delay = 1
+
+        self._prio = kw.get('_prio', gobject.PRIORITY_DEFAULT_IDLE)
+        try:
+            del kw['_prio']
+        except KeyError:
+            pass
+
+        self._delay = int(kw.get('_delay', 1) * 1000)
+        try:
+            del kw['_delay']
+        except KeyError:
+            pass
+
+        self.args = tuple(args)
+        self.kw = kw
 
     def _run(self, *args):
         try:
@@ -19,12 +33,30 @@ class DelayedAction(object):
             DEBUG()
         return False
 
-    def start(self, delay, prio=gobject.PRIORITY_DEFAULT_IDLE):
+    def start(self, delay=None, prio=None, args=None, kwargs=None):
+        """ (Re)Start the action
+        if delay and/or prio are not specified, last used are used
+        """
         """ start action after 'delay' seconds. """
+
+        if delay is not None:
+            self._delay = int(delay * 1000)
+
+        if prio is not None:
+            self._prio = prio
+
+        if args is not None:
+            self.args = args
+
+        if kwargs is not None:
+            self.kwargs = kwargs
+
         self.stop()
-        self.running = gobject.timeout_add(int(delay*1000), self._run, priority=prio)
+        self.running = gobject.timeout_add(self._delay, self._run,
+                priority=self._prio)
 
     def stop(self):
+        """ Stop the action if running """
         if self.running is not None:
             gobject.source_remove(self.running)
         self.running = None

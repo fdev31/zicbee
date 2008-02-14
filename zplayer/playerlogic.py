@@ -23,9 +23,10 @@ class PlayerCtl(object):
 
         IterableAction(self._tick_generator()).start(0.5, prio=gobject.PRIORITY_HIGH_IDLE)
 
-        self._play_timeout = DelayedAction(self._play_now)
+        self._play_timeout = DelayedAction(self._play_now, _delay=1)
+        self.play = self._play_timeout.start
         self._seek_action = DelayedAction(self._seek_now)
-        self._volume_action = DelayedAction(lambda v: self.player.volume(v), 0.5)
+        self._volume_action = DelayedAction(lambda v: self.player.volume(v), _delay=0.2)
         self.playlist = ListStore(str, str, str, str, int, int)
 
     def __del__(self):
@@ -72,7 +73,9 @@ class PlayerCtl(object):
             except:
                 DEBUG()
 
-    def _play_now(self, selected):
+    def _play_now(self):
+        selected = self.selected
+        assert selected is not None
 
         def _download_zic(uri, fname):
             site = urllib.urlopen(uri)
@@ -100,7 +103,6 @@ class PlayerCtl(object):
                 fd.close()
             finally:
                 self._song_dl = None
-
         uri = self.selected_uri
         self.signal_view('song_uri', uri)
         idx = uri.index('id=')
@@ -127,7 +129,6 @@ class PlayerCtl(object):
         self._seek_action.start(0.2)
 
     def shuffle(self):
-        print "Mixing", len(self.playlist), "elements."
         pos_list = range(len(self.playlist))
         random.shuffle(pos_list)
         self.playlist.reorder(pos_list)
@@ -160,8 +161,7 @@ class PlayerCtl(object):
             else:
                 info_list[1] = ''
 
-            self._play_timeout.args = [m_d]
-            self._play_timeout.start(1)
+            self.play()
 
             title_artist = escape('%s\n%s'%(
                     m_d.get('title', 'Untitled'),
@@ -182,15 +182,21 @@ class PlayerCtl(object):
             self._running = False
 
     def fetch_playlist(self, hostname, **kw):
+        """
+        arguments:
+            hostname: database host
+            pattern: str must be passed
+        """
+        if ':' not in hostname:
+            hostname += ':9090'
         self.hostname = hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(kw))
         site = urllib.urlopen(uri)
         self.playlist.clear()
-        yield
         add = self.playlist.append
         total = 0
+        done = False
         try:
-            done = False
             while not done:
                 for n in xrange(100):
                     line = site.readline()
@@ -202,8 +208,6 @@ class PlayerCtl(object):
                     add(r)
                 self.signal_view('update_total', total)
                 yield True
-        except Exception, e:
-            DEBUG()
         finally:
             self._total_length = total
 

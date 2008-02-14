@@ -88,8 +88,7 @@ class PPlayer(object):
         value *= 100
         if not (0 <= value <= 100):
             return False
-        self.player_ctl._volume_action.args[0] = int(value)
-        self.player_ctl._volume_action.start(0.1)
+        self.player_ctl._volume_action.start(args=int(value))
 
     def absolute_seek(self, w, type, val):
         #     |      Seek to some place in the movie.
@@ -98,18 +97,17 @@ class PPlayer(object):
         #     |          2 is a seek to an absolute position of <value> seconds.
         self.player_ctl.seek(val)
 
-    hostname = property(lambda self: self.hostname_w.get_text() if ':' in self.hostname_w.get_text() else self.hostname_w.get_text()+':9090')
-
     def validate_pattern(self, w):
+        hostname = self.hostname_w.get_text()
         try:
             pat = self.pat.get_text()
-            it = self.player_ctl.fetch_playlist(self.hostname, pattern=pat)
+            it = self.player_ctl.fetch_playlist(hostname, pattern=pat)
             it.next()
             IterableAction(it).start(0.001, prio=gobject.PRIORITY_DEFAULT_IDLE)
         except:
             DEBUG()
             self._pop_status()
-            self._push_status('Connection to %s failed'%self.hostname)
+            self._push_status('Connection to %s failed'%hostname)
         else:
             config.default_search = pat
             self._pop_status()
