@@ -17,7 +17,6 @@ web.internalerror = web.debugerror
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicdb', 'web_templates'))
-os.chdir( resource_filename('zicdb', 'static')[:-6] )
 
 # Allow glib calls (notifier)
 start_new_thread(gobject.MainLoop().run, tuple())
@@ -150,6 +149,7 @@ class index:
 
 def do_serve():
     # UGLY !
+    os.chdir( resource_filename('zicdb', 'static')[:-6] )
     sys.argv = ['zicdb', '9090']
     try:
         web.run(urls, globals())
