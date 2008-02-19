@@ -73,23 +73,29 @@ class index:
             try:
                 artist_form.fill()
                 song_id = artist_form['id'].value
-                if name.startswith("get") and song_id:
+                if song_id:
                     song_id = uncompact_int(song_id)
-                    filename = songs[song_id].filename
-                    web.header('Content-Type', 'application/x-audio')
-                    web.header('Content-Disposition',
-                            'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+                    if name.startswith("get"):
+                        filename = songs[song_id].filename
+                        web.header('Content-Type', 'application/x-audio')
+                        web.header('Content-Disposition',
+                                'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
 
-                    CHUNK=1024
-                    in_fd = file(filename)
-                    web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
-                    yield
+                        CHUNK=1024
+                        in_fd = file(filename)
+                        web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+                        yield
 
-                    while True:
-                        data = in_fd.read(CHUNK)
-                        if not data: break
-                        y = (yield data)
-                    return
+                        while True:
+                            data = in_fd.read(CHUNK)
+                            if not data: break
+                            y = (yield data)
+                        return
+                    else:
+                        song = songs[song_id]
+                        for f in song.fields:
+                            yield "<b>%s</b>: %s<br/>"%(f, getattr(song, f))
+                        return
             except GeneratorExit:
                 raise
             except Exception, e:
