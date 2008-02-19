@@ -7,10 +7,6 @@ from pkg_resources import resource_filename
 from time import time
 from zicdb.zshell import songs
 from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
-import gobject
-from thread import start_new_thread
-from zplayer import playerlogic
-from zplayer.events import DelayedAction, IterableAction
 
 web.internalerror = web.debugerror
 
@@ -18,8 +14,16 @@ web.internalerror = web.debugerror
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicdb', 'web_templates'))
 
-# Allow glib calls (notifier)
-start_new_thread(gobject.MainLoop().run, tuple())
+try:
+    from zplayer.playerlogic import  PlayerCtl
+    from zplayer.events import DelayedAction, IterableAction
+    import gobject
+    from thread import start_new_thread
+    # Allow glib calls (notifier)
+    start_new_thread(gobject.MainLoop().run, tuple())
+except ImportError:
+    print "Failed loading player!"
+    PlayerCtl = lambda *args: None
 
 # Prepare some web stuff
 urls = (
@@ -35,7 +39,7 @@ artist_form = web.form.Form(
 
 
 class webplayer:
-    player = playerlogic.PlayerCtl()
+    player = PlayerCtl()
 
     GET = web.autodelegate('REQ_')
     lastlog = []
