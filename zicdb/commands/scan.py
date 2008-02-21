@@ -4,23 +4,21 @@ import os
 import sys
 from time import time
 from zicdb.zshell import args, songs
-from zicdb.zutils import duration_tidy
+from zicdb.zutils import duration_tidy, clean_path
 
 def do_scan():
     if not args:
         sys.exit('At least one argument must be specified!')
 
-    newline_iterator = itertools.cycle(x == 10 for x in xrange(11))
+    newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
     orig_nb = len(songs)
     start_t = time()
 
     archives = []
     directories = []
 
-    exp_vars = os.path.expandvars
-    exp_usr = os.path.expanduser
     for path in args:
-        path = exp_usr(exp_vars(path))
+        path = clean_path(path)
         if os.path.isdir(path):
             directories.append(path)
         else:

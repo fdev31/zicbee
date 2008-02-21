@@ -1,13 +1,18 @@
-__all__ = ['jdump', 'jload', 'parse_line', 'duration_tidy', 'DEBUG']
+__all__ = ['jdump', 'jload', 'clean_path', 'parse_line', 'duration_tidy', 'DEBUG']
 
 import traceback
 import itertools
 import string
 import sys
+from os.path import expanduser, expandvars, abspath
 
 def DEBUG():
     traceback.print_stack()
     traceback.print_exc()
+
+# Filename path cleaner
+def clean_path(path):
+    return expanduser(abspath(expandvars(path)))
 
 # int (de)compacter [int <> small str convertors]
 # convert to base62...
