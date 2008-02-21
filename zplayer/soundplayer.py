@@ -21,10 +21,13 @@ class SoundPlayer(object):
     def loadfile(self, filename, autoplay=True):
         if self._player:
             self._player.stop()
-        self._source = media.load(filename)
-
-        if autoplay:
-            self._player = self._source.play()
+        try:
+            self._source = media.load(filename)
+        except:
+            raise
+        else:
+            if autoplay:
+                self._player = self._source.play()
 
     running = property(lambda self: self._player and self._player.playing)
     starved = property(lambda self: not bool(self._player._next_audio_data))
