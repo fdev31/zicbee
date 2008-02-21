@@ -58,6 +58,14 @@ class webplayer:
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
 
+    def REQ_playlist(self):
+        for elt in self.player.playlist:
+            yield str(list(elt))
+            yield "\n"
+
+    def REQ_shuffle(self):
+        self.player.shuffle()
+
     def REQ_pause(self):
         self.player.pause()
 
