@@ -25,6 +25,17 @@ and uncomment one of those (recommended alternative: simplejson):
 
 Good luck !"""
 
+requirements = [ 'buzhug>=0.9', 'mutagen>=1.13' ]
+
+if os.name == 'posix':
+    requirements.append('python-cjson>=1.0.5')
+else:
+    requirements.append('demjson>=1.1')
+
+# if it fails, try:
+#requirements[-1] = 'simplejson>=1.7.3'
+
+
 setup (
         name='zicdb',
         version=VERSION,
@@ -41,7 +52,7 @@ setup (
         entry_points = {
             "console_scripts": [
                 'zicdb = zicdb:startup',
-                'zicgui = zplayer.pplayer:main'
+                'zicgui = zplayer.pplayer:main [player]'
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicdb:startup'
@@ -51,12 +62,12 @@ setup (
         install_requires = [
             'buzhug>=0.9',
             'mutagen>=1.13',
-            'web.py>=0.22',
-            'pyglet>=1.0',
-            'python-cjson>=1.0.5',
-#            'simplejson>=1.7.3',
-#            'demjson>=1.1',
             ],
+
+        extras_require = dict(
+            player='pyglet>=1.0',
+            server=['web.py>=0.22', 'buzhug>=0.9', 'mutagen>=1.13'],
+            ),
 
         dependency_links = [
             'eggs',
