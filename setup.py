@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 try:
 	import setuptools
@@ -66,7 +67,7 @@ setup (
 
         extras_require = dict(
             player='pyglet>=1.0',
-            server=['web.py>=0.22', 'buzhug>=0.9', 'mutagen>=1.13'],
+            server='web.py>=0.22',
             ),
 
         dependency_links = [
