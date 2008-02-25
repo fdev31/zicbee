@@ -168,7 +168,37 @@ class PPlayer(object):
 
     def SIG_select(self, pos):
         self.list_w.set_cursor( (pos, 0) )
+        from pyglet import font
+        from pyglet import window
+        win = window.Window()
+        WIDTH = 600
+        HEIGHT = 100
+        win.set_size(WIDTH, HEIGHT)
+        ft = font.load('Arial', HEIGHT/4)
+        txt = self.info_lbl.get_text().decode('utf-8')
+        text = font.Text(ft, txt, valign='center', halign='center')
+        text.y = HEIGHT/2
+        text.x = WIDTH/2
+        win.set_location(-1, -HEIGHT)
+        win.dispatch_events()
+        def _fade_in():
+            print self._actual_infos
+            for n in xrange(1, HEIGHT, 4):
+                win.set_location(-1, -HEIGHT+n)
+                win.clear()
+                text.draw()
+                win.flip()
+                yield
+            win.clear()
+            text.draw()
+            win.flip()
+            DelayedAction(_fade_out).start(2)
 
+        def _fade_out():
+            for n in reversed(xrange(HEIGHT)):
+                win.set_location(-1, -HEIGHT+n)
+            win.close()
+        IterableAction(_fade_in()).start(0.001)
 
 def main():
     player_ctl = PlayerCtl()
