@@ -74,6 +74,7 @@ class PPlayer(object):
         self.win.set_geometry_hints(self.win, 386, 176)
         self.win.show()
         self._old_size = self.win.get_size()
+        self._popup_win = None
 
     def _push_status(self, txt):
         if txt is None:
@@ -170,34 +171,48 @@ class PPlayer(object):
         self.list_w.set_cursor( (pos, 0) )
         from pyglet import font
         from pyglet import window
-        win = window.Window()
         WIDTH = 600
         HEIGHT = 100
-        win.set_size(WIDTH, HEIGHT)
+
+        if self._popup_win is None:
+            self._popup_win = window.Window(WIDTH, HEIGHT, visible=False, style=window.Window.WINDOW_STYLE_TOOL)
+        win = self._popup_win
+        win.switch_to()
+        # screen infos:
+        screen0 = window.get_platform().get_default_display().get_screens()[0]
+
+        # txt
         ft = font.load('Arial', HEIGHT/4)
         txt = self.info_lbl.get_text().decode('utf-8')
         text = font.Text(ft, txt, valign='center', halign='center')
         text.y = HEIGHT/2
         text.x = WIDTH/2
-        win.set_location(-1, -HEIGHT)
+
+        x_margin = screen0.width - WIDTH
+
+        win.set_location(x_margin, -HEIGHT)
+        win.set_visible()
         win.dispatch_events()
         def _fade_in():
             print self._actual_infos
             for n in xrange(1, HEIGHT, 4):
-                win.set_location(-1, -HEIGHT+n)
+                win.set_location(x_margin, -HEIGHT+n)
                 win.clear()
                 text.draw()
                 win.flip()
+                win.dispatch_events()
                 yield
             win.clear()
             text.draw()
             win.flip()
-            DelayedAction(_fade_out).start(2)
+            DelayedAction(lambda: IterableAction(_fade_out()).start(0.01)).start(3)
 
         def _fade_out():
-            for n in reversed(xrange(HEIGHT)):
-                win.set_location(-1, -HEIGHT+n)
-            win.close()
+            for n in reversed(xrange(1, HEIGHT, 4)):
+                win.set_location(x_margin, -HEIGHT+n)
+                win.dispatch_events()
+                yield
+            win.set_visible(False)
         IterableAction(_fade_in()).start(0.001)
 
 def main():
