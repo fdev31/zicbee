@@ -168,7 +168,7 @@ class index:
 def do_serve():
     # UGLY !
     os.chdir( resource_filename('zicdb', 'static')[:-6] )
-    sys.argv = ['zicdb', '9090']
+    sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
         web.run(urls, globals())
     except:
