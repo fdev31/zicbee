@@ -61,6 +61,7 @@ class Database(object):
         return len(self.db)
 
     def dump_archive(self, filename):
+        """ dump a bz2 archive from this database """
         self.db.cleanup()
         from tarfile import TarFile
         tar = TarFile.open(filename, 'w:bz2')
@@ -74,8 +75,17 @@ class Database(object):
                 tar.addfile(ti, fileobj=fd)
         tar.close()
 
+    def get_hash_iterator(self):
+        """ Returns an (id, hash) tuple generator """
+        for item in self.search():
+            yield item.__id__, '%(artist)s:%(album)s:%(title)s'%dict(
+                    (k, ''.join(c for c in getattr(item, k).lower() if c != ' '))
+                    if isinstance(getattr(item, k), basestring)
+                    else (k, getattr(item, k))
+                    for k in item.fields)
+
     def merge(self, directory=None, archive=None, no_dups=True):
-        """ Merge informations from files in specified directory """
+        """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
 
         try:
@@ -183,6 +193,7 @@ class Database(object):
         self.db.commit()
 
 def filter_dict(data):
+    """ Returns a filtered given data dict """
     for good_tag, bad_tags in filters_dict.iteritems():
         for bad_tag in bad_tags:
             if good_tag in data:

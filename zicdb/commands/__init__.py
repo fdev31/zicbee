@@ -33,3 +33,31 @@ def do_reset():
     print "Database cleared!"
 
 
+def do_hash():
+    for i in songs.get_hash_iterator():
+        print "%8d / %s"%i
+
+def do_find_dups(wpt=None):
+    """
+    wpt == wrong positive threshold (ceil to not reach)
+    """
+
+    import itertools
+    hash_dict = dict()
+
+    cnt = itertools.count()
+
+    if wpt is None:
+        wpt = min(1000, len(songs)/60) # take untaged/corrupted data into account
+
+    for num, footprint in songs.get_hash_iterator():
+        if footprint not in hash_dict:
+            hash_dict[footprint] = [num]
+        else:
+            hash_dict[footprint].append(num)
+
+    for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
+        print "#", cnt.next()
+        for num in m:
+            print "%d: %s"%(num, songs[num].filename)
+
