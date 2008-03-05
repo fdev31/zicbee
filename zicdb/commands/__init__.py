@@ -34,6 +34,7 @@ def do_reset():
 
 
 def do_hash():
+    """ Returns a list of id / hash lines """
     for i in songs.get_hash_iterator():
         print "%8d / %s"%i
 
@@ -60,4 +61,11 @@ def do_find_dups(wpt=None):
         print "#", cnt.next()
         for num in m:
             print "%d: %s"%(num, songs[num].filename)
+
+def do_listallcmds():
+    """ The developper's help (WIP functions also) """
+    g = globals()
+    for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
+        print cmd.func_name[3:]
+
 
