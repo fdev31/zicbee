@@ -22,7 +22,7 @@ try:
     # Allow glib calls (notifier)
     start_new_thread(gobject.MainLoop().run, tuple())
 except ImportError:
-    print "Failed loading player!"
+    sys.stderr("Failed loading player!")
     PlayerCtl = lambda *args: None
 
 # Prepare some web stuff
