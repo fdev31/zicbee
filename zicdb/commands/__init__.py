@@ -23,25 +23,29 @@ def do_list():
 def do_shell():
     import pdb; pdb.set_trace()
 
+do_shell.__doc__ = 'Spawns a shell'
+
 def do_bundle():
     if len(args) != 1:
         raise SystemExit("Need filename name as agment !")
     songs.dump_archive(args[0])
 
+do_bundle.__doc__ = 'Dump an archive (at given filename)'
+
 def do_reset():
     songs.destroy()
     print "Database cleared!"
 
+do_reset.__doc__ = 'Destroys the database'
+
 
 def do_hash():
-    """ Returns a list of id / hash lines """
     for i in songs.get_hash_iterator():
         print "%8d / %s"%i
 
+do_hash.__doc__ = """ Returns a list of id / hash lines """
+
 def do_find_dups(wpt=None):
-    """
-    wpt == wrong positive threshold (ceil to not reach)
-    """
 
     import itertools
     hash_dict = dict()
@@ -62,10 +66,21 @@ def do_find_dups(wpt=None):
         for num in m:
             print "%d: %s"%(num, songs[num].filename)
 
-def do_listallcmds():
-    """ The developper's help (WIP functions also) """
-    g = globals()
-    for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
-        print cmd.func_name[3:]
+do_find_dups.__doc__ = """
+Find duplicates
+Parameters:
+    wpt == wrong positive threshold (ceil to not reach), default == auto
+    """
 
+def do_listallcmds():
+    g = globals()
+    undoc = []
+    for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
+        if cmd.__doc__:
+            print "%s:\n%s\n"%(cmd.func_name[3:], ('\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip())))
+        else:
+            undoc.append(cmd.func_name[3:])
+    print "undocumented:", ', '.join(undoc)
+
+do_listallcmds.__doc__ = """ The developper's help (WIP functions also) """
 
