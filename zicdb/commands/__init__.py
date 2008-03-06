@@ -45,9 +45,12 @@ def do_hash():
 
 do_hash.__doc__ = """ Returns a list of id / hash lines """
 
-def do_find_dups(wpt=None):
+def do_find_dups(wpt=None, ar=None):
 
     import itertools
+    import heapq
+    from os.path import dirname
+
     hash_dict = dict()
 
     cnt = itertools.count()
@@ -61,15 +64,31 @@ def do_find_dups(wpt=None):
         else:
             hash_dict[footprint].append(num)
 
-    for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
-        print "#", cnt.next()
-        for num in m:
-            print "%d: %s"%(num, songs[num].filename)
+    if ar:
+        for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
+            h = []
+            for num in m:
+                song = songs[num]
+                heapq.heappush(h,
+                        (len(song.filename), song))
+
+            for nb, other in h:
+                if other != h[-1][1]:
+                    print "rm '%s'"%(other.filename.replace("'", r"\'"))
+                else:
+                    print "# kept %s"%other.filename
+    else:
+        for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
+            print "#", cnt.next()
+            for num in m:
+                print "%d: %s"%(num, songs[num].filename)
+
 
 do_find_dups.__doc__ = """
 Find duplicates
 Parameters:
-    wpt == wrong positive threshold (ceil to not reach), default == auto
+    wpt: wrong positive threshold (ceil to not reach), default == auto
+    ar: auto remove (ask for directory delection), the smallest directory always win
     """
 
 def do_listallcmds():
