@@ -54,6 +54,7 @@ def do_find_dups(wpt=None, ar=None):
     hash_dict = dict()
 
     cnt = itertools.count()
+    total_cnt = itertools.count()
 
     if wpt is None:
         wpt = min(1000, len(songs)/60) # take untaged/corrupted data into account
@@ -81,7 +82,9 @@ def do_find_dups(wpt=None, ar=None):
         for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
             print "#", cnt.next()
             for num in m:
+                total_cnt.next()
                 print "%d: %s"%(num, songs[num].filename)
+        print total_cnt.next()-cnt.next()-1, "# songs to be removed..."
 
 
 do_find_dups.__doc__ = """
