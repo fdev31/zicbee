@@ -190,27 +190,30 @@ class PPlayer(object):
 
         x_margin = screen0.width - WIDTH
 
-        win.set_location(x_margin, -HEIGHT)
-        win.set_visible()
-        win.dispatch_events()
-        def _fade_in():
-            print self._actual_infos
-            for n in xrange(1, HEIGHT, 4):
-                win.set_location(x_margin, -HEIGHT+n)
-                win.clear()
-                text.draw()
-                win.flip()
-                win.dispatch_events()
-                yield
+        @win.event
+        def on_draw():
             win.clear()
             text.draw()
-            win.flip()
+
+        win.set_location(x_margin, -HEIGHT)
+        win.set_visible()
+#        win.dispatch_events()
+        def _fade_in():
+#            print self._actual_infos
+            for n in xrange(1, HEIGHT, 4):
+                win.set_location(x_margin, -HEIGHT+n)
+#                win.flip()
+#                win.dispatch_events()
+                yield
+#            win.clear()
+#            text.draw()
+#            win.flip()
             DelayedAction(lambda: IterableAction(_fade_out()).start(0.01)).start(3)
 
         def _fade_out():
             for n in reversed(xrange(1, HEIGHT, 4)):
                 win.set_location(x_margin, -HEIGHT+n)
-                win.dispatch_events()
+#                win.dispatch_events()
                 yield
             win.set_visible(False)
         IterableAction(_fade_in()).start(0.001)
