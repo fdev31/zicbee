@@ -3,17 +3,12 @@ from __future__ import with_statement
 import pyglet
 import pyglet.media.avbin # ensure avbin is installed
 pyglet.options['audio'] = ('alsa', 'directsound', 'openal', 'silent')
-from pyglet import media
 from thread import start_new_thread
 from time import sleep
 
 from zicdb.zutils import DEBUG
 
-def _eventdispatcher():
-    while True:
-        media.dispatch_events()
-        sleep(0.01)
-
+_eventdispatcher = pyglet.app.run
 start_new_thread(_eventdispatcher, tuple())
 
 class SoundPlayer(object):
@@ -28,7 +23,7 @@ class SoundPlayer(object):
             except ValueError:
                 pass # Stream not in play list
         try:
-            self._source = media.load(filename)
+            self._source = pyglet.media.load(filename)
         except:
             DEBUG()
         else:
