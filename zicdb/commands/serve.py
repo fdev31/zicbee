@@ -21,8 +21,8 @@ try:
     from thread import start_new_thread
     # Allow glib calls (notifier)
     start_new_thread(gobject.MainLoop().run, tuple())
-except ImportError:
-    sys.stderr.write("Failed loading player!\n")
+except ImportError, e:
+    sys.stderr.write("Failed loading player! %s\n"%e)
     PlayerCtl = lambda *args: None
 
 # Prepare some web stuff
@@ -62,8 +62,18 @@ class webplayer:
         return '\n'.join(self.lastlog)
 
     def REQ_playlist(self):
-        for elt in self.player.playlist:
-            yield str(list(elt))
+        i = web.input()
+        pls = self.player.playlist
+
+        start = int(i.get('start', 0))
+
+        if i.get('res'):
+            end = start + int(i.res)
+        else:
+            end = len(pls)
+
+        for i in xrange(start, end):
+            yield str(list(pls[i]))
             yield "\n"
 
     def REQ_shuffle(self):

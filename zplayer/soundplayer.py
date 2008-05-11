@@ -1,6 +1,7 @@
 from __future__ import with_statement
 
 import pyglet
+import pyglet.media.avbin # ensure avbin is installed
 pyglet.options['audio'] = ('alsa', 'directsound', 'openal', 'silent')
 from pyglet import media
 from thread import start_new_thread
@@ -35,7 +36,7 @@ class SoundPlayer(object):
                 self._player = self._source.play()
 
     running = property(lambda self: self._player and self._player.playing)
-    starved = property(lambda self: not bool(self._player._next_audio_data))
+    finished = property(lambda self: not bool(self._player._sources))
 
     def stop(self):
         self._player.stop()

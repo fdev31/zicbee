@@ -52,14 +52,15 @@ class PlayerCtl(object):
                     # Do nothing if paused or actualy changing the song
                     continue
                 if self._running:
-                    if self.player.starved: # End of track
-                        raise Exception()
+                    if self.player.finished: # End of track
+                        raise Exception('player starved')
                     self._position = self.player.get_time_pos()
                     if self._position is None:
-                        raise Exception()
+                        raise Exception('no position')
                     else:
                         self.signal_view('progress', float(self._position))
             except Exception, e:
+                print "ERR", repr(e)
                 self._new_error()
             else:
                 self._error_count = itertools.count()
