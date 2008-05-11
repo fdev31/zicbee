@@ -8,6 +8,8 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
+print "blah"
+
 VERSION='0.5'
 
 if 'install' in sys.argv:
@@ -66,7 +68,7 @@ setup (
             ],
 
         extras_require = dict(
-            player='pyglet>1.0',
+            player='pyglet>1.1',
             server='web.py>=0.22',
             ),
 
