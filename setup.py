@@ -8,8 +8,6 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-print "blah"
-
 VERSION='0.5'
 
 if 'install' in sys.argv:
