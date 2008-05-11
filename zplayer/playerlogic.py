@@ -228,4 +228,11 @@ class PlayerCtl(object):
 
     selected_uri = property(lambda self: 'http://' + self.hostname + self.playlist[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
 
+    @property
+    def infos(self):
+        return dict(
+                current = self._cur_song_pos,
+                total = len(self.playlist),
+                running = self._running,
+                )
 

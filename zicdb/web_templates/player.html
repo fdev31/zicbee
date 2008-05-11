@@ -1,0 +1,16 @@
+$def with (song, infos)
+
+$if infos.get('running'):
+    <h1>Running</h1>
+$else:
+    <h1>Not running</h1>
+
+$if song:
+    Song ${infos['current']} of ${infos['total']}.
+    <table>
+    $for k, v in song.iteritems():
+        <tr><td><b>${k}:</b></td><td>$v</td></tr>
+    </table>
+$else:
+    <h2>No song played</h2>
+

@@ -44,6 +44,12 @@ class webplayer:
     GET = web.autodelegate('REQ_')
     lastlog = []
 
+    def REQ_main(self):
+        yield render.player(
+                self.player.selected,
+                self.player.infos,
+                )
+
     def REQ_search(self):
         i = web.input()
         if i.get('pat'):
@@ -54,9 +60,19 @@ class webplayer:
         yield "OK"
 
     def REQ_infos(self):
-        yield 'current track: %s\n'%self.player._cur_song_pos
-        yield 'playlist size: %s\n'%len(self.player.playlist)
-        yield '\n'.join('%s: %s'%(k, v) for k,v in self.player.selected.iteritems())
+        i = web.input()
+        format = i.get('fmt', 'txt')
+
+        if format == 'txt':
+            yield 'current track: %s\n'%self.player._cur_song_pos
+            yield 'playlist size: %s\n'%len(self.player.playlist)
+            for k, v in self.player.selected.iteritems():
+                yield '%s: %s\n'%(k, v)
+        elif format == 'json':
+            _d = self.player.selected.copy()
+            _d['pls_position'] = self.player._cur_song_pos
+            _d['pls_size'] = len(self.player.playlist)
+            yield jdump(_d)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
@@ -67,14 +83,20 @@ class webplayer:
 
         start = int(i.get('start', 0))
 
+        format = i.get('fmt', 'txt')
+
         if i.get('res'):
             end = start + int(i.res)
         else:
             end = len(pls)
 
-        for i in xrange(start, end):
-            yield str(list(pls[i]))
-            yield "\n"
+        window_iterator = (pls[i] for i in xrange(start, end))
+
+        if format == 'txt':
+            for elt in window_iterator:
+                yield str(list(elt))
+        elif format == 'json':
+            yield jdump(list(window_iterator))
 
     def REQ_shuffle(self):
         self.player.shuffle()
