@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.4'
+VERSION='0.5'
 
 if 'install' in sys.argv:
     print """Warning:
@@ -26,20 +26,17 @@ and uncomment one of those (recommended alternative: simplejson):
 
 Good luck !"""
 
-requirements = [
-        'buzhug>=0.9',
-        'mutagen>=1.13',
-        'web.py>=0.22',
-        'pyglet>=1.0',
-        ]
+
+
+# also supported:
+#            'simplejson>=1.7.3',
+
+requirements = [ 'buzhug>=0.9', 'mutagen>=1.13' ]
 
 if os.name in ('nt', 'ce'):
     requirements.append( 'demjson>=1.1' )
 else:
     requirements.append( 'python-cjson>=1.0.5' )
-
-# also supported:
-#            'simplejson>=1.7.3',
 
 setup (
         name='zicdb',
@@ -57,7 +54,7 @@ setup (
         entry_points = {
             "console_scripts": [
                 'zicdb = zicdb:startup',
-                'zicgui = zplayer.pplayer:main'
+                'zicgui = zplayer.pplayer:main [player]'
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicdb:startup'
@@ -65,6 +62,11 @@ setup (
             },
 
         install_requires = requirements,
+
+        extras_require = dict(
+            player='pyglet>1.1',
+            server='web.py>=0.22',
+            ),
 
         dependency_links = [
             'eggs',

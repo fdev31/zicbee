@@ -52,14 +52,15 @@ class PlayerCtl(object):
                     # Do nothing if paused or actualy changing the song
                     continue
                 if self._running:
-                    if self.player.starved: # End of track
-                        raise Exception()
+                    if self.player.finished: # End of track
+                        raise Exception('player starved')
                     self._position = self.player.get_time_pos()
                     if self._position is None:
-                        raise Exception()
+                        raise Exception('no position')
                     else:
                         self.signal_view('progress', float(self._position))
             except Exception, e:
+                print "ERR", repr(e)
                 self._new_error()
             else:
                 self._error_count = itertools.count()
@@ -227,4 +228,11 @@ class PlayerCtl(object):
 
     selected_uri = property(lambda self: 'http://' + self.hostname + self.playlist[self._cur_song_pos][0] if self._cur_song_pos >= 0 else None)
 
+    @property
+    def infos(self):
+        return dict(
+                current = self._cur_song_pos,
+                total = len(self.playlist),
+                running = self._running,
+                )
 

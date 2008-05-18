@@ -7,10 +7,6 @@ from pkg_resources import resource_filename
 from time import time
 from zicdb.zshell import songs
 from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
-import gobject
-from thread import start_new_thread
-from zplayer import playerlogic
-from zplayer.events import DelayedAction, IterableAction
 
 web.internalerror = web.debugerror
 
@@ -18,8 +14,16 @@ web.internalerror = web.debugerror
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicdb', 'web_templates'))
 
-# Allow glib calls (notifier)
-start_new_thread(gobject.MainLoop().run, tuple())
+try:
+    from zplayer.playerlogic import  PlayerCtl
+    from zplayer.events import DelayedAction, IterableAction
+    import gobject
+    from thread import start_new_thread
+    # Allow glib calls (notifier)
+    start_new_thread(gobject.MainLoop().run, tuple())
+except ImportError, e:
+    sys.stderr.write("Failed loading player! %s\n"%e)
+    PlayerCtl = lambda *args: None
 
 # Prepare some web stuff
 urls = (
@@ -35,10 +39,16 @@ artist_form = web.form.Form(
 
 
 class webplayer:
-    player = playerlogic.PlayerCtl()
+    player = PlayerCtl()
 
     GET = web.autodelegate('REQ_')
     lastlog = []
+
+    def REQ_main(self):
+        yield render.player(
+                self.player.selected,
+                self.player.infos,
+                )
 
     def REQ_search(self):
         i = web.input()
@@ -50,12 +60,46 @@ class webplayer:
         yield "OK"
 
     def REQ_infos(self):
-        yield 'current track: %s\n'%self.player._cur_song_pos
-        yield 'playlist size: %s\n'%len(self.player.playlist)
-        yield '\n'.join('%s: %s'%(k, v) for k,v in self.player.selected.iteritems())
+        i = web.input()
+        format = i.get('fmt', 'txt')
+
+        if format == 'txt':
+            yield 'current track: %s\n'%self.player._cur_song_pos
+            yield 'playlist size: %s\n'%len(self.player.playlist)
+            for k, v in self.player.selected.iteritems():
+                yield '%s: %s\n'%(k, v)
+        elif format == 'json':
+            _d = self.player.selected.copy()
+            _d['pls_position'] = self.player._cur_song_pos
+            _d['pls_size'] = len(self.player.playlist)
+            yield jdump(_d)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
+
+    def REQ_playlist(self):
+        i = web.input()
+        pls = self.player.playlist
+
+        start = int(i.get('start', 0))
+
+        format = i.get('fmt', 'txt')
+
+        if i.get('res'):
+            end = start + int(i.res)
+        else:
+            end = len(pls)
+
+        window_iterator = (pls[i] for i in xrange(start, end))
+
+        if format == 'txt':
+            for elt in window_iterator:
+                yield str(list(elt))
+        elif format == 'json':
+            yield jdump(list(window_iterator))
+
+    def REQ_shuffle(self):
+        self.player.shuffle()
 
     def REQ_pause(self):
         self.player.pause()
@@ -73,23 +117,29 @@ class index:
             try:
                 artist_form.fill()
                 song_id = artist_form['id'].value
-                if name.startswith("get") and song_id:
+                if song_id:
                     song_id = uncompact_int(song_id)
-                    filename = songs[song_id].filename
-                    web.header('Content-Type', 'application/x-audio')
-                    web.header('Content-Disposition',
-                            'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+                    if name.startswith("get"):
+                        filename = songs[song_id].filename
+                        web.header('Content-Type', 'application/x-audio')
+                        web.header('Content-Disposition',
+                                'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
 
-                    CHUNK=1024
-                    in_fd = file(filename)
-                    web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
-                    yield
+                        CHUNK=1024
+                        in_fd = file(filename)
+                        web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+                        yield
 
-                    while True:
-                        data = in_fd.read(CHUNK)
-                        if not data: break
-                        y = (yield data)
-                    return
+                        while True:
+                            data = in_fd.read(CHUNK)
+                            if not data: break
+                            y = (yield data)
+                        return
+                    else:
+                        song = songs[song_id]
+                        for f in song.fields:
+                            yield "<b>%s</b>: %s<br/>"%(f, getattr(song, f))
+                        return
             except GeneratorExit:
                 raise
             except Exception, e:
@@ -150,7 +200,7 @@ class index:
 def do_serve():
     # UGLY !
     os.chdir( resource_filename('zicdb', 'static')[:-6] )
-    sys.argv = ['zicdb', '9090']
+    sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
         web.run(urls, globals())
     except:

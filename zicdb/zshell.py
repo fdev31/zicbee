@@ -11,5 +11,3 @@ def init(args=None):
             dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)),
                 args=clean_args)
             )
-    sys.argv = sys.argv[2:]
-
