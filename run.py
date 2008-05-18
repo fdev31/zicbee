@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 import sys
-from zicdb import startup
+from zicbee.core import startup
 startup()

@@ -39,7 +39,7 @@ else:
     requirements.append( 'python-cjson>=1.0.5' )
 
 setup (
-        name='zicdb',
+        name='zicbee',
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
@@ -47,17 +47,16 @@ setup (
         keywords='database music tags metadata management',
         packages = find_packages(),
         package_data = {
-            'zicdb': ['web_templates/*.html', 'static/*'],
-            'zplayer': ['*.glade'],
+            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*', 'ui/*.glade'],
             },
 
         entry_points = {
             "console_scripts": [
-                'zicdb = zicdb:startup',
-                'zicgui = zplayer.pplayer:main [player]'
+                'zicdb = zicbee.core:startup',
+                'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
             "setuptools.installation" : [
-                'eggsecutable = zicdb:startup'
+                'eggsecutable = zicbee.core:startup'
                 ]
             },
 

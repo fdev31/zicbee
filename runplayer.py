@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 import sys
-from zplayer.pplayer import main
+from zicbee.ui.gtk.player import main
 main()

@@ -6,7 +6,7 @@ pyglet.options['audio'] = ('alsa', 'directsound', 'openal', 'silent')
 from thread import start_new_thread
 from time import sleep
 
-from zicdb.zutils import DEBUG
+from zicbee.core.zutils import DEBUG
 
 _eventdispatcher = pyglet.app.run
 start_new_thread(_eventdispatcher, tuple())

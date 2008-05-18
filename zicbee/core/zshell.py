@@ -1,7 +1,7 @@
 # vim: et ts=4 sw=4
 import os
 import sys
-from zicdb.dbe import Database
+from zicbee.db import Database
 
 DEFAULT_NAME='songs'
 

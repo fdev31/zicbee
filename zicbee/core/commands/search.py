@@ -1,8 +1,8 @@
 from time import time
 import sys
-from zicdb.dbe import valid_tags
-from zicdb.zshell import args, songs
-from zicdb.zutils import duration_tidy, parse_line, jload
+from zicbee.db import valid_tags
+from zicbee.core.zshell import args, songs
+from zicbee.core.zutils import duration_tidy, parse_line, jload
 
 def do_search(out=None, host=None):
     duration = 0

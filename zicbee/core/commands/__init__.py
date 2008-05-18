@@ -1,7 +1,7 @@
 # vim: et ts=4 sw=4
 
-from zicdb.dbe import Database, DB_DIR
-from zicdb.zshell import args, songs, DEFAULT_NAME
+from zicbee.db import Database, DB_DIR
+from zicbee.core.zshell import args, songs, DEFAULT_NAME
 
 from .search import do_search
 from .scan import do_scan

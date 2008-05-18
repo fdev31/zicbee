@@ -12,11 +12,11 @@ finally:
 
 import gobject
 import sys
-from .events import DelayedAction, IterableAction
-from .playerlogic import PlayerCtl
 from pkg_resources import resource_filename
-from zicdb.zutils import duration_tidy, DEBUG
-from zicdb.config import config
+from zicbee.core.config import config
+from zicbee.core.zutils import duration_tidy, DEBUG
+from zicbee.player.events import DelayedAction, IterableAction
+from zicbee.player.playerlogic import PlayerCtl
 
 class PPlayer(object):
 
@@ -26,7 +26,7 @@ class PPlayer(object):
         self._old_size = (4, 4)
         self._actual_infos = ''
 
-        self._wtree = gtk.glade.XML(resource_filename('zplayer', 'pplayer.glade'))
+        self._wtree = gtk.glade.XML(resource_filename('zicbee.ui.gtk', 'player.glade'))
 
         self.win = self._wtree.get_widget('main_window')
         self.list_w = self._wtree.get_widget('songlist_tv')

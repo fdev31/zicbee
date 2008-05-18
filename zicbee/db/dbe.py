@@ -3,7 +3,7 @@ __all__ = ['Database', 'valid_tags']
 
 import os
 import buzhug
-from zicdb.config import DB_DIR
+from zicbee.core.config import DB_DIR
 
 valid_ext = ('.ogg','.mp3', '.mp4',
     '.aac', '.vqf', '.wmv', '.wma', '.m4a', 'asf')

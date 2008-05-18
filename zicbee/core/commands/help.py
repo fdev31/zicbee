@@ -1,5 +1,5 @@
 # vim: et ts=4 sw=4
-from zicdb.dbe import valid_tags
+from zicbee.db import valid_tags
 
 def do_help():
         print "Welcome to ZicDB!".center(80)

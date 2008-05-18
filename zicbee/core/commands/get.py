@@ -8,7 +8,7 @@ from itertools import chain
 from weakref import WeakKeyDictionary
 
 from .search import do_search
-from zicdb.zutils import duration_tidy
+from zicbee.core.zutils import duration_tidy
 
 def DownloadGenerator(uri):
     uri, filename = uri

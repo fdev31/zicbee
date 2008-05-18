@@ -1,7 +1,7 @@
 import gobject
 gobject.threads_init()
 
-from zicdb.zutils import DEBUG
+from zicbee.core.zutils import DEBUG
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):

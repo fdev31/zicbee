@@ -5,7 +5,7 @@
 def startup(action='help'):
     import os
     import sys
-    import zicdb.zshell as zshell
+    import zicbee.core.zshell as zshell
     if len(sys.argv) > 1:
         action = sys.argv[1]
 
@@ -32,7 +32,7 @@ def startup(action='help'):
         params = tuple()
 
     try:
-        import zicdb.commands as cmds
+        import zicbee.core.commands as cmds
         commands_dict = dict((i[3:], getattr(cmds, i)) for i in dir(cmds) if i.startswith('do_'))
         commands_dict.get(action, cmds.do_help)(*params, **kparams)
 #        print dir(cmds)

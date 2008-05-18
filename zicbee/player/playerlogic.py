@@ -1,14 +1,15 @@
 __all__ = ['PlayerCtl']
+
 import gobject
 import itertools
 import random
 import urllib
-from .events import DelayedAction, IterableAction
-from .soundplayer import SoundPlayer
 from cgi import escape
 from gtk import ListStore
-from zicdb.zutils import duration_tidy, jload, DEBUG
-from zicdb.config import config
+from zicbee.core.config import config
+from zicbee.core.zutils import duration_tidy, jload, DEBUG
+from zicbee.player.events import DelayedAction, IterableAction
+from zicbee.player.soundplayer import SoundPlayer
 
 class PlayerCtl(object):
     def __init__(self):

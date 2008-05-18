@@ -3,8 +3,8 @@ import itertools
 import os
 import sys
 from time import time
-from zicdb.zshell import args, songs
-from zicdb.zutils import duration_tidy, clean_path
+from zicbee.core.zshell import args, songs
+from zicbee.core.zutils import duration_tidy, clean_path
 
 def do_scan():
     if not args:

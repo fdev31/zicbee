@@ -5,14 +5,14 @@ import sys
 import web
 from pkg_resources import resource_filename
 from time import time
-from zicdb.zshell import songs
-from zicdb.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
+from zicbee.core.zshell import songs
+from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
 
 web.internalerror = web.debugerror
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
-render = web.template.render(resource_filename('zicdb', 'web_templates'))
+render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
 try:
     from zplayer.playerlogic import  PlayerCtl
@@ -65,12 +65,14 @@ class webplayer:
 
         if format == 'txt':
             yield 'current track: %s\n'%self.player._cur_song_pos
+            yield 'current position: %s\n'%self.player._position
             yield 'playlist size: %s\n'%len(self.player.playlist)
             for k, v in self.player.selected.iteritems():
                 yield '%s: %s\n'%(k, v)
         elif format == 'json':
             _d = self.player.selected.copy()
             _d['pls_position'] = self.player._cur_song_pos
+            _d['song_position'] = self.player._position
             _d['pls_size'] = len(self.player.playlist)
             yield jdump(_d)
 
@@ -199,7 +201,7 @@ class index:
 
 def do_serve():
     # UGLY !
-    os.chdir( resource_filename('zicdb', 'static')[:-6] )
+    os.chdir( resource_filename('zicbee.ui.web', 'static')[:-6] )
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
         web.run(urls, globals())
