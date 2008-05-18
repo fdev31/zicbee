@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 import sys
 try:
 	import setuptools
@@ -25,6 +26,21 @@ and uncomment one of those (recommended alternative: simplejson):
 
 Good luck !"""
 
+requirements = [
+        'buzhug>=0.9',
+        'mutagen>=1.13',
+        'web.py>=0.22',
+        'pyglet>=1.0',
+        ]
+
+if os.name in ('nt', 'ce'):
+    requirements.append( 'demjson>=1.1' )
+else:
+    requirements.append( 'python-cjson>=1.0.5' )
+
+# also supported:
+#            'simplejson>=1.7.3',
+
 setup (
         name='zicdb',
         version=VERSION,
@@ -48,15 +64,7 @@ setup (
                 ]
             },
 
-        install_requires = [
-            'buzhug>=0.9',
-            'mutagen>=1.13',
-            'web.py>=0.22',
-            'pyglet>=1.0',
-            'python-cjson>=1.0.5',
-#            'simplejson>=1.7.3',
-#            'demjson>=1.1',
-            ],
+        install_requires = requirements,
 
         dependency_links = [
             'eggs',
