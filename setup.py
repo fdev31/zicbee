@@ -64,7 +64,7 @@ setup (
         install_requires = requirements,
 
         extras_require = dict(
-            player='pyglet>1.1',
+            player='pyglet>=1.1beta1',
             server='web.py>=0.22',
             ),
 
