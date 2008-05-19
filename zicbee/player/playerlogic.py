@@ -11,7 +11,16 @@ from zicbee.core.zutils import duration_tidy, jload, DEBUG
 from zicbee.player.events import DelayedAction, IterableAction
 from zicbee.player.soundplayer import SoundPlayer
 
-class PlayerCtl(object):
+# XXX: TODO: rewrite using a metaclasse (util package ?)
+def PlayerCtl(*args, **kw):
+    if _PlayerCtl._playerctl_singleton_ is None:
+        _PlayerCtl._playerctl_singleton_ = _PlayerCtl(*args, **kw)
+    return _PlayerCtl._playerctl_singleton_
+
+class _PlayerCtl(object):
+
+    _playerctl_singleton_ = None
+
     def __init__(self):
         self.player = SoundPlayer()
         self.views = []
@@ -140,8 +149,12 @@ class PlayerCtl(object):
         self.player.pause()
 
     def select(self, sense):
+        import web
+        web.debug('SELECT!')
         self._cur_song_pos += sense
+        web.debug('>> PLAY SELECT!')
         self._play_selected()
+        web.debug('<< PLAY SELECT!')
 
     def _play_selected(self, which=None):
         info_list = ['', '']
@@ -189,6 +202,9 @@ class PlayerCtl(object):
             hostname: database host
             pattern: str must be passed
         """
+        if not hostname:
+            hostname = '127.0.0.1'
+
         if ':' not in hostname:
             hostname += ':9090'
         self.hostname = hostname

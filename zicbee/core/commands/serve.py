@@ -31,11 +31,13 @@ urls = (
         '/(.*)', 'index',
         )
 
-artist_form = web.form.Form(
+SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
+        web.form.Hidden('host', value='localhost'),
         web.form.Textbox('pattern'),
         web.form.Checkbox('m3u'),
         )
+
 
 
 class webplayer:
@@ -45,19 +47,25 @@ class webplayer:
     lastlog = []
 
     def REQ_main(self):
+        af = SimpleSearchForm(True)
+        af.fill()
         yield render.player(
+                af,
                 self.player.selected,
                 self.player.infos,
                 )
 
+    REQ_ = REQ_main # default page
+
     def REQ_search(self):
-        i = web.input()
-        if i.get('pat'):
-            it = self.player.fetch_playlist(i.host, pattern=i.pat)
+        web.debug('SEARCH')
+        i = web.input('pattern')
+        if i.get('pattern'):
+            it = self.player.fetch_playlist(i.host or 'localhost', pattern=i.pattern)
             it.next()
             IterableAction(it).start(0.01)
             DelayedAction(self.player.select, 1).start(1)
-        yield "OK"
+        web.redirect('/player/main')
 
     def REQ_infos(self):
         i = web.input()
@@ -115,10 +123,11 @@ class webplayer:
 class index:
     def GET(self, name):
         t0 = time()
-        if artist_form.validates():
+        af = SimpleSearchForm()
+        if af.validates():
             try:
-                artist_form.fill()
-                song_id = artist_form['id'].value
+                af.fill()
+                song_id = af['id'].value
                 if song_id:
                     song_id = uncompact_int(song_id)
                     if name.startswith("get"):
@@ -147,7 +156,7 @@ class index:
             except Exception, e:
                 web.debug(e)
 
-        if artist_form['m3u'].value:
+        if af['m3u'].value:
             web.header('Content-Type', 'audio/x-mpegurl')
             format = 'm3u'
         elif web.input().get('plain'):
@@ -158,7 +167,7 @@ class index:
             web.header('Content-Type', 'text/html; charset=utf-8')
             format = 'html'
 
-        pattern = artist_form['pattern'].value
+        pattern = af['pattern'].value
         fields = tuple('artist album title length __id__'.split())
 
         if pattern is None:
@@ -177,7 +186,7 @@ class index:
         if format == 'm3u':
             yield render.playlist(web.http.url, res)
         elif format == 'plain':
-            yield render.plain(web.http.url, res)
+            yield render.plain(af, web.http.url, res)
         elif format == 'json':
             # try to pre-compute useful things
             field_decoder = zip( fields,
@@ -196,7 +205,7 @@ class index:
             except Exception, e:
                 web.debug(e)
         else:
-            yield render.index(artist_form, res)
+            yield render.index(af, res)
 
 
 def do_serve():

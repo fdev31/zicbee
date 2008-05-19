@@ -1,4 +1,15 @@
-$def with (song, infos)
+$def with (form, song, infos)
+<html>
+    <head>
+        <script type="text/javascript" src="/static/MochiKit/MochiKit.js"></script>
+    </head>
+        <body>
+
+<link rel="stylesheet" href="/static/main.css" media="screen">
+<form action="/player/search?fmt=txt">
+   $:form.render()
+   <input type="submit" value="Search" />
+</form>
 
 $if infos.get('running'):
     <h1>Running</h1>
@@ -14,3 +25,9 @@ $if song:
 $else:
     <h2>No song played</h2>
 
+<a href="playlist">View playlist</a>
+<a href="#" onclick='doSimpleXMLHttpRequest("next", {});'>Zap!</a>
+
+        </body>
+    </head>
+</html>
