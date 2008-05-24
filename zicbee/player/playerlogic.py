@@ -10,6 +10,7 @@ from zicbee.core.config import config
 from zicbee.core.zutils import duration_tidy, jload, DEBUG
 from zicbee.player.events import DelayedAction, IterableAction
 from zicbee.player.soundplayer import SoundPlayer
+from zicbee.core.debug import log
 
 # XXX: TODO: rewrite using a metaclasse (util package ?)
 def PlayerCtl(*args, **kw):
@@ -42,6 +43,15 @@ class _PlayerCtl(object):
     def __del__(self):
         self.player.quit()
 
+    def _reset_stream(self):
+        if getattr(self, '_stream', False):
+            try:
+                self._stream.flush()
+            except ValueError:
+                pass
+            self._stream.close()
+        self._stream = file(config.streaming_file, 'wb')
+
     def _new_error(self):
         cnt = self._error_count.next()
         if cnt >= 2:
@@ -59,9 +69,11 @@ class _PlayerCtl(object):
                 or self._play_timeout.running \
                 or not self.playlist \
                 or self._seek_action.running:
+                    log.debug('no tick %s', self)
                     # Do nothing if paused or actualy changing the song
                     continue
                 if self._running:
+                    log.debug('tick %s', self)
                     if self.player.finished: # End of track
                         raise Exception('player starved')
                     self._position = self.player.get_time_pos()
@@ -70,7 +82,6 @@ class _PlayerCtl(object):
                     else:
                         self.signal_view('progress', float(self._position))
             except Exception, e:
-                print "ERR", repr(e)
                 self._new_error()
             else:
                 self._error_count = itertools.count()
@@ -86,11 +97,11 @@ class _PlayerCtl(object):
 
     def _play_now(self):
         selected = self.selected
+        log.debug('play now %s on %s', selected, self)
         assert selected is not None
 
-        def _download_zic(uri, fname):
+        def _download_zic(uri, fd):
             site = urllib.urlopen(uri)
-            fd = file(fname, 'w')
             total = float(site.info().getheader('Content-Length'))
             total_length = float(selected['length'])
             achieved = 0
@@ -109,24 +120,28 @@ class _PlayerCtl(object):
                     if not data:
                         break
                     achieved += len(data)
+                    log.debug('downloading %s from %s', uri, self)
                     fd.write(data)
                     yield
                 fd.close()
             finally:
                 self._song_dl = None
+
         uri = self.selected_uri
         self.signal_view('song_uri', uri)
         idx = uri.index('id=')
         if self._song_dl:
             self._song_dl.stop()
-        song_name = config.streaming_file
-        it = _download_zic(uri, song_name)
+
+        self._reset_stream()
+        it = _download_zic(uri, self._stream)
 #        self.signal_view('update_total', self._total_length)
         fd = it.next() # Start the download (try to not starve the soundcard)
         self._song_dl = IterableAction(it).start_on_fd(fd)
         try:
-            self.player.loadfile(song_name)
+            self.player.loadfile(config.streaming_file)
         except:
+            log.debug('not running anymore !!')
             self._running = False
             DEBUG()
             self.select(1)
@@ -149,12 +164,9 @@ class _PlayerCtl(object):
         self.player.pause()
 
     def select(self, sense):
-        import web
-        web.debug('SELECT!')
+        log.debug('SELECT @%s'% self)
         self._cur_song_pos += sense
-        web.debug('>> PLAY SELECT!')
         self._play_selected()
-        web.debug('<< PLAY SELECT!')
 
     def _play_selected(self, which=None):
         info_list = ['', '']
@@ -165,6 +177,8 @@ class _PlayerCtl(object):
             try:
                 m_d = self._get_selected()
             except IndexError:
+                return
+            if m_d is None:
                 return
 
             self.signal_view('download_progress', 0)

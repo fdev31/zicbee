@@ -74,9 +74,14 @@ class IterableAction(object):
             self.it.next()
         except StopIteration:
             self.stop()
+        except:
+            log.error('STOPPING %r!', self)
         else:
             return True
         return False
+
+    def __repr__(self):
+        return "<IterableAction %s %srunning/%s>"%(self.it, '' if self.running else 'not ', self._delay)
 
     def start(self, delay=0, prio=gobject.PRIORITY_DEFAULT_IDLE):
         """ start action after 'delay' seconds. """

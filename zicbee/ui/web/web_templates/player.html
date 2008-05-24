@@ -25,8 +25,13 @@ $if song:
 $else:
     <h2>No song played</h2>
 
-<a href="playlist">View playlist</a>
-<a href="#" onclick='doSimpleXMLHttpRequest("next", {});'>Zap!</a>
+<div style="bgcolor: green;" display="block" onclick="MochiKit.Visual.pulsate(this)">
+    <a href="playlist">View playlist</a>
+</div>
+
+<div style="bgcolor: red;" display="block" onclick="MochiKit.Visual.pulsate(this)">
+    <a href="#" onclick='doSimpleXMLHttpRequest("next", {});'>Zap!</a>
+</div>
 
         </body>
     </head>

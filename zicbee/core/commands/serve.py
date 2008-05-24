@@ -14,16 +14,16 @@ web.internalerror = web.debugerror
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
-try:
-    from zplayer.playerlogic import  PlayerCtl
-    from zplayer.events import DelayedAction, IterableAction
-    import gobject
-    from thread import start_new_thread
+from zicbee.player.playerlogic import  PlayerCtl
+from zicbee.player.events import DelayedAction, IterableAction
+import gobject
+from thread import start_new_thread
     # Allow glib calls (notifier)
-    start_new_thread(gobject.MainLoop().run, tuple())
-except ImportError, e:
-    sys.stderr.write("Failed loading player! %s\n"%e)
-    PlayerCtl = lambda *args: None
+#    start_new_thread(gobject.MainLoop().run, tuple())
+
+#except ImportError, e:
+#    sys.stderr.write("Failed loading player! %s\n"%e)
+#    PlayerCtl = lambda *args: None
 
 # Prepare some web stuff
 urls = (
@@ -58,6 +58,7 @@ class webplayer:
     REQ_ = REQ_main # default page
 
     def REQ_search(self):
+        yield
         web.debug('SEARCH')
         i = web.input('pattern')
         if i.get('pattern'):
@@ -109,15 +110,19 @@ class webplayer:
             yield jdump(list(window_iterator))
 
     def REQ_shuffle(self):
+        yield
         self.player.shuffle()
 
     def REQ_pause(self):
+        yield
         self.player.pause()
 
     def REQ_prev(self):
+        yield
         self.player.select(-1)
 
     def REQ_next(self):
+        yield
         self.player.select(1)
 
 class index:
@@ -213,9 +218,10 @@ def do_serve():
     os.chdir( resource_filename('zicbee.ui.web', 'static')[:-6] )
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
-        web.run(urls, globals())
+        start_new_thread(web.run, (urls, globals()))
+        gobject.MainLoop().run()
     except:
         DEBUG()
         print 'kill', os.getpid()
-        print os.kill(os.getpid(), 9)
+#        print os.kill(os.getpid(), 9)
 

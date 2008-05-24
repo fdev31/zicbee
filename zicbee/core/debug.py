@@ -1,6 +1,7 @@
 import os
 import logging
-log = logging.getLogger()
+from logging import getLogger as get_log
+log = get_log()
 
 default_handler = logging.StreamHandler()
 log.addHandler(default_handler)

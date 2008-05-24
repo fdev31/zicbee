@@ -8,13 +8,18 @@ from time import sleep
 
 from zicbee.core.zutils import DEBUG
 
-_eventdispatcher = pyglet.app.run
-start_new_thread(_eventdispatcher, tuple())
+#_eventdispatcher = pyglet.app.run
+#start_new_thread(_eventdispatcher, tuple())
 
 class SoundPlayer(object):
     def __init__(self):
         self._player = None
         self._source = None
+        self.__initialized = False
+
+    def __setup(self):
+        start_new_thread(pyglet.app.run, tuple())
+        self.__initialized = True
 
     def loadfile(self, filename, autoplay=True):
         if self._player:
@@ -29,6 +34,9 @@ class SoundPlayer(object):
         else:
             if autoplay:
                 self._player = self._source.play()
+
+        if not self.__initialized:
+            self.__setup()
 
     running = property(lambda self: self._player and self._player.playing)
     finished = property(lambda self: not bool(self._player._sources))
