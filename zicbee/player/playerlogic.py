@@ -1,3 +1,5 @@
+from __future__ import with_statement
+
 __all__ = ['PlayerCtl']
 
 import gobject
@@ -11,6 +13,7 @@ from zicbee.core.zutils import duration_tidy, jload, DEBUG
 from zicbee.player.events import DelayedAction, IterableAction
 from zicbee.player.soundplayer import SoundPlayer
 from zicbee.core.debug import log
+from threading import RLock
 
 # XXX: TODO: rewrite using a metaclasse (util package ?)
 def PlayerCtl(*args, **kw):
@@ -23,6 +26,7 @@ class _PlayerCtl(object):
     _playerctl_singleton_ = None
 
     def __init__(self):
+        self._lock = RLock()
         self.player = SoundPlayer()
         self.views = []
         self._cur_song_pos = -1
@@ -32,7 +36,7 @@ class _PlayerCtl(object):
         self._song_dl = None
         self.hostname = None
 
-        IterableAction(self._tick_generator()).start(0.5, prio=gobject.PRIORITY_HIGH_IDLE)
+        IterableAction(self._tick_generator()).start(0.5, prio=gobject.PRIORITY_HIGH)
 
         self._play_timeout = DelayedAction(self._play_now, _delay=1)
         self.play = self._play_timeout.start
@@ -40,26 +44,37 @@ class _PlayerCtl(object):
         self._volume_action = DelayedAction(lambda v: self.player.volume(v), _delay=0.2)
         self.playlist = ListStore(str, str, str, str, int, int)
 
+    def __repr__(self):
+        return '<PlayerCtl %srunning - %s%s>'%(
+                '' if self._running else 'not ',
+                self._position,
+                '- downloading' if self._song_dl else '')
+
     def __del__(self):
         self.player.quit()
 
     def _reset_stream(self):
-        if getattr(self, '_stream', False):
-            try:
-                self._stream.flush()
-            except ValueError:
-                pass
-            self._stream.close()
-        self._stream = file(config.streaming_file, 'wb')
+        with self._lock:
+            log.debug('reset stream...')
+            if getattr(self, '_stream', False):
+                try:
+                    self._stream.flush()
+                except ValueError:
+                    pass
+                self._stream.close()
+            self._stream = file(config.streaming_file, 'wb')
+            log.debug('new stream: %s', self._stream)
 
     def _new_error(self):
-        cnt = self._error_count.next()
-        if cnt >= 2:
-            try:
-                self.select(1)
-            except IndexError:
-                self.signal_view('status_changed', 'stopped')
-                self._running = False
+        with self._lock:
+            log.debug('new error')
+            cnt = self._error_count.next()
+            if cnt >= 2:
+                try:
+                    self.select(1)
+                except IndexError:
+                    self.signal_view('status_changed', 'stopped')
+                    self._running = False
 
     def _tick_generator(self):
 #                or self._volume_action.running \
@@ -73,14 +88,15 @@ class _PlayerCtl(object):
                     # Do nothing if paused or actualy changing the song
                     continue
                 if self._running:
-                    log.debug('tick %s', self)
-                    if self.player.finished: # End of track
-                        raise Exception('player starved')
-                    self._position = self.player.get_time_pos()
-                    if self._position is None:
-                        raise Exception('no position')
-                    else:
-                        self.signal_view('progress', float(self._position))
+                    with self._lock:
+                        log.debug('tick %s', self)
+                        if self.player.finished: # End of track
+                            raise Exception('player starved')
+                        self._position = self.player.get_time_pos()
+                        if self._position is None:
+                            raise Exception('no position')
+                        else:
+                            self.signal_view('progress', float(self._position))
             except Exception, e:
                 self._new_error()
             else:
@@ -89,7 +105,9 @@ class _PlayerCtl(object):
                 yield True
 
     def signal_view(self, name, *args, **kw):
+        log.info('signaling %s %s %s', name, args, kw)
         for view in self.views:
+            log.info(' -> to view %s', view)
             try:
                 getattr(view, 'SIG_'+name)(*args, **kw)
             except:
@@ -148,67 +166,77 @@ class _PlayerCtl(object):
         return False
 
     def _seek_now(self, val):
-        self.player.seek(int(val), 2)
+        with self._lock:
+            log.info('seeking %s', val)
+            self.player.seek(int(val), 2)
 
     def seek(self, val):
-        self._seek_action.args = (val, )
-        self._seek_action.start(0.2)
+        with self._lock:
+            self._seek_action.args = (val, )
+            self._seek_action.start(0.2)
 
     def shuffle(self):
-        pos_list = range(len(self.playlist))
-        random.shuffle(pos_list)
-        self.playlist.reorder(pos_list)
-        self._cur_song_pos = -1
+        with self._lock:
+            log.info('shuffle')
+            pos_list = range(len(self.playlist))
+            random.shuffle(pos_list)
+            self.playlist.reorder(pos_list)
+            self._cur_song_pos = -1
 
     def pause(self):
-        self.player.pause()
+        with self._lock:
+            log.info('pause')
+            self.player.pause()
 
     def select(self, sense):
-        log.debug('SELECT @%s'% self)
-        self._cur_song_pos += sense
-        self._play_selected()
+        with self._lock:
+            log.debug('SELECT @%s'% self)
+            self._cur_song_pos += sense
+            self._play_selected()
 
     def _play_selected(self, which=None):
-        info_list = ['', '']
-        try:
-            self._error_count = itertools.count()
-            if which is not None:
-                self._cur_song_pos = which
+        with self._lock:
+            log.info('playing selected (%s)', which)
+            info_list = ['', '']
             try:
-                m_d = self._get_selected()
-            except IndexError:
-                return
-            if m_d is None:
-                return
+                self._error_count = itertools.count()
+                if which is not None:
+                    self._cur_song_pos = which
+                try:
+                    m_d = self._get_selected()
+                except IndexError:
+                    return
+                if m_d is None:
+                    return
 
-            self.signal_view('download_progress', 0)
-            self.signal_view('progress', 0.0)
-            if 'length' in m_d:
-                length = m_d['length']
-                self.signal_view('song_length', length)
-                info_list[1] = duration_tidy(length)
-            else:
-                info_list[1] = ''
+                self.signal_view('download_progress', 0)
+                self.signal_view('progress', 0.0)
+                if 'length' in m_d:
+                    length = m_d['length']
+                    self.signal_view('song_length', length)
+                    info_list[1] = duration_tidy(length)
+                else:
+                    info_list[1] = ''
 
-            self.play()
+                self.play()
 
-            title_artist = escape('%s\n%s'%(
-                    m_d.get('title', 'Untitled'),
-                    m_d.get('artist', 'Anonymous')
-                    ))
+                title_artist = escape('%s\n%s'%(
+                        m_d.get('title', 'Untitled'),
+                        m_d.get('artist', 'Anonymous')
+                        ))
 
-            # FIXME: don't put XML in here
-            if m_d.get('album'):
-                meta = '<span weight="bold">%s</span> - %s'%( title_artist, escape(m_d.get('album')) )
-            else:
-                meta = '<span weight="bold">%s</span>'%(title_artist)
+                # FIXME: don't put XML in here
+                if m_d.get('album'):
+                    meta = '<span weight="bold">%s</span> - %s'%( title_artist, escape(m_d.get('album')) )
+                else:
+                    meta = '<span weight="bold">%s</span>'%(title_artist)
 
-            info_list[0] = meta
-            self.signal_view('update_infos', info_list)
-            self.signal_view('select', self._cur_song_pos)
-        except:
-            DEBUG()
-            self._running = False
+                info_list[0] = meta
+                self.signal_view('update_infos', info_list)
+                self.signal_view('select', self._cur_song_pos)
+            except:
+                DEBUG()
+                self._running = False
 
     def fetch_playlist(self, hostname, **kw):
         """
@@ -216,6 +244,7 @@ class _PlayerCtl(object):
             hostname: database host
             pattern: str must be passed
         """
+        log.info('fetching playlist %s from %s', kw, hostname)
         if not hostname:
             hostname = '127.0.0.1'
 
@@ -224,7 +253,8 @@ class _PlayerCtl(object):
         self.hostname = hostname
         uri = 'http://%s/?json=1&%s'%(hostname, urllib.urlencode(kw))
         site = urllib.urlopen(uri)
-        self.playlist.clear()
+        with self._lock:
+            self.playlist.clear()
         add = self.playlist.append
         total = 0
         done = False
@@ -237,7 +267,8 @@ class _PlayerCtl(object):
                         break
                     r = jload(line)
                     total += r[4]
-                    add(r)
+                    with self._lock:
+                        add(r)
                 self.signal_view('update_total', total)
                 yield True
         finally:
@@ -261,9 +292,10 @@ class _PlayerCtl(object):
 
     @property
     def infos(self):
-        return dict(
-                current = self._cur_song_pos,
-                total = len(self.playlist),
-                running = self._running,
-                )
+        with self._lock:
+            return dict(
+                    current = self._cur_song_pos,
+                    total = len(self.playlist),
+                    running = self._running,
+                    )
 

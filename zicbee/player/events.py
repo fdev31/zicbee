@@ -2,6 +2,7 @@ import gobject
 gobject.threads_init()
 
 from zicbee.core.zutils import DEBUG
+from zicbee.core.debug import log
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
@@ -75,6 +76,7 @@ class IterableAction(object):
         except StopIteration:
             self.stop()
         except:
+            DEBUG()
             log.error('STOPPING %r!', self)
         else:
             return True

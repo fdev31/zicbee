@@ -110,20 +110,16 @@ class webplayer:
             yield jdump(list(window_iterator))
 
     def REQ_shuffle(self):
-        yield
-        self.player.shuffle()
+        DelayedAction(self.player.shuffle).start(0.01)
 
     def REQ_pause(self):
-        yield
-        self.player.pause()
+        DelayedAction(self.player.pause).start(0.01)
 
     def REQ_prev(self):
-        yield
-        self.player.select(-1)
+        DelayedAction(self.player.select, -1).start(0.01)
 
     def REQ_next(self):
-        yield
-        self.player.select(1)
+        DelayedAction(self.player.select, 1).start(0.01)
 
 class index:
     def GET(self, name):
