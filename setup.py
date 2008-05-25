@@ -47,7 +47,7 @@ setup (
         keywords='database music tags metadata management',
         packages = find_packages(),
         package_data = {
-            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*', 'ui/*.glade'],
+            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*.css', 'ui/web/static/*.css', 'ui/web/static/MochoKit/*.js', 'ui/gtk/*.glade'],
             },
 
         entry_points = {
