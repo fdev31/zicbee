@@ -7,6 +7,7 @@ from pkg_resources import resource_filename
 from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
+from zicbee.player.events import DelayedAction, IterableAction
 
 web.internalerror = web.debugerror
 
@@ -14,22 +15,11 @@ web.internalerror = web.debugerror
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
-from zicbee.player.playerlogic import  PlayerCtl
-from zicbee.player.events import DelayedAction, IterableAction
 import gobject
 from thread import start_new_thread
-    # Allow glib calls (notifier)
-#    start_new_thread(gobject.MainLoop().run, tuple())
+# Allow glib calls (notifier)
+start_new_thread(gobject.MainLoop().run, tuple())
 
-#except ImportError, e:
-#    sys.stderr.write("Failed loading player! %s\n"%e)
-#    PlayerCtl = lambda *args: None
-
-# Prepare some web stuff
-urls = (
-        '/player/(.*)', 'webplayer',
-        '/(.*)', 'index',
-        )
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -37,89 +27,6 @@ SimpleSearchForm = web.form.Form(
         web.form.Textbox('pattern'),
         web.form.Checkbox('m3u'),
         )
-
-
-
-class webplayer:
-    player = PlayerCtl()
-
-    GET = web.autodelegate('REQ_')
-    lastlog = []
-
-    def REQ_main(self):
-        af = SimpleSearchForm(True)
-        af.fill()
-        yield render.player(
-                af,
-                self.player.selected,
-                self.player.infos,
-                )
-
-    REQ_ = REQ_main # default page
-
-    def REQ_search(self):
-        yield
-        web.debug('SEARCH')
-        i = web.input('pattern')
-        if i.get('pattern'):
-            it = self.player.fetch_playlist(i.host or 'localhost', pattern=i.pattern)
-            it.next()
-            IterableAction(it).start(0.01)
-            DelayedAction(self.player.select, 1).start(1)
-        web.redirect('/player/main')
-
-    def REQ_infos(self):
-        i = web.input()
-        format = i.get('fmt', 'txt')
-
-        if format == 'txt':
-            yield 'current track: %s\n'%self.player._cur_song_pos
-            yield 'current position: %s\n'%self.player._position
-            yield 'playlist size: %s\n'%len(self.player.playlist)
-            for k, v in self.player.selected.iteritems():
-                yield '%s: %s\n'%(k, v)
-        elif format == 'json':
-            _d = self.player.selected.copy()
-            _d['pls_position'] = self.player._cur_song_pos
-            _d['song_position'] = self.player._position
-            _d['pls_size'] = len(self.player.playlist)
-            yield jdump(_d)
-
-    def REQ_lastlog(self):
-        return '\n'.join(self.lastlog)
-
-    def REQ_playlist(self):
-        i = web.input()
-        pls = self.player.playlist
-
-        start = int(i.get('start', 0))
-
-        format = i.get('fmt', 'txt')
-
-        if i.get('res'):
-            end = start + int(i.res)
-        else:
-            end = len(pls)
-
-        window_iterator = (pls[i] for i in xrange(start, end))
-
-        if format == 'txt':
-            for elt in window_iterator:
-                yield str(list(elt))
-        elif format == 'json':
-            yield jdump(list(window_iterator))
-
-    def REQ_shuffle(self):
-        DelayedAction(self.player.shuffle).start(0.01)
-
-    def REQ_pause(self):
-        DelayedAction(self.player.pause).start(0.01)
-
-    def REQ_prev(self):
-        DelayedAction(self.player.select, -1).start(0.01)
-
-    def REQ_next(self):
-        DelayedAction(self.player.select, 1).start(0.01)
 
 class index:
     def GET(self, name):
@@ -209,15 +116,23 @@ class index:
             yield render.index(af, res)
 
 
-def do_serve():
+def do_serve(play=None):
     # UGLY !
-    os.chdir( resource_filename('zicbee.ui.web', 'static')[:-6] )
+    # Prepare some web stuff
+    urls = None
+    if play:
+        from zicbee.player.webplayer import webplayer
+        globals().update({'webplayer': webplayer})
+        os.chdir( resource_filename('zicbee.ui.web', 'static')[:-6] )
+        urls = ('/player/(.*)', 'webplayer', '/(.*)', 'index',)
+    else:
+        urls = ('/(.*)', 'index',)
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
         start_new_thread(web.run, (urls, globals()))
-        gobject.MainLoop().run()
+        ml = gobject.MainLoop()
+        ml.run()
     except:
         DEBUG()
-        print 'kill', os.getpid()
-#        print os.kill(os.getpid(), 9)
-
+        #print 'kill', os.getpid()
+        print os.kill(os.getpid(), 9)
