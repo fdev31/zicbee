@@ -1,4 +1,18 @@
 from __future__ import with_statement
+#
+# Player Interface
+#
+# PROPERTIES
+# selected: current track as dict(album, length, title, __id__, artist)
+# infos: playlist status as dict(current, total, running)
+# playlist: actual playlist (iterable)
+#
+# METHODS
+# fetch_playlist(host, **uri_params): get playlist from a given pattern
+# select(offset): changes the current song into the playlist
+# shuffle(): shuffles the playlist
+# pause(): pauses the player (toggle)
+#
 
 __all__ = ['PlayerCtl']
 
