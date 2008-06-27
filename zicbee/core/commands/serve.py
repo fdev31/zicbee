@@ -117,8 +117,10 @@ def do_serve(play=None):
     if play:
         from zicbee.player.webplayer import webplayer
         globals().update({'webplayer': webplayer})
-        os.chdir( resource_filename('zicbee.ui.web', 'static')[:-6] )
-        urls = ('/player/(.*)', 'webplayer', '/(.*)', 'index',)
+        p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
+        os.chdir( p )
+        urls = ('/player/(.*)', 'webplayer',
+                '/(.*)', 'index')
     else:
         urls = ('/(.*)', 'index',)
     sys.argv = ['zicdb', '0.0.0.0:9090']
