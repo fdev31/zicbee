@@ -11,8 +11,6 @@ web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
 from zicbee.player.playerlogic import  PlayerCtl
-from zicbee.player.events import DelayedAction, IterableAction
-
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -45,9 +43,13 @@ class webplayer:
         if i.get('pattern'):
             it = self.player.fetch_playlist(i.host or 'localhost', pattern=i.pattern)
             it.next()
-            IterableAction(it).start(0.01)
-            DelayedAction(self.player.select, 1).start(1)
+            self.player.select(1)
+        else:
+            it = None
         web.redirect('/player/main')
+        if it:
+            for x in it:
+                yield x
 
     def REQ_infos(self):
         i = web.input()
@@ -91,15 +93,15 @@ class webplayer:
             yield jdump(list(window_iterator))
 
     def REQ_shuffle(self):
-        DelayedAction(self.player.shuffle).start(0.01)
+        self.player.shuffle()
 
     def REQ_pause(self):
-        DelayedAction(self.player.pause).start(0.01)
+        self.player.pause()
 
     def REQ_prev(self):
-        DelayedAction(self.player.select, -1).start(0.01)
+        self.player.select(-1)
 
     def REQ_next(self):
-        DelayedAction(self.player.select, 1).start(0.01)
+        self.player.select(1)
 
 
