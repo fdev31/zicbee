@@ -7,19 +7,13 @@ from pkg_resources import resource_filename
 from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
-from zicbee.player.events import DelayedAction, IterableAction
+#from zicbee.player.events import IterableAction
 
 web.internalerror = web.debugerror
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
-
-import gobject
-from thread import start_new_thread
-# Allow glib calls (notifier)
-start_new_thread(gobject.MainLoop().run, tuple())
-
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -129,10 +123,10 @@ def do_serve(play=None):
         urls = ('/(.*)', 'index',)
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
-        start_new_thread(web.run, (urls, globals()))
-        ml = gobject.MainLoop()
-        ml.run()
+        print __file__
+        web.run(urls, globals())
     except:
         DEBUG()
         #print 'kill', os.getpid()
         print os.kill(os.getpid(), 9)
+
