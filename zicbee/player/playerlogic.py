@@ -313,3 +313,47 @@ class _PlayerCtl(object):
                     running = self._running,
                     )
 
+import Queue
+import threading
+
+class ThreadedIterator(threading.Thread):
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.q = Queue.Queue(3)
+        self.i = None
+        self.running = True
+        self.setDaemon(True)
+
+    def stop(self):
+        self.running = True
+
+    def flush(self):
+        """ flush the queue """
+        try:
+            # Flush the queue
+            while True:
+                self.q.get_nowait()
+        except Queue.Empty:
+            pass
+
+    def cancel(self, flush=True):
+        """ cancel current iterator """
+        flush and self.flush()
+        # suppress current iterator
+        self.i = None
+
+    def run(self):
+        while self.running:
+            i = self.i
+            if i is None:
+                try:
+                    self.i = self.q.get(timeout=1)
+                except Queue.Empty:
+                    continue
+            else:
+                try:
+                    i.next()
+                except StopIteration:
+                    self.i = None
+
