@@ -10,7 +10,7 @@ web.internalerror = web.debugerror
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8')]
 render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
-from zicbee.player.playerlogic import  PlayerCtl
+from zicbee.player.gstplayerlogic import  PlayerCtl
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),

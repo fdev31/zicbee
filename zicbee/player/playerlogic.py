@@ -25,9 +25,12 @@ from gtk import ListStore
 from zicbee.core.config import config
 from zicbee.core.zutils import duration_tidy, jload, DEBUG
 from zicbee.player.events import DelayedAction, IterableAction
-from zicbee.player.soundplayer import SoundPlayer
+#from zicbee.player.soundplayer import SoundPlayer
 from zicbee.core.debug import log
 from threading import RLock
+import pygst
+pygst.require('0.10')
+import gst
 
 # XXX: TODO: rewrite using a metaclasse (util package ?)
 def PlayerCtl(*args, **kw):
@@ -41,7 +44,13 @@ class _PlayerCtl(object):
 
     def __init__(self):
         self._lock = RLock()
-        self.player = SoundPlayer()
+        self.player = gst.element_factory_make("playbin", "my-playbin")
+        fakesink = gst.element_factory_make("fakesink", "my-fakesink")
+        self.player.set_property("video-sink", fakesink)
+		bus = self.player.get_bus()
+		bus.add_signal_watch()
+		bus.connect("message", self.on_message)
+#        self.player = SoundPlayer()
         self.views = []
         self._cur_song_pos = -1
         self._error_count = itertools.count()
@@ -66,6 +75,14 @@ class _PlayerCtl(object):
 
     def __del__(self):
         self.player.quit()
+
+	def on_message(self, bus, message):
+		t = message.type
+		if t == gst.MESSAGE_EOS:
+			self.player.set_state(gst.STATE_NULL)
+		elif t == gst.MESSAGE_ERROR:
+			self.player.set_state(gst.STATE_NULL)
+			err, debug = message.parse_error()
 
     def _reset_stream(self):
         with self._lock:
