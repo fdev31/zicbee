@@ -1,12 +1,18 @@
 $def with (form, song, infos)
 <html>
     <head>
-        <script type="text/javascript" src="/static/MochiKit/MochiKit.js"></script>
+        <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
+        <script type="text/javascript">
+            function wget(what) {
+                new Request.JSON({url:what, method: "get"}).send(); window.location.reload();
+                return false;
+            }
+        </script>
     </head>
         <body>
 
 <link rel="stylesheet" href="/static/main.css" media="screen">
-<form action="/player/search?fmt=txt">
+<form action="/search?fmt=txt">
    $:form.render()
    <input type="submit" value="Search" />
 </form>
@@ -25,12 +31,16 @@ $if song:
 $else:
     <h2>No song played</h2>
 
-<div style="bgcolor: green;" display="block" onclick="MochiKit.Visual.pulsate(this)">
+<div style="bgcolor: green;" display="block">
     <a href="playlist">View playlist</a>
 </div>
 
-<div style="bgcolor: red;" display="block" onclick="MochiKit.Visual.pulsate(this)">
-    <a href="#" onclick='doSimpleXMLHttpRequest("next", {});'>Zap!</a>
+<div style="bgcolor: red;" display="block">
+    <a href="#" onclick='wget("prev");'>Back!</a>
+</div>
+
+<div style="bgcolor: red;" display="block">
+    <a href="#" onclick='wget("next");'>Zap!</a>
 </div>
 
         </body>
