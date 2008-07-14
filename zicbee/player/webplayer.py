@@ -98,7 +98,7 @@ class PlayerCtl(object):
             return
         with self._lock:
             random.shuffle(self.playlist)
-            self._cur_song_pos = 0
+            self._cur_song_pos = -1
 
     def seek(self, val):
         """ Seek according to given value
@@ -187,7 +187,7 @@ class PlayerCtl(object):
         achieved += len(data)
         self._running = True
         yield site.fileno()
-        web.debug('downloading %d'%achieved)
+#        web.debug('downloading %d'%achieved)
 
         try:
             BUF_SZ = 2**14 # 16k micro chunks
