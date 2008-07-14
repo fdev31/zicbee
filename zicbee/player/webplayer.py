@@ -35,11 +35,12 @@ class PlayerCtl(object):
         self.player = mp.MPlayer()
         self.position = None
         self._lock = RLock()
+        self._paused = False
         thread.start_new_thread(self._main_loop, tuple())
 
     def _main_loop(self):
         while True:
-            if len(self.playlist):
+            if not self._paused and len(self.playlist):
                 try:
                     try:
                         with self._lock:
@@ -86,6 +87,7 @@ class PlayerCtl(object):
             if pos != self._cur_song_pos:
                 web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
                 self.player.loadfile(song_name)
+            self._paused = False
         return dl_it
 
     def shuffle(self):
@@ -109,6 +111,7 @@ class PlayerCtl(object):
         """
         with self._lock:
             self.player.pause()
+            self._paused = not self._paused
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
