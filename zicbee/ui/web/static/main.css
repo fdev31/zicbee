@@ -44,6 +44,8 @@ body {
     width: 300px;
     margin: 0 0 auto auto;
     padding: 1ex;
+    height: 97%;
+    float: right;
 }
 
 a {
