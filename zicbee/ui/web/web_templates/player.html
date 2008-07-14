@@ -4,24 +4,41 @@ $def with (form, song, infos)
         <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
         <script type="text/javascript">
             function wget(what) {
-                new Request.JSON({url:what, method: "get"}).send(); window.location.reload();
+                new Request.JSON({url:what, method: "get"}).send();
+                //window.location.reload();
                 return false;
-            }
+            };
+            function refresh_infos(infos) {
+                txt = "";
+                for (i in infos) {
+                    txt += "<tr><td><b>"+i+":</b></td><td>"+infos[i]+"</td></tr>";
+                }
+                if (txt) {
+                    \$('decrBlock').innerHTML = '<table>'+txt+'</table>';
+                } else {
+                   \$('decrBlock').innerHTML = "<h2>No song played</h2>";
+                }
+                tick.delay(10000);
+            };
+            function tick() {
+                new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
+            };
+            window.addEvent('domready', function() {
+                tick.delay(10000);
+            });
+
         </script>
     </head>
         <body>
 
 <link rel="stylesheet" href="/static/main.css" media="screen">
-<form action="/search?fmt=txt">
+<form action="/search?fmt=txt" class="formBlock">
    $:form.render()
    <input type="submit" value="Search" />
 </form>
 
-$if infos.get('running'):
-    <h1>Running</h1>
-$else:
-    <h1>Not running</h1>
 
+<div id="decrBlock">
 $if song:
     Song ${infos['current']} of ${infos['total']}.
     <table>
@@ -30,18 +47,29 @@ $if song:
     </table>
 $else:
     <h2>No song played</h2>
-
-<div style="bgcolor: green;" display="block">
-    <a href="playlist">View playlist</a>
 </div>
 
-<div style="bgcolor: red;" display="block">
-    <a href="#" onclick='wget("prev");'>Back!</a>
-</div>
-
-<div style="bgcolor: red;" display="block">
-    <a href="#" onclick='wget("next");'>Zap!</a>
-</div>
+$if infos.get('running'):
+    <div id="cmdgroup">
+        <div style="bgcolor: green;" class="blockcmd">
+            <a href="playlist">View playlist</a>
+        </div>
+        <div style="bgcolor: red;" class="blockcmd">
+            <a href="#" onclick='wget("prev");'>Back!</a>
+        </div>
+        <div style="bgcolor: red;" class="blockcmd">
+            <a href="#" onclick='wget("next");'>Zap!</a>
+        </div>
+        <div style="bgcolor: red;" class="blockcmd">
+            <a href="#" onclick='wget("shuffle");'>Shuffle!</a>
+        </div>
+        <div style="bgcolor: red;" class="blockcmd">
+            <a href="#" onclick='wget("pause");'>Pause!</a>
+        </div>
+        <div style="bgcolor: red;" class="blockcmd">
+            <a href="#" onclick='wget("seek/-10");'>&lt;&lt;&lt;</a>Seek<a href="#" onclick='wget("seek/+10");'>&gt;&gt;&gt;</a>
+        </div>
+    </div>
 
         </body>
     </head>

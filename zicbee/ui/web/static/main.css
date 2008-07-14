@@ -1,5 +1,7 @@
 body {
 	background: #eef;
+    padding: 0;
+    margin: 0;
 }
 .answer {
 	background: #ded;
@@ -8,6 +10,42 @@ body {
 	padding: 1em;
 }
 
+#cmdgroup {
+    background: green;
+    display: block;
+}
+
+.blockcmd {
+    display: block;
+    background: black;
+    color: white;
+    border: solid #aaa 1px;
+    padding: 0.3ex;
+    margin: 1ex;
+    float: left;
+    font-weight: bold;
+    width: 150px;
+    text-align: center; 
+}
+
+.formBlock {
+    float: left;
+    display: block;
+    margin: 1em;
+    border: groove 2px #aaa;
+    background: #bbc;
+    padding: 1ex;
+}
+
+#decrBlock {
+    display: block;
+    border-left: solid #6f6 2px;
+	background: #dde;
+    width: 300px;
+    margin: 0 0 auto auto;
+    padding: 1ex;
+}
+
 a {
-    color: black;
+    color: white;
 }

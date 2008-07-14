@@ -1,9 +1,15 @@
 # vim: et ts=4 sw=4
+from __future__ import with_statement
 
 import web
 from pkg_resources import resource_filename
-from zicbee.core.zutils import jdump, jload
-from . import mp
+from zicbee.core.zutils import jdump, jload # json in/out
+import thread
+from threading import RLock
+from . import mp # player
+import random # shuffle
+import urllib # get playlist
+from time import sleep # background thread
 
 web.internalerror = web.debugerror
 
@@ -18,33 +24,95 @@ SimpleSearchForm = web.form.Form(
         web.form.Checkbox('m3u'),
         )
 
-import urllib
-
 class PlayerCtl(object):
+    """ The player interface, this should lead to a constant code, with an interchangeable backend
+    See self.player.* for the needed interface.
+    """
     def __init__(self):
         self._cur_song_pos = -1
-        web.debug('X'*1000)
         self.playlist = []
         self.views = []
         self.player = mp.MPlayer()
+        self.position = None
+        self._lock = RLock()
+        thread.start_new_thread(self._main_loop, tuple())
+
+    def _main_loop(self):
+        while True:
+            if self._cur_song_pos >= 0:
+                try:
+                    with self._lock:
+                        self.position = self.player.prop_stream_pos
+                    web.debug('pos: %s'%self.position)
+                    if self.position is None:
+                        i = self.select(1)
+                        while True:
+                            try:
+                                with self._lock:
+                                    i.next()
+                            except StopIteration:
+                                break
+                except Exception, e:
+                    self.position = None
+                    web.debug('E: %s'%e)
+            sleep(1)
 
     def select(self, sense):
-        pos = self._cur_song_pos
-        self._cur_song_pos += sense
-        web.debug(self.infos, self.selected)
+        """ Selects a song, according to the given offset
+        ex.: self.select(1) # selects the next track
+        self.select(-1) # selects the previous track
+        self.select(0) # no-op
+        """
+        with self._lock:
+            pos = self._cur_song_pos
+            self._cur_song_pos += sense
+            web.debug(self.infos, self.selected)
 
-        if self._cur_song_pos > len(self.playlist):
-            self._cur_song_pos = -1
-        elif self._cur_song_pos < -1:
-            self._cur_song_pos = -1
+            if self._cur_song_pos > len(self.playlist):
+                self._cur_song_pos = -1
+            elif self._cur_song_pos < -1:
+                self._cur_song_pos = -1
 
-        web.debug('select: %d'%self._cur_song_pos)
-        if pos != self._cur_song_pos:
-            web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), self.selected_uri))
-            self.player.loadfile(self.selected_uri)
+            song_name = "zsong.zic"
+            dl_it = self._download_zic(self.selected_uri, song_name)
+            dl_it.next()
+            web.debug('select: %d'%self._cur_song_pos)
+            if pos != self._cur_song_pos:
+                web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
+                self.player.loadfile(song_name)
+        return dl_it
+
+    def shuffle(self):
+        """ Shuffle the playlist, and selects the first track
+        if the playlist is empty, do nothing
+        """
+        if len(self.playlist) == 0:
+            return
+        with self._lock:
+            random.shuffle(self.playlist)
+            self._cur_song_pos = 0
+
+    def seek(self, val):
+        """ Seek according to given value
+        """
+        with self._lock:
+            self.player.seek(val)
+
+    def pause(self):
+        """ (Un)Pause the player
+        """
+        with self._lock:
+            self.player.pause()
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
-        """ Takes a hostname & some kw (likely to be "pattern")
+        """
+        Fetch a playlist from a given hostname,
+        can take any keyword, will be passed with the remote command
+        some useful keywords:
+            pattern: a search string
+            db: the database name (default is ok in general)
+        if the temp keyword is given, a temporary playlist will be created
+        (the main one is not affected)
         returns an iterator
         """
         if not hostname:
@@ -53,36 +121,80 @@ class PlayerCtl(object):
         if ':' not in hostname:
             hostname += ':9090'
 
-        self.hostname = hostname
+        with self._lock:
+            self.hostname = hostname
 
-        uri = 'http://%s/search/?json=1&%s'%(hostname, urllib.urlencode(kw))
-        site = urllib.urlopen(uri)
+            uri = 'http://%s/search/?json=1&%s'%(hostname, urllib.urlencode(kw))
+            site = urllib.urlopen(uri)
 
-        if temp:
-            self._tmp_playlist = []
-            add = self._tmp_playlist
-        else:
-            self.playlist[:] = []
-            add = self.playlist.append
+            if temp:
+                self._tmp_playlist = []
+                add = self._tmp_playlist
+            else:
+                self.playlist[:] = []
+                add = self.playlist.append
 
         total = 0
         done = False
 
         while True:
-            line = site.readline()
+            for n in xrange(50):
+                line = site.readline()
+                if not line:
+                    break
+                r = jload(line)
+                total += r[4]
+#                r[0] = 'http://%s%s'%(hostname, r[0])
+                with self._lock:
+                    add(r)
+                self.signal_view('update_total', total)
+
+            yield
             if not line:
                 break
-            r = jload(line)
-            total += r[4]
-#            r[0] = 'http://%s%s'%(hostname, r[0])
-            add(r)
-            self.signal_view('update_total', total)
-            yield
 
-        self._total_length = total
+        if temp:
+            self._total_length = total
+        else:
+            # reset song position
+            with self._lock:
+                self._cur_song_pos = 0
+                self._tmp_total_length = total
 
-        # reset song position
-        self._cur_song_pos = 0
+    def _download_zic(self, uri, fname):
+        if getattr(self, '_download_stream', None):
+            self._download_stream.close()
+
+        fd = file(fname, 'wb')
+        self._download_stream = fd
+
+        site = urllib.urlopen(uri)
+        total = float(site.info().getheader('Content-Length'))
+        total_length = float(self.selected['length'])
+        achieved = 0
+
+        data = site.read(2**17)
+        fd.write(data) # read ~130k (a few seconds in general)
+        achieved += len(data)
+        self._running = True
+        yield site.fileno()
+
+        try:
+            BUF_SZ = 2**14 # 16k micro chunks
+            while True:
+                data = site.read(BUF_SZ)
+                progress = total_length * (achieved / total)
+                self.signal_view('download_progress', progress)
+                if not data:
+                    break
+                achieved += len(data)
+                web.debug('downloading %s from %s (%f)'%(uri, self, progress))
+                fd.write(data)
+                yield
+            fd.close()
+        finally:
+            if fd is self._download_stream:
+                self._download_stream = None
 
     def signal_view(self, name, *args, **kw):
         web.debug('signaling %s %s %s'%(name, args, kw))
@@ -101,7 +213,7 @@ class PlayerCtl(object):
                 return dict(album = l[1],
                             length = float(l[4]),
                             title = l[3],
-                            meta = self.player.prop_stream_pos,
+                            meta = self.position,
                             __id__ = l[5],
                             artist = l[1])
         except:
@@ -110,15 +222,13 @@ class PlayerCtl(object):
     selected = property(_get_selected)
 
     @property
-    def position(self):
-        return self.player.prop_stream_pos
-
-    @property
     def selected_uri(self):
         try:
-            if self._cur_song_pos < 0:
-                raise Exception()
-            return 'http://%s/search%s'%(self.hostname, self.playlist[self._cur_song_pos][0])
+            with self._lock:
+                if self._cur_song_pos < 0:
+                    raise Exception()
+                txt =  'http://%s/search%s'%(self.hostname, self.playlist[self._cur_song_pos][0])
+            return txt
         except:
             return None
 
@@ -177,10 +287,13 @@ class webplayer:
             for k, v in self.player.selected.iteritems():
                 yield '%s: %s\n'%(k, v)
         elif format == 'json':
-            _d = self.player.selected.copy()
-            _d['pls_position'] = self.player._cur_song_pos
-            _d['song_position'] = self.player.position
-            _d['pls_size'] = len(self.player.playlist)
+            try:
+                _d = self.player.selected.copy()
+                _d['pls_position'] = self.player._cur_song_pos
+                _d['song_position'] = self.player.position
+                _d['pls_size'] = len(self.player.playlist)
+            except AttributeError:
+                _d = dict()
             yield jdump(_d)
 
     def REQ_lastlog(self):
@@ -208,15 +321,15 @@ class webplayer:
             yield jdump(list(window_iterator))
 
     def REQ_shuffle(self):
-        self.player.shuffle()
+        return self.player.shuffle()
 
     def REQ_pause(self):
-        self.player.pause()
+        return self.player.pause()
 
     def REQ_prev(self):
-        self.player.select(-1)
+        return self.player.select(-1)
 
     def REQ_next(self):
-        self.player.select(1)
+        return self.player.select(1)
 
 
