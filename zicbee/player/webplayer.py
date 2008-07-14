@@ -39,11 +39,16 @@ class PlayerCtl(object):
 
     def _main_loop(self):
         while True:
-            if self._cur_song_pos >= 0:
+            if len(self.playlist):
                 try:
-                    with self._lock:
-                        self.position = self.player.prop_stream_pos
+                    try:
+                        with self._lock:
+                            self.position = self.player.prop_stream_pos
+                    except:
+                        self.position = None
+
                     web.debug('pos: %s'%self.position)
+
                     if self.position is None:
                         i = self.select(1)
                         while True:
@@ -53,8 +58,9 @@ class PlayerCtl(object):
                             except StopIteration:
                                 break
                 except Exception, e:
-                    self.position = None
                     web.debug('E: %s'%e)
+                except:
+                    web.debug('E: ???')
             sleep(1)
 
     def select(self, sense):
@@ -158,7 +164,7 @@ class PlayerCtl(object):
         else:
             # reset song position
             with self._lock:
-                self._cur_song_pos = 0
+                self._cur_song_pos = -1
                 self._tmp_total_length = total
 
     def _download_zic(self, uri, fname):
@@ -178,13 +184,14 @@ class PlayerCtl(object):
         achieved += len(data)
         self._running = True
         yield site.fileno()
+        web.debug('downloading %d'%achieved)
 
         try:
             BUF_SZ = 2**14 # 16k micro chunks
             while True:
                 data = site.read(BUF_SZ)
                 progress = total_length * (achieved / total)
-                self.signal_view('download_progress', progress)
+#                self.signal_view('download_progress', progress)
                 if not data:
                     break
                 achieved += len(data)
@@ -192,6 +199,8 @@ class PlayerCtl(object):
                 fd.write(data)
                 yield
             fd.close()
+        except Exception, e:
+            web.debug('ERROR %s %s'%(repr(e), dir(e)))
         finally:
             if fd is self._download_stream:
                 self._download_stream = None
@@ -213,7 +222,6 @@ class PlayerCtl(object):
                 return dict(album = l[1],
                             length = float(l[4]),
                             title = l[3],
-                            meta = self.position,
                             __id__ = l[5],
                             artist = l[1])
         except:
@@ -259,14 +267,15 @@ class webplayer:
     REQ_ = REQ_main # default page
 
     def REQ_search(self):
+        it = None
         try:
             i = web.input('pattern')
             if i['pattern']:
                 it = self.player.fetch_playlist(i.host or 'localhost', pattern=i.pattern)
-                it.next()
-                web.debug('song pos', self.player._cur_song_pos)
-                self.player.select(1)
-                web.debug('new song pos', self.player._cur_song_pos)
+            else:
+                it = self.player.fetch_playlist(i.host or 'localhost')
+            it.next()
+
         except (IndexError, KeyError):
             it = None
         finally:
@@ -289,11 +298,11 @@ class webplayer:
         elif format == 'json':
             try:
                 _d = self.player.selected.copy()
-                _d['pls_position'] = self.player._cur_song_pos
-                _d['song_position'] = self.player.position
-                _d['pls_size'] = len(self.player.playlist)
             except AttributeError:
                 _d = dict()
+            _d['pls_position'] = self.player._cur_song_pos
+            _d['song_position'] = self.player.position
+            _d['pls_size'] = len(self.player.playlist)
             yield jdump(_d)
 
     def REQ_lastlog(self):
@@ -332,4 +341,8 @@ class webplayer:
     def REQ_next(self):
         return self.player.select(1)
 
+    def REQ_seek(self, val):
+        val = val[1:]
+        web.debug('VAL=%s'%val)
+#        self.player.seek(int(val))
 
