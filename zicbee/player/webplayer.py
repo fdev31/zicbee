@@ -44,7 +44,7 @@ class PlayerCtl(object):
                 try:
                     try:
                         with self._lock:
-                            self.position = int(self.player.prop_stream_pos/100000)
+                            self.position = int(self.player.prop_stream_pos/10000)
                     except:
                         self.position = None
 
