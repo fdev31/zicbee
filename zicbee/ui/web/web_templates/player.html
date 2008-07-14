@@ -18,13 +18,13 @@ $def with (form, song, infos)
                 } else {
                    \$('decrBlock').innerHTML = "<h2>No song played</h2>";
                 }
-                tick.delay(10000);
+                tick.delay(3000);
             };
             function tick() {
                 new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
             };
             window.addEvent('domready', function() {
-                tick.delay(10000);
+                tick.delay(3000);
             });
 
         </script>
