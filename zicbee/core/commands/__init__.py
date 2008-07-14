@@ -7,7 +7,7 @@ from zicbee.core.zutils import DEBUG
 from .search import do_search
 from .scan import do_scan
 from .help import do_help
-from .serve import do_serve
+#from .serve import do_serve
 from .get import do_get
 
 def do_webplayer():
@@ -23,8 +23,8 @@ def do_webplayer():
     # let's do webplayer
     import web
     from zicbee.player.webplayer import webplayer
-    globals()['webplayer'] = webplayer
-    globals()['web_db_search'] = db_index
+#    globals()['webplayer'] = webplayer
+#    globals()['web_db_search'] = db_index
 
     urls = (
             '/search/(.*)', 'web_db_search',
@@ -32,14 +32,22 @@ def do_webplayer():
             )
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
+        import web.wsgiserver
         print "Running webplayer from", __file__
-        web.run(urls, globals())
+        wsgi_apps = ('/search/(.*)', 'db_index',
+                '/(.*)', 'webplayer')
+        fvars = globals().copy()
+        fvars.update(locals())
+        web.run(wsgi_apps, fvars)
+#        s = web.wsgiserver.CherryPyWSGIServer(('localhost', 9090), wsgi_apps, server_name='localhost')
+#        s.start()
     except:
         DEBUG()
-        #print 'kill', os.getpid()
         print os.kill(os.getpid(), 9)
+        #print 'kill', os.getpid()
 
-do_webplayer.__doc__ = """ Runs the webplayer (basic serve + player) """
+#do_webplayer.__doc__ = """ Runs the webplayer (basic serve + player) """
+do_serve = do_webplayer
 
 def do_list():
     from os import listdir

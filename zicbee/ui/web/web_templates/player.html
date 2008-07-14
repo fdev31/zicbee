@@ -14,17 +14,21 @@ $def with (form, song, infos)
                     txt += "<tr><td><b>"+i+":</b></td><td>"+infos[i]+"</td></tr>";
                 }
                 if (txt) {
-                    \$('decrBlock').innerHTML = '<table>'+txt+'</table>';
+                    \$('descr').innerHTML = '<table>'+txt+'</table>';
+                    if (infos['song_position']) {
+                        \$('progressbar').tween('width', infos['song_position']/infos['length']*100);
+                    }
                 } else {
-                   \$('decrBlock').innerHTML = "<h2>No song played</h2>";
+                   \$('descr').innerHTML = "<h2>No song played</h2>";
                 }
-                tick.delay(3000);
+                tick.delay(2000);
             };
             function tick() {
                 new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
             };
             window.addEvent('domready', function() {
-                tick.delay(3000);
+                \$('progressbar').set('tween', {'duration':2500});
+                tick.delay(2000);
             });
 
         </script>
@@ -39,38 +43,40 @@ $def with (form, song, infos)
 
 
 <div id="decrBlock">
-$if song:
-    Song ${infos['current']} of ${infos['total']}.
-    <table>
-    $for k, v in song.iteritems():
-        <tr><td><b>${k}:</b></td><td>$v</td></tr>
-    </table>
-$else:
+    <div id="descr">
+    $if song:
+        Song ${infos['current']} of ${infos['total']}.
+        <table>
+        $for k, v in song.iteritems():
+            <tr><td><b>${k}:</b></td><td>$v</td></tr>
+        </table>
+    $else:
     <h2>No song played</h2>
-</div>
-
-$if infos.get('running'):
-    <div id="cmdgroup">
-        <div style="bgcolor: green;" class="blockcmd">
-            <a href="playlist">View playlist</a>
-        </div>
-        <div style="bgcolor: red;" class="blockcmd">
-            <a href="#" onclick='wget("prev");'>Back!</a>
-        </div>
-        <div style="bgcolor: red;" class="blockcmd">
-            <a href="#" onclick='wget("next");'>Zap!</a>
-        </div>
-        <div style="bgcolor: red;" class="blockcmd">
-            <a href="#" onclick='wget("shuffle");'>Shuffle!</a>
-        </div>
-        <div style="bgcolor: red;" class="blockcmd">
-            <a href="#" onclick='wget("pause");'>Pause!</a>
-        </div>
-        <div style="bgcolor: red;" class="blockcmd">
-            <a href="#" onclick='wget("seek/-10");'>&lt;&lt;&lt;</a>Seek<a href="#" onclick='wget("seek/+10");'>&gt;&gt;&gt;</a>
-        </div>
     </div>
-
+    <div id="progressbase"><div id="progressbar"></div></div>
+</div>
+        <div id="cmdgroup">
+            <div style="bgcolor: green;" class="blockcmd">
+                <a href="playlist">View playlist</a>
+            </div>
+            <div style="bgcolor: red;" class="blockcmd">
+                <a href="#" onclick='wget("prev");'>Back!</a>
+            </div>
+            <div style="bgcolor: red;" class="blockcmd">
+                <a href="#" onclick='wget("next");'>Zap!</a>
+            </div>
+            <div style="bgcolor: red;" class="blockcmd">
+                <a href="#" onclick='wget("shuffle");'>Shuffle!</a>
+            </div>
+            <div style="bgcolor: red;" class="blockcmd">
+                <a href="#" onclick='wget("pause");'>Pause!</a>
+            </div>
+            <!--
+            <div style="bgcolor: red;" class="blockcmd">
+                <a href="#" onclick='wget("seek/-10");'>&lt;&lt;&lt;</a>Seek<a href="#" onclick='wget("seek/+10");'>&gt;&gt;&gt;</a>
+            </div>
+            -->
+        </div>
         </body>
     </head>
 </html>

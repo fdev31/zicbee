@@ -28,6 +28,21 @@ body {
     text-align: center; 
 }
 
+#progressbar {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    height: 1em;
+    background: #88f;
+}
+#progressbase {
+    padding: 0;
+    margin: 1ex auto 1ex auto;
+    background: #004;
+    width: 90%;
+    border: 2px ridge #aac;
+}
+
 .formBlock {
     float: left;
     display: block;
