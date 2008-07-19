@@ -19,9 +19,9 @@ render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates')
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
-        web.form.Hidden('host', value='localhost'),
-        web.form.Textbox('pattern'),
-        web.form.Checkbox('m3u'),
+        web.form.Textbox('host', description='Search host', value='localhost'),
+        web.form.Textbox('pattern', description='Search pattern'),
+        web.form.Textbox('tempname', description='Temporary name'),
         )
 
 class PlayerCtl(object):
@@ -37,6 +37,7 @@ class PlayerCtl(object):
         self._lock = RLock()
         self._paused = False
         thread.start_new_thread(self._main_loop, tuple())
+        self._named_playlists = dict()
 
     def _main_loop(self):
         while True:
@@ -98,7 +99,7 @@ class PlayerCtl(object):
             return
         with self._lock:
             random.shuffle(self.playlist)
-            self._cur_song_pos = -1
+            self._cur_song_pos = 0
 
     def seek(self, val):
         """ Seek according to given value
@@ -120,7 +121,8 @@ class PlayerCtl(object):
         some useful keywords:
             pattern: a search string
             db: the database name (default is ok in general)
-        if the temp keyword is given, a temporary playlist will be created
+        if the temp keyword is given,
+        a temporary playlist will be created with the given name
         (the main one is not affected)
         returns an iterator
         """
@@ -137,8 +139,8 @@ class PlayerCtl(object):
             site = urllib.urlopen(uri)
 
             if temp:
-                self._tmp_playlist = []
-                add = self._tmp_playlist
+                self._named_playlists[temp] = []
+                add = self._named_playlists[temp]
             else:
                 self.playlist[:] = []
                 add = self.playlist.append
@@ -167,7 +169,7 @@ class PlayerCtl(object):
         else:
             # reset song position
             with self._lock:
-                self._cur_song_pos = -1
+                self._cur_song_pos = 0
                 self._tmp_total_length = total
 
     def _download_zic(self, uri, fname):

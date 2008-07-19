@@ -6,8 +6,8 @@ import web
 from pkg_resources import resource_filename
 from time import time
 from zicbee.core.zshell import songs
-from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, DEBUG
-#from zicbee.player.events import IterableAction
+from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int
+from zicbee.core.zutils import DEBUG
 
 web.internalerror = web.debugerror
 
@@ -17,7 +17,6 @@ render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates')
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
-        web.form.Hidden('host', value='localhost'),
         web.form.Textbox('pattern'),
         web.form.Checkbox('m3u'),
         )
