@@ -126,6 +126,7 @@ class PlayerCtl(object):
         (the main one is not affected)
         returns an iterator
         """
+        hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
 
@@ -276,9 +277,9 @@ class webplayer:
         try:
             i = web.input('pattern')
             if i['pattern']:
-                it = self.player.fetch_playlist(i.host or 'localhost', pattern=i.pattern)
+                it = self.player.fetch_playlist(i.host, pattern=i.pattern, temp=i['tempname'].strip() or False)
             else:
-                it = self.player.fetch_playlist(i.host or 'localhost')
+                it = self.player.fetch_playlist(i.host, i['tempname'].strip() or False)
             it.next()
 
         except (IndexError, KeyError):
