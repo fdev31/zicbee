@@ -114,6 +114,24 @@ class PlayerCtl(object):
             self.player.pause()
             self._paused = not self._paused
 
+    def delete_entry(self, position):
+        """ delete the song at the given position """
+        del self.playlist[position]
+
+    def move_entry(self, pos1, pos2):
+        """ Swap two entries in the current playlist """
+        p = self.playlist
+        p[pos1], p[pos2] = p[pos2], p[pos1]
+
+    def playlist_change(self, operation, pls_name):
+        """ copy or append a named playlist to the active one
+        """
+        if operation == 'copy':
+            self.playlist = self._named_playlists[pls_name]
+            self._cur_song_pos = 0
+        if operation == 'append':
+            self.playlist.extend(self._named_playlists[pls_name])
+
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
         Fetch a playlist from a given hostname,
@@ -290,6 +308,19 @@ class webplayer:
         if it:
             for x in it:
                 yield
+
+    def REQ_delete(self, position):
+        # WARNING: not tested
+        self.player.delete_entry(position)
+
+    def REQ_move(self, pos1, pos2):
+        self.player.move_entry(pos1, pos2)
+
+    def REQ_append(self, name):
+        self.player.playlist_change('append', name)
+
+    def REQ_copy(self, name):
+        self.player.playlist_change('copy', name)
 
     def REQ_infos(self):
         i = web.input()
