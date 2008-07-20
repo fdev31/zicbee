@@ -1,3 +1,6 @@
+TODO (urgent):
+ Cancel downloads on select.
+
 BUGS:
  Should adapt samplerate to current song (time is bended now)
  Pause is messed-up if NEXT or PREV is pressed (should un-pause)
