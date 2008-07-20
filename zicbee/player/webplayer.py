@@ -299,11 +299,11 @@ class webplayer:
     def REQ_search(self):
         it = None
         try:
-            i = web.input('pattern')
-            if i['pattern']:
-                it = self.player.fetch_playlist(i.host, pattern=i.pattern, temp=i['tempname'].strip() or False)
+            i = web.input()
+            if i.get('pattern'):
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=i.get('tempname', '').strip() or False)
             else:
-                it = self.player.fetch_playlist(i.host, i['tempname'].strip() or False)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), i.get('tempname', '').strip() or False)
             it.next()
 
         except (IndexError, KeyError):
