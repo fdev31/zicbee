@@ -238,18 +238,20 @@ class PlayerCtl(object):
             except:
                 DEBUG()
 
-    def _get_selected(self):
-        pos = self._cur_song_pos
+    def _get_infos(self, l):
         try:
-            if pos >= 0 and len(self.playlist) > 0:
-                l = self.playlist[pos]
-                return dict(album = l[1],
-                            length = float(l[4]),
-                            title = l[3],
-                            __id__ = l[5],
-                            artist = l[1])
+            return dict(album = l[1],
+                        length = float(l[4]),
+                        title = l[3],
+                        __id__ = l[5],
+                        artist = l[1])
         except:
             return None
+
+    def _get_selected(self):
+        pos = self._cur_song_pos
+        if 0 <= pos <= len(self.playlist):
+            return self._get_infos(self.playlist[pos])
 
     selected = property(_get_selected)
 
