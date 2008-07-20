@@ -15,7 +15,7 @@ body {
 
 #cmdgroup {
     display: block;
-    padding-top: 80px;
+    padding-top: 133px;
 }
 
 .blockcmd {
@@ -58,6 +58,13 @@ body {
     border: groove 1px #800;
     background: #e86;
     padding: 1ex;
+    width: 350px;
+    z-index: 3;
+}
+
+label {
+    font-size: 70%;
+    text-align: right;
 }
 
 .lonelyFormBlock {
@@ -74,8 +81,9 @@ body {
     width: 60%;
     float: left;
     background: #b87;
-    margin-left: 2em;
+    margin-left: 380px;
     margin-right: 2em;
+    z-index: 2;
     margin-top: -100px;
     border: groove 1px #800;
 }
