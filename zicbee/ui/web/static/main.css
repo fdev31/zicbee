@@ -1,7 +1,10 @@
 body {
-	background: #eef;
+/*    background: #eef;*/
     padding: 0;
     margin: 0;
+    background-color: #a72b00;
+    background-image: url("pics/tile.png");
+    background-repeat: repeat-x;
 }
 .answer {
 	background: #ded;
@@ -11,21 +14,21 @@ body {
 }
 
 #cmdgroup {
-    background: green;
     display: block;
+    padding-top: 80px;
 }
 
 .blockcmd {
     display: block;
     background: black;
-    color: white;
     border: solid #aaa 1px;
     padding: 0.3ex;
     margin: 1ex;
     float: left;
     font-weight: bold;
-    width: 150px;
+    width: 100px;
     text-align: center; 
+    font-size: 80%;
 }
 
 #progressbar {
@@ -45,21 +48,23 @@ body {
 
 .formBlock {
     float: left;
+    clear: left;
     display: block;
-    margin: 1em;
-    border: groove 2px #aaa;
-    background: #bbc;
+    margin: 1em auto 1em 1em;
+    border: groove 1px #800;
+    background: #e86;
     padding: 1ex;
 }
 
 #decrBlock {
     display: block;
-    border-left: solid #6f6 2px;
-	background: #dde;
+    border-left: solid #e86 2px;
+    border-bottom: solid #e86 2px;
+	background: #fde;
     width: 300px;
     margin: 0 0 auto auto;
     padding: 1ex;
-    height: 97%;
+    height: 40%;
     float: right;
 }
 

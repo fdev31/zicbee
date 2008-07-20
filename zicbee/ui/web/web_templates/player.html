@@ -33,13 +33,9 @@ $def with (form, song, infos)
 
         </script>
     </head>
-        <body>
+    <body><img src="/static/pics/bee.png" style="margin: 0 auto auto 0; padding: 0; float: left;" />
 
 <link rel="stylesheet" href="/static/main.css" media="screen">
-<form action="/search?fmt=txt" class="formBlock">
-   $:form.render()
-   <input type="submit" value="Search" />
-</form>
 
 
 <div id="decrBlock">
@@ -77,6 +73,9 @@ $def with (form, song, infos)
             </div>
             -->
         </div>
-        </body>
-    </head>
+        <form action="/search?fmt=txt" class="formBlock">
+            $:form.render()
+            <input type="submit" value="Search" />
+        </form>
+    </body>
 </html>
