@@ -114,6 +114,10 @@ class PlayerCtl(object):
             self.player.pause()
             self._paused = not self._paused
 
+    def delete_playlist(self, name):
+        """ Delete the given named playlist (by name) """
+        del self._named_playlists[name]
+
     def delete_entry(self, position):
         """ delete the song at the given position """
         del self.playlist[position]
