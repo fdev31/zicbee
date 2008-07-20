@@ -9,18 +9,15 @@ $def with (form, song, infos)
                 return false;
             };
             function refresh_infos(infos) {
-                txt = "";
-                for (i in infos) {
-                    txt += "<tr><td><b>"+i+":</b></td><td>"+infos[i]+"</td></tr>";
-                }
-                if (txt) {
-                    \$('descr').innerHTML = '<table>'+txt+'</table>';
-                    if (infos['song_position']) {
-                        \$('progressbar').tween('width', infos['song_position']/infos['length']*100);
-                    }
+                if (infos['__id__']) {
+                    txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+"<br/>";
+                    txt += "<b>" + infos['artist'] + "</b> - " + infos['title'] + "<br/>";
+                    txt += infos['album'];
+                    \$('progressbar').tween('width', infos['song_position']/infos['length']*100);
                 } else {
-                   \$('descr').innerHTML = "<h2>No song played</h2>";
+                    txt = "<h2>No song played</h2>";
                 }
+               \$('descr').innerHTML = txt;
                 tick.delay(2000);
             };
             function tick() {
@@ -40,42 +37,37 @@ $def with (form, song, infos)
 
 <div id="decrBlock">
     <div id="descr">
-    $if song:
-        Song ${infos['current']} of ${infos['total']}.
-        <table>
-        $for k, v in song.iteritems():
-            <tr><td><b>${k}:</b></td><td>$v</td></tr>
-        </table>
-    $else:
-    <h2>No song played</h2>
     </div>
     <div id="progressbase"><div id="progressbar"></div></div>
 </div>
-        <div id="cmdgroup">
-            <div style="bgcolor: green;" class="blockcmd">
-                <a href="playlist">View playlist</a>
-            </div>
-            <div style="bgcolor: red;" class="blockcmd">
-                <a href="#" onclick='wget("prev");'>Back!</a>
-            </div>
-            <div style="bgcolor: red;" class="blockcmd">
-                <a href="#" onclick='wget("next");'>Zap!</a>
-            </div>
-            <div style="bgcolor: red;" class="blockcmd">
-                <a href="#" onclick='wget("shuffle");'>Shuffle!</a>
-            </div>
-            <div style="bgcolor: red;" class="blockcmd">
-                <a href="#" onclick='wget("pause");'>Pause!</a>
-            </div>
-            <!--
-            <div style="bgcolor: red;" class="blockcmd">
-                <a href="#" onclick='wget("seek/-10");'>&lt;&lt;&lt;</a>Seek<a href="#" onclick='wget("seek/+10");'>&gt;&gt;&gt;</a>
-            </div>
-            -->
-        </div>
-        <form action="/search?fmt=txt" class="formBlock">
-            $:form.render()
-            <input type="submit" value="Search" />
-        </form>
+<div id="cmdgroup">
+    <!--
+    <div style="bgcolor: green;" class="blockcmd">
+        <a href="playlist">View playlist</a>
+    </div>
+    -->
+    <div style="bgcolor: red;" class="blockcmd">
+        <a href="#" onclick='wget("prev");'>Back!</a>
+    </div>
+    <div style="bgcolor: red;" class="blockcmd">
+        <a href="#" onclick='wget("next");'>Zap!</a>
+    </div>
+    <div style="bgcolor: red;" class="blockcmd">
+        <a href="#" onclick='wget("shuffle");'>Shuffle!</a>
+    </div>
+    <div style="bgcolor: red;" class="blockcmd">
+        <a href="#" onclick='wget("pause");'>Pause!</a>
+    </div>
+    <!--
+    <div style="bgcolor: red;" class="blockcmd">
+        <a href="#" onclick='wget("seek/-10");'>&lt;&lt;&lt;</a>Seek<a href="#" onclick='wget("seek/+10");'>&gt;&gt;&gt;</a>
+    </div>
+    -->
+</div>
+<form action="/search?fmt=txt" class="formBlock">
+    $:form.render()
+    <input type="submit" value="Search" />
+</form>
+<!--<div id="playlist">coin</div>-->
     </body>
 </html>

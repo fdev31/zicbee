@@ -56,6 +56,12 @@ body {
     padding: 1ex;
 }
 
+#playlist {
+    width: 60%;
+    float: left;
+    background: yellow;
+}
+
 #decrBlock {
     display: block;
     border-left: solid #e86 2px;
@@ -64,7 +70,7 @@ body {
     width: 300px;
     margin: 0 0 auto auto;
     padding: 1ex;
-    height: 40%;
+    height: 100px;
     float: right;
 }
 
