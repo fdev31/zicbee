@@ -21,7 +21,7 @@ $def with (form, song, infos)
         </div>
         <div id="cmdgroup">
             <div style="bgcolor: green;" class="blockcmd">
-                <a href="playlist">View playlist</a>
+                <a href="search/">Browse...</a>
             </div>
             <div style="bgcolor: red;" class="blockcmd">
                 <a href="#" onclick='wget("prev");'>Back!</a>
@@ -45,5 +45,6 @@ $def with (form, song, infos)
            $:form.render()
            <input type="submit" value="Search" />
         </form>
+        <div id="playlist"></div>
     </body>
 </html>

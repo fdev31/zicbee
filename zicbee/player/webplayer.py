@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 import web
 from pkg_resources import resource_filename
-from zicbee.core.zutils import jdump, jload # json in/out
+from zicbee.core.zutils import jdump, jload, compact_int # json in/out
 import thread
 from threading import RLock
 from . import mp # player
@@ -245,7 +245,7 @@ class PlayerCtl(object):
     def _get_infos(self, l):
         try:
             return dict(album = l[1],
-                        length = float(l[4]),
+                        length = int(l[4]),
                         title = l[3],
                         __id__ = l[5],
                         artist = l[1])
@@ -265,7 +265,7 @@ class PlayerCtl(object):
             with self._lock:
                 if self._cur_song_pos < 0:
                     raise Exception()
-                txt =  'http://%s/search%s'%(self.hostname, self.playlist[self._cur_song_pos][0])
+                txt =  'http://%s%s'%(self.hostname, self.playlist[self._cur_song_pos][0])
             return txt
         except:
             return None
@@ -332,20 +332,22 @@ class webplayer:
         i = web.input()
         format = i.get('fmt', 'txt')
 
+        try:
+            _d = self.player.selected.copy()
+        except AttributeError:
+            _d = dict()
+        _d['pls_position'] = self.player._cur_song_pos
+        _d['song_position'] = self.player.position
+        _d['pls_size'] = len(self.player.playlist)
+        try:
+            _d['id'] = compact_int(_d.pop('__id__'))
+        except KeyError:
+            pass
+
         if format == 'txt':
-            yield 'current track: %s\n'%self.player._cur_song_pos
-            yield 'current position: %s\n'%self.player.position
-            yield 'playlist size: %s\n'%len(self.player.playlist)
-            for k, v in self.player.selected.iteritems():
+            for k, v in _d.iteritems():
                 yield '%s: %s\n'%(k, v)
         elif format == 'json':
-            try:
-                _d = self.player.selected.copy()
-            except AttributeError:
-                _d = dict()
-            _d['pls_position'] = self.player._cur_song_pos
-            _d['song_position'] = self.player.position
-            _d['pls_size'] = len(self.player.playlist)
             yield jdump(_d)
 
     def REQ_lastlog(self):

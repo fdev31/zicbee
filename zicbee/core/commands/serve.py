@@ -76,10 +76,9 @@ class index:
         else:
             pat, vars = parse_line(pattern)
             web.debug(pattern, pat, vars)
-            home = web.ctx['homedomain']+'/get?'
             urlencode = web.http.urlencode
             ci = compact_int
-            res = (['/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+            res = (['/search/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(fields)+['filename'], pat, **vars)
                     )
         t_sel = time()

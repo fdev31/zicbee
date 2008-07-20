@@ -1,6 +1,10 @@
 $def with (form, results)
+<html>
+<head>
 <link rel="stylesheet" href="/static/main.css" media="screen">
-<form action="index">
+</head>
+<body>
+<form action="index" class="lonelyFormBlock">
    $:form.render()
    <input type="submit" value="Search" />
 </form>
@@ -10,3 +14,4 @@ $def with (form, results)
             <div><a href="$uri">$res.filename</a></div>
             $res.artist - $res.album - $res.title
             </div>
+</body></html>
