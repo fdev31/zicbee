@@ -6,6 +6,7 @@ TODO (urgent):
    a click on the bee makes it fade in
  Right align the "Search" button
  Left align the "search" form on the /search/ server
+ Change font
 
 BUGS:
  Should adapt samplerate to current song (time is bended now)
