@@ -39,12 +39,12 @@ function refresh_infos(infos) {
         } else {
             do_animate=false;
             txt = "<h2>No song played</h2>";
+            $('progressbase').tween('width', 0);
         }
         $('descr').innerHTML = txt;
     } else {
         $('progressbar').tween('width', infos['song_position']/2);
     }
-    tick.delay(refresh_interval);
 };
 function tick() {
     new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
