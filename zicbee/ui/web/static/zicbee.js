@@ -35,7 +35,7 @@ function refresh_infos(infos) {
     } else {
         $('progressbar').tween('width', infos['song_position']);
     }
-    tick.delay(2000);
+    tick.delay(refresh_interval);
 };
 function tick() {
     new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
