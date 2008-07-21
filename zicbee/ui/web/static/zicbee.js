@@ -27,6 +27,7 @@ function refresh_infos(infos) {
             txt += "<a href='/search/get/song?id="+song_id+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a><br/>";
             txt += infos['album'];
             $('progressbase').tween('width', infos['length']);
+            $('progressbar').tween('width', infos['song_position']/2);
             new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
         } else {
             txt = "<h2>No song played</h2>";
