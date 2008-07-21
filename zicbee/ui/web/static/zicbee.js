@@ -1,5 +1,5 @@
 var song_id=null;
-var refresh_interval=10000;
+var refresh_interval=5000;
 
 function wget(what) {
     new Request.JSON({url:what, method: "get"}).send();
