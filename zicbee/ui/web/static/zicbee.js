@@ -29,7 +29,15 @@ function refresh_infos(infos) {
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', infos['song_position']/2);
             new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
+            if(!do_animate) {
+                var fn = function() {
+                    do_animate=true;
+                    stop_animate.delay(10000);
+                };
+                fn.delay(5000);
+            };
         } else {
+            do_animate=false;
             txt = "<h2>No song played</h2>";
         }
         $('descr').innerHTML = txt;
@@ -41,8 +49,24 @@ function refresh_infos(infos) {
 function tick() {
     new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
 };
+var do_animate=false;
+
+function stop_animate() {
+    if(do_animate) {
+        $('bee').tween.delay(300, $('bee'), new Array(['margin-left', 0]));
+        do_animate=false;
+    }
+}
+function animate_bee() {
+    if (do_animate) {
+        $('bee').tween('margin-left', $random(-30, 0));
+    }
+}
 window.addEvent('domready', function() {
         $('progressbar').set('tween', {'duration':refresh_interval});
-        tick.delay(refresh_interval);
+        tick.periodical(refresh_interval);
+
+        $('bee').set('tween', {'duration':80});
+        animate_bee.periodical(80);
     });
 
