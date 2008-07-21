@@ -51,10 +51,10 @@ body {
 }
 
 .formBlock {
-    float: left;
+/*    float: left;*/
     clear: left;
     display: block;
-    margin: 1em auto 1em 1em;
+    margin: -1em auto 1em 0;
     border: groove 1px #800;
     background: #e86;
     padding: 1ex;
@@ -68,7 +68,7 @@ label {
 }
 
 .lonelyFormBlock {
-    float: right;
+/*    float: right;*/
 /*    clear: right;*/
     display: block;
     margin: 1em 1em 1em auto;
@@ -78,14 +78,18 @@ label {
 }
 
 #playlist {
-    width: 60%;
-    float: left;
+    display: block;
+    float: right;
     background: #b87;
-    margin-left: 380px;
-    margin-right: 2em;
-    z-index: 2;
-    margin-top: -100px;
+/*    margin-left: 380px;*/
+/*    margin-right: 2em;*/
+    width: auto;
+/*    margin-top: -230px;*/
     border: groove 1px #800;
+    padding-right: 1ex;
+    position: absolute;
+    right: -1px;
+    top: 200px;
 }
 
 #decrBlock {
@@ -93,11 +97,14 @@ label {
     border-left: solid #e86 2px;
     border-bottom: solid #e86 2px;
 	background: #fde;
+    position: absolute;
+    top: 0;
+    right: 0;
 /*    width: 300px;*/
-    margin: 0 0 auto auto;
+/*    margin: 0 0 auto auto;*/
     padding: 1ex;
     height: 100px;
-    float: right;
+/*    float: right;*/
 }
 
 a {
