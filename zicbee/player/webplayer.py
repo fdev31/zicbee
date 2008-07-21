@@ -6,7 +6,6 @@ from pkg_resources import resource_filename
 from zicbee.core.zutils import jdump, jload, compact_int # json in/out
 import thread
 from threading import RLock
-from . import mp # player
 import random # shuffle
 import urllib # get playlist
 from time import sleep # background thread
@@ -32,7 +31,13 @@ class PlayerCtl(object):
         self._cur_song_pos = -1
         self.playlist = []
         self.views = []
-        self.player = mp.MPlayer()
+        try:
+            from . import mp # mplayer backend
+            self.player = mp.MPlayer()
+        except:
+            # TODO: add different backends!
+            # (maybe adapt mp interface to be more generic)
+            raise RuntimeError("No backend could be loaded!")
         self.position = None
         self._lock = RLock()
         self._paused = False
