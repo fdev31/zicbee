@@ -33,7 +33,7 @@ function refresh_infos(infos) {
         }
         $('descr').innerHTML = txt;
     } else {
-        $('progressbar').tween('width', infos['song_position']);
+        $('progressbar').tween('width', infos['song_position']/2);
     }
     tick.delay(refresh_interval);
 };
