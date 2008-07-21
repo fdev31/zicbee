@@ -1,5 +1,7 @@
 TODO (urgent):
  Cancel downloads on select.
+ Top & Bottom border of commands should be red/blue
+ Left & Right divs should be stylised (background/no border) 
 
 BUGS:
  Should adapt samplerate to current song (time is bended now)
