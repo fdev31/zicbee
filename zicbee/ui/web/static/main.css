@@ -5,6 +5,7 @@ body {
     background-color: #a72b00;
     background-image: url("pics/tile.png");
     background-repeat: repeat-x;
+    font-family: 'Lucida Grande',Verdana,Arial,Sans-Serif;
 }
 .answer {
 	background: #ded;
@@ -16,8 +17,8 @@ body {
 #cmdgroup {
     display: block;
     position: absolute;
-    top: 133px;
-    left: 371px;
+    top: 135px;
+    left: 370px;
 }
 
 .blockcmd {
