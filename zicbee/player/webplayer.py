@@ -295,14 +295,11 @@ class webplayer:
     lastlog = []
 
     def REQ_main(self):
+        cook_jar = web.cookies(host='localhost', pattern='')
         af = SimpleSearchForm(True)
-        af.fill()
+        af.fill(cook_jar)
         web.debug(self.player.selected, self.player.infos)
-        yield render.player(
-                af,
-                self.player.selected,
-                self.player.infos,
-                )
+        yield render.player(af)
 
     REQ_ = REQ_main # default page
 

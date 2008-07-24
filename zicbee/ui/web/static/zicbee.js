@@ -19,12 +19,22 @@ function print_playlist(pls) {
 
 }
 
+if (!Cookie.read('host')) {
+    Cookie.write('host', 'localhost');
+    Cookie.write('pattern', '');
+};
+
+function validate_form() {
+    Cookie.write('host', $('fill_form').host.value);
+    Cookie.write('pattern', $('fill_form').pattern.value);
+};
+
 function render_song(infos) {
         if ( $type(infos) == 'array' ) {
-            return "<a href='"+infos[0]+"'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+") ";
-            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+            return "<a href='"+Cookie.read('host')+infos[0]+"'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+") ";
+//            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
         } else { // dict like (object)
-            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+            return "<a href="+Cookie.read('host')+"'/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
         }
 };
 

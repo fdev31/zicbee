@@ -1,4 +1,4 @@
-$def with (form, song, infos)
+$def with (form)
 <html>
     <head>
         <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
@@ -32,7 +32,7 @@ $def with (form, song, infos)
             </div>
             -->
         </div>
-        <form action="/search?fmt=txt" class="formBlock">
+        <form id="fill_form" action="/search?fmt=txt" onvalidate="validate_form" class="formBlock">
            $:form.render()
            <input type="submit" value="Search" />
         </form>
