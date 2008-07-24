@@ -259,7 +259,9 @@ class PlayerCtl(object):
 
     def _get_selected(self):
         pos = self._cur_song_pos
-        if 0 <= pos <= len(self.playlist):
+        if len(self.playlist) == 0 or not (0 <= pos <= len(self.playlist)):
+            return None
+        else:
             return self._get_infos(self.playlist[pos])
 
     selected = property(_get_selected)
