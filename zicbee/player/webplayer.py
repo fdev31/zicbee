@@ -20,7 +20,7 @@ SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
         web.form.Textbox('host', description='Search host', value='localhost'),
         web.form.Textbox('pattern', description='Search pattern'),
-        web.form.Textbox('tempname', description='Temporary name'),
+#        web.form.Textbox('tempname', description='Temporary name'),
         )
 
 class PlayerCtl(object):
