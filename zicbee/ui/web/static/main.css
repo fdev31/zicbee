@@ -15,7 +15,9 @@ body {
 
 #cmdgroup {
     display: block;
-    padding-top: 133px;
+    position: absolute;
+    top: 133px;
+    left: 371px;
 }
 
 .blockcmd {
@@ -52,7 +54,7 @@ body {
 
 .formBlock {
 /*    float: left;*/
-    clear: left;
+    clear: both;
     display: block;
     margin: -1em auto 1em 0;
     border: groove 1px #800;
@@ -89,7 +91,7 @@ label {
     padding-right: 1ex;
     position: absolute;
     right: -1px;
-    top: 200px;
+    top: 240px;
 }
 
 #descrBlock {
@@ -97,14 +99,14 @@ label {
     border-left: solid #e86 2px;
     border-bottom: solid #e86 2px;
 	background: #fde;
-    position: absolute;
-    top: 0;
-    right: 0;
 /*    width: 300px;*/
 /*    margin: 0 0 auto auto;*/
     padding: 1ex;
     height: 100px;
 /*    float: right;*/
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 a {

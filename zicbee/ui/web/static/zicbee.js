@@ -12,19 +12,28 @@ function print_playlist(pls) {
     var s=null;
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
-        txt += "<li><a href='"+s[0]+"'>"+s[1] + " - " + s[3] + " ("+s[2]+") </li>";
+        txt += "<li>"+render_song(s);
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt
 
 }
 
+function render_song(infos) {
+        if ( $type(infos) == 'array' ) {
+            return "<a href='"+infos[0]+"'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+") ";
+            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+        } else { // dict like (object)
+            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+        }
+};
+
 function refresh_infos(infos) {
     if (song_id != infos['id']) {
         song_id = infos['id'];
         if (song_id) {
             txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+"<br/>";
-            txt += "<a href='/search/get/song?id="+song_id+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a><br/>";
+            txt += render_song(infos) + "<br/>";
             txt += infos['album'];
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', infos['song_position']/2);
