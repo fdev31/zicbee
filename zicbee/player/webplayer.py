@@ -44,6 +44,9 @@ class PlayerCtl(object):
         thread.start_new_thread(self._main_loop, tuple())
         self._named_playlists = dict()
 
+    def __repr__(self):
+        return '<Player[%d] playing %s (views=%d)>'%(len(self.playlist), self.selected, len(self.views))
+
     def _main_loop(self):
         while True:
             if not self._paused and len(self.playlist):
