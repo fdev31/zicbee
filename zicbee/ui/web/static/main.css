@@ -43,6 +43,7 @@ body {
     background: #cb3;
 }
 #progressbase {
+    width: 0;
     padding: 0;
     margin: 1ex auto 1ex auto;
     background: #004;

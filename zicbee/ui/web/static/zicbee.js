@@ -64,6 +64,7 @@ function animate_bee() {
 }
 window.addEvent('domready', function() {
         $('progressbar').set('tween', {'duration':refresh_interval});
+        tick();
         tick.periodical(refresh_interval);
 
         $('bee').set('tween', {'duration':80});
