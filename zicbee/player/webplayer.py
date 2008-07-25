@@ -184,7 +184,11 @@ class PlayerCtl(object):
                 line = site.readline()
                 if not line:
                     break
-                r = jload(line)
+                try:
+                    r = jload(line)
+                except:
+                    web.debug("Can't load json description: %s"%line)
+                    break
                 total += r[4]
 #                r[0] = 'http://%s%s'%(hostname, r[0])
                 with self._lock:
