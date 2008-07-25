@@ -42,15 +42,12 @@ function refresh_infos(infos) {
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', infos['song_position']/2);
             new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
-            if(!do_animate) {
-                var fn = function() {
-                    do_animate=true;
-                    stop_animate.delay(10000);
-                };
-                fn.delay(5000);
+            if (animatedBee.song != song_id) {
+                animatedBee.song = song_id;
+                animatedBee.start();
             };
         } else {
-            do_animate=false;
+            animatedBee.stop();
             txt = "<h2>No song played</h2>";
             $('progressbase').tween('width', 0);
         }
@@ -62,25 +59,79 @@ function refresh_infos(infos) {
 function tick() {
     new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
 };
-var do_animate=false;
 
-function stop_animate() {
-    if(do_animate) {
-        $('bee').tween.delay(300, $('bee'), new Array(['margin-left', 0]));
-        do_animate=false;
-    }
+
+var animatedBee = {
+    song : null,
+
+    in_progress : false,
+
+    setup : function() {
+        $('bee').set('tween', {'duration':80});
+        return this;
+       },
+    start : function() {
+            this.stop();
+            this.in_progress = this.step.periodical(100);
+            this.stop.delay(10000);
+        },
+    step : function() {
+           $('bee').tween('margin-left', $random(-30, 0));
+       },
+    stop : function () {
+           if(this.in_progress) {
+               $clear(this.in_progress);
+               this.in_progress = false;
+               $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
+           };
+       },
+};
+
+var hideableForm = {
+    Create : function(e) {
+        this.elt = e;
+        this.hidden = false;
+        return this;
+    },
+    toggle: function() {
+        if (this.hidden) {
+            this.elt.tween('left', -1);
+            this.hidden = false;
+        } else {
+            this.elt.tween('left', -400);
+            this.hidden = true;
+        };
+    },
 }
-function animate_bee() {
-    if (do_animate) {
-        $('bee').tween('margin-left', $random(-30, 0));
-    }
-}
+
+/*
+function toto() {
+    $$('.blockcmd').each(function(el) {
+        el.set('tween', {duration: 3000});
+        el.addEvent('mouseenter', function() {
+            el.tween('background-color', '#c50');
+            });
+        el.addEvent('mouseout', function() {
+            el.tween('background-color', '#000');
+            });
+        });
+
+    };
+*/
+
 window.addEvent('domready', function() {
-        $('progressbar').set('tween', {'duration':refresh_interval});
+        animatedBee = animatedBee.setup();
+        $('progressbar').set('tween', {'duration':refresh_interval*10});
         tick();
         tick.periodical(refresh_interval);
 
-        $('bee').set('tween', {'duration':80});
-        animate_bee.periodical(80);
+        document.body.innerHTML += '<img id="flowers" src="/static/pics/flowers.png" />';
+        if (! $chk(Cookie.read('host'))) {
+            Cookie.write('host', 'localhost', {duration: 30});
+            Cookie.write('pattern', '', {duration: 30});
+        };
+        validateForm.delay(300);
+        hideableForm.Create($('fill_form'));
+        $('bee').addEvent('click', function() {hideableForm.toggle()});
     });
 

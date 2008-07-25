@@ -32,7 +32,7 @@ $def with (form)
             </div>
             -->
         </div>
-        <form id="fill_form" action="/search?fmt=txt" onvalidate="validate_form" class="formBlock">
+        <form id="fill_form" action="javascript:validateForm()" class="formBlock">
            $:form.render()
            <input type="submit" value="Search" />
         </form>
