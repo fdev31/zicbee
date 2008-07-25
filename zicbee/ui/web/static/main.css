@@ -6,7 +6,16 @@ body {
     background-image: url("pics/tile.png");
     background-repeat: repeat-x;
     font-family: 'Lucida Grande',Verdana,Arial,Sans-Serif;
+    z-index: 0;
 }
+
+#flowers {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: -2;
+}
+
 .answer {
 	background: #ded;
 	border: solid black 1px;
@@ -49,12 +58,21 @@ body {
 }
 #progressbase {
     padding: 0;
-    margin: 1ex auto 1ex auto;
+    margin: 1ex 1ex 1ex auto;
+    color: white;
     background: #004;
     width: 0;
     border: 2px ridge #aac;
 }
 
+li {
+    font-weight: bold;
+    text-align: right;
+}
+
+li:hover {
+    color: red;
+}
 .formBlock {
 /*    float: left;*/
     clear: both;
@@ -65,6 +83,12 @@ body {
     padding: 1ex;
     width: 350px;
     z-index: 3;
+}
+
+#fill_form {
+    position: absolute;
+    top: 300px;
+    left: -1;
 }
 
 label {
@@ -84,28 +108,35 @@ label {
 
 #playlist {
     display: block;
-    float: right;
-    background: #b87;
+    background-image: url('pics/transp.png');
+/*    float: right;*/
+/*    background: #b87;*/
 /*    margin-left: 380px;*/
 /*    margin-right: 2em;*/
     width: auto;
 /*    margin-top: -230px;*/
-    border: groove 1px #800;
+/*    border: groove 1px #800;*/
     padding-right: 1ex;
     position: absolute;
     right: -1px;
-    top: 240px;
+    bottom: 0px;
+    z-index: 4;
+}
+
+.songFont {
+    color: white;
 }
 
 #descrBlock {
     display: block;
-    border-left: solid #e86 2px;
-    border-bottom: solid #e86 2px;
-	background: #fde;
+/*    border-left: solid #e86 2px;*/
+/*    border-bottom: solid #e86 2px;*/
+/*    background: #fde;*/
 /*    width: 300px;*/
 /*    margin: 0 0 auto auto;*/
     padding: 1ex;
     height: 100px;
+    text-align: right;
 /*    float: right;*/
     position: absolute;
     top: 0;
