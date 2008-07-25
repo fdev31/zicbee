@@ -45,7 +45,8 @@ function refresh_infos(infos) {
             if (animatedBee.song != song_id) {
                 animatedBee.song = song_id;
                 animatedBee.start();
-            };
+                animatedBee.stop.delay(10000);
+            }
         } else {
             animatedBee.stop();
             txt = "<h2>No song played</h2>";
@@ -67,21 +68,19 @@ var animatedBee = {
     in_progress : false,
 
     setup : function() {
-        $('bee').set('tween', {'duration':80});
-        return this;
        },
     start : function() {
-            this.stop();
-            this.in_progress = this.step.periodical(100);
-            this.stop.delay(10000);
+            animatedBee.stop();
+            animatedBee.in_progress = animatedBee.step.periodical(80);
         },
     step : function() {
+           $('bee').set('tween', {'duration':80});
            $('bee').tween('margin-left', $random(-30, 0));
        },
     stop : function () {
-           if(this.in_progress) {
-               $clear(this.in_progress);
-               this.in_progress = false;
+           if(animatedBee.in_progress) {
+               $clear(animatedBee.in_progress);
+               animatedBee.in_progress = false;
                $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
            };
        },
@@ -120,7 +119,7 @@ function toto() {
 */
 
 window.addEvent('domready', function() {
-        animatedBee = animatedBee.setup();
+        animatedBee.setup();
         $('progressbar').set('tween', {'duration':refresh_interval*10});
         tick();
         tick.periodical(refresh_interval);
