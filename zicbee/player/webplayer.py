@@ -377,7 +377,7 @@ class webplayer:
         else:
             end = len(pls)
 
-        window_iterator = (pls[i] for i in xrange(start, end))
+        window_iterator = (pls[i] for i in xrange(start, min(len(pls), end)))
 
         if format == 'txt':
             for elt in window_iterator:
