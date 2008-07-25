@@ -28,10 +28,9 @@ function validateForm() {
 
 function render_song(infos) {
         if ( $type(infos) == 'array' ) {
-            return "<a href='"+Cookie.read('host')+infos[0]+"'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+") ";
-//            return "<a href='/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+            return "<a href='http://"+Cookie.read('host')+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
         } else { // dict like (object)
-            return "<a href="+Cookie.read('host')+"'/search/get/song?id="+infos['id']+"'><b>" + infos['artist'] + "</b> - " + infos['title'] + "</a>";
+            return "<a href='http://"+Cookie.read('host')+"/search/get/song.mp3?id="+infos['id']+"'><font class='songfont'>"+infos['artist'] + " - " + infos['title'] + " ("+infos['album']+")</font></a>";
         }
 };
 
@@ -39,9 +38,7 @@ function refresh_infos(infos) {
     if (song_id != infos['id']) {
         song_id = infos['id'];
         if (song_id) {
-            txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+"<br/>";
-            txt += render_song(infos) + "<br/>";
-            txt += infos['album'];
+            txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+" : "+render_song(infos);
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', infos['song_position']/2);
             new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
