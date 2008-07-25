@@ -19,14 +19,11 @@ function print_playlist(pls) {
 
 }
 
-if (!Cookie.read('host')) {
-    Cookie.write('host', 'localhost');
-    Cookie.write('pattern', '');
-};
-
-function validate_form() {
-    Cookie.write('host', $('fill_form').host.value);
-    Cookie.write('pattern', $('fill_form').pattern.value);
+function validateForm() {
+    Cookie.write('host', unescape($('fill_form').host.value));
+    Cookie.write('pattern', unescape($('fill_form').pattern.value));
+    wget('/search?fmt=txt&host='+$('fill_form').host.value+'&pattern='+$('fill_form').pattern.value);
+    hideableForm.toggle();
 };
 
 function render_song(infos) {
