@@ -16,6 +16,12 @@ function print_playlist(pls) {
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt
+        /*
+    $$('.listFont').each( function(e) {
+            e.addEvent('mouseover', function() {e.tween('color', '#ffb');});
+            e.addEvent('mouseout', function() {e.tween('color', '#000');});
+            } )
+            */
 
 }
 
@@ -40,7 +46,7 @@ function refresh_infos(infos) {
         if (song_id) {
             txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+" : "+render_song(infos);
             $('progressbase').tween('width', infos['length']);
-            $('progressbar').tween('width', infos['song_position']/2);
+            $('progressbar').tween('width', 0);
             new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
             if (animatedBee.song != song_id) {
                 animatedBee.song = song_id;
@@ -54,6 +60,7 @@ function refresh_infos(infos) {
         }
         $('descr').innerHTML = txt;
     } else {
+        $('progressbar').set('tween', {'duration':refresh_interval+500});
         $('progressbar').tween('width', infos['song_position']/2);
     }
 };
@@ -120,7 +127,6 @@ function toto() {
 
 window.addEvent('domready', function() {
         animatedBee.setup();
-        $('progressbar').set('tween', {'duration':refresh_interval*10});
         tick();
         tick.periodical(refresh_interval);
 
