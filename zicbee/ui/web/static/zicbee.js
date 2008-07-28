@@ -135,8 +135,8 @@ window.addEvent('domready', function() {
             Cookie.write('host', 'localhost', {duration: 30});
             Cookie.write('pattern', '', {duration: 30});
         };
-        validateForm.delay(300);
         hideableForm.Create($('fill_form'));
+        hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
     });
 
