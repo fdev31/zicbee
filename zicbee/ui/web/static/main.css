@@ -13,7 +13,7 @@ body {
     position: absolute;
     right: 0;
     bottom: 0;
-    z-index: -2;
+    z-index: 0;
 }
 
 .answer {
@@ -28,6 +28,7 @@ body {
     position: absolute;
     top: 135px;
     left: 370px;
+    z-index: 5;
 }
 
 .blockcmd {
