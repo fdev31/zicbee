@@ -34,9 +34,9 @@ function validateForm() {
 
 function render_song(infos) {
         if ( $type(infos) == 'array' ) {
-            return "<a href='http://"+Cookie.read('host')+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
+            return "<a href='"+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
         } else { // dict like (object)
-            return "<a href='http://"+Cookie.read('host')+"/search/get/song.mp3?id="+infos['id']+"'><font class='songfont'>"+infos['artist'] + " - " + infos['title'] + " ("+infos['album']+")</font></a>";
+            return "<a href='"+infos['address']+"/search/get/song.mp3?id="+infos['id']+"'><font class='songfont'>"+infos['artist'] + " - " + infos['title'] + " ("+infos['album']+")</font></a>";
         }
 };
 

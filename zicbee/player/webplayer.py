@@ -104,6 +104,7 @@ class PlayerCtl(object):
                 self._cur_song_pos = -1
 
             song_name = "zsong.zic"
+            web.debug('download: %s'%self.selected_uri)
             dl_it = self._download_zic(self.selected_uri, song_name)
             dl_it.next()
             web.debug('select: %d'%self._cur_song_pos)
@@ -193,6 +194,7 @@ class PlayerCtl(object):
         total = 0
         done = False
 
+        host_prefix = 'http://'+hostname
         while True:
             for n in xrange(50):
                 line = site.readline()
@@ -204,8 +206,9 @@ class PlayerCtl(object):
                     web.debug("Can't load json description: %s"%line)
                     break
                 total += r[4]
-#                r[0] = 'http://%s%s'%(hostname, r[0])
+                r[0] = host_prefix + r[0]
                 with self._lock:
+                    r[0]
                     add(r)
                 self.signal_view('update_total', total)
 
@@ -293,7 +296,7 @@ class PlayerCtl(object):
             with self._lock:
                 if self._cur_song_pos < 0:
                     raise Exception()
-                txt =  'http://%s%s'%(self.hostname, self.playlist[self._cur_song_pos][0])
+                txt =  self.playlist[self._cur_song_pos][0]
             return txt
         except:
             return None
@@ -364,6 +367,7 @@ class webplayer:
         _d['pls_position'] = self.player._cur_song_pos
         _d['song_position'] = self.player.position
         _d['pls_size'] = len(self.player.playlist)
+        _d['address'] = web.ctx.homedomain
         try:
             _d['id'] = compact_int(_d.pop('__id__'))
         except KeyError:
