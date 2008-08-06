@@ -181,7 +181,7 @@ class PlayerCtl(object):
         with self._lock:
             self.hostname = hostname
 
-            uri = 'http://%s/search/?json=1&%s'%(hostname, urllib.urlencode(kw))
+            uri = 'http://%s/db/?json=1&%s'%(hostname, urllib.urlencode(kw))
             site = urllib.urlopen(uri)
 
             if temp:
@@ -477,7 +477,7 @@ class web_db_index:
             web.debug(pattern, pat, vars)
             urlencode = web.http.urlencode
             ci = compact_int
-            res = (['/search/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+            res = (['/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(fields)+['filename'], pat, **vars)
                     )
         t_sel = time()

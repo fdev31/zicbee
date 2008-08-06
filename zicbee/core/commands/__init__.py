@@ -25,7 +25,7 @@ def do_serve():
     try:
         import web.wsgiserver
         print "Running webplayer from", __file__
-        wsgi_apps = ('/search/(.*)', 'web_db_index',
+        wsgi_apps = ('/db/(.*)', 'web_db_index',
                 '/(.*)', 'webplayer')
         urls = wsgi_apps
         fvars = globals().copy()
