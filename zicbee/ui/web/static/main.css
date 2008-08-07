@@ -33,15 +33,11 @@ body {
 
 .blockcmd {
     display: block;
-    background: black;
-/*    border: solid #aaa 1px;*/
-    border-top: solid #f88 1px;
-    border-bottom: solid #88f 1px;
     padding: 0.1ex;
     margin: 1ex;
     float: left;
     font-weight: bold;
-    width: 100px;
+/*    width: 100px;*/
     text-align: center; 
     font-size: 80%;
 }
