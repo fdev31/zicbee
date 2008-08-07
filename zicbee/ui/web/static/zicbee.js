@@ -10,9 +10,11 @@ function wget(what) {
 function print_playlist(pls) {
     var txt = "<ul>";
     var s=null;
+    var idx=null;
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
-        txt += "<li>"+render_song(s);
+        idx = s[6];
+        txt += "<li>"+render_song(s)+"<a href='/delete?idx="+idx+"'>[X]</a><a href='/move?i1="+(idx-1)+"&i2="+idx+"'>[^]</a><a href='/move?i1="+idx+"&i2="+(idx+1)+"'>[v]</a>";
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt

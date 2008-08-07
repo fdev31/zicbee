@@ -341,18 +341,23 @@ class webplayer:
             for x in it:
                 yield
 
-    def REQ_delete(self, position):
-        # WARNING: not tested
-        self.player.delete_entry(position)
+    def REQ_delete(self):
+        i = web.input()
+        self.player.delete_entry(int(i['idx']))
+        return web.redirect('/')
 
-    def REQ_move(self, pos1, pos2):
-        self.player.move_entry(pos1, pos2)
+    def REQ_move(self):
+        i = web.input()
+        self.player.move_entry(int(i['i1']), int(i['i2']))
+        return web.redirect('/')
 
-    def REQ_append(self, name):
-        self.player.playlist_change('append', name)
+    def REQ_append(self):
+        self.player.playlist_change('append', web.input()['name'])
+        return web.redirect('/')
 
-    def REQ_copy(self, name):
-        self.player.playlist_change('copy', name)
+    def REQ_copy(self):
+        self.player.playlist_change('copy', web.input()['name'])
+        return web.redirect('/')
 
     def REQ_infos(self):
         i = web.input()
@@ -393,7 +398,7 @@ class webplayer:
         else:
             end = len(pls)
 
-        window_iterator = (pls[i] for i in xrange(start, min(len(pls), end)))
+        window_iterator = (pls[i] + [i] for i in xrange(start, min(len(pls), end)))
 
         if format == 'txt':
             for elt in window_iterator:
