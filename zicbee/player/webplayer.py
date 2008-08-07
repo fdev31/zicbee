@@ -194,7 +194,6 @@ class PlayerCtl(object):
         total = 0
         done = False
 
-        host_prefix = 'http://'+hostname
         while True:
             for n in xrange(50):
                 line = site.readline()
@@ -206,7 +205,6 @@ class PlayerCtl(object):
                     web.debug("Can't load json description: %s"%line)
                     break
                 total += r[4]
-                r[0] = host_prefix + r[0]
                 with self._lock:
                     r[0]
                     add(r)
@@ -477,7 +475,7 @@ class web_db_index:
             web.debug(pattern, pat, vars)
             urlencode = web.http.urlencode
             ci = compact_int
-            res = (['/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+            res = ([web.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(fields)+['filename'], pat, **vars)
                     )
         t_sel = time()
