@@ -35,11 +35,15 @@ function validateForm() {
 };
 
 function render_song(infos) {
-        if ( $type(infos) == 'array' ) {
-            return "<a href='"+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
-        } else { // dict like (object)
-            return "<a href='"+infos['address']+"/db/get/song.mp3?id="+infos['id']+"'><font class='songfont'>"+infos['artist'] + " - " + infos['title'] + " ("+infos['album']+")</font></a>";
+        if ( $type(infos) != 'array' ) {
+            // Convert to array
+            infos = [ infos['uri'],
+                  infos['artist'],
+                  infos['album'],
+                  infos['title']
+                  ];
         }
+        return "<a href='"+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
 };
 
 function refresh_infos(infos) {

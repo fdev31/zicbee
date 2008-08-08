@@ -364,12 +364,13 @@ class webplayer:
 
         try:
             _d = self.player.selected.copy()
+            _d['uri'] = self.player.playlist[self.player._cur_song_pos][0]
         except AttributeError:
             _d = dict()
         _d['pls_position'] = self.player._cur_song_pos
         _d['song_position'] = self.player.position
         _d['pls_size'] = len(self.player.playlist)
-        _d['address'] = web.ctx.homedomain
+
         try:
             _d['id'] = compact_int(_d.pop('__id__'))
         except KeyError:
