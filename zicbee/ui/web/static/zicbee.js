@@ -101,10 +101,11 @@ function length_to_str(l) {
 }
 
 function refresh_infos(infos) {
-    if (!infos) {
+    if (!infos && !paused) {
         time_elapsed += 1;
         $('progressbase').innerHTML = length_to_str(time_elapsed); 
     } else if (song_id != infos['id']) {
+        paused=false;
         song_id = infos['id'];
         if (song_id) {
             song_position = infos['pls_position']; 
@@ -123,7 +124,11 @@ function refresh_infos(infos) {
         }
         $('descr').innerHTML = txt;
     } else if(infos) {
-        time_elapsed = (infos['song_position']/2).toInt(); // WTF I need to /2 ?!
+        var old_val = time_elapsed;
+        time_elapsed = infos['song_position'].toInt();
+        if(old_val+6 < time_elapsed) { // XXX: This is a very strange fix for a buggy backend!!
+            time_elapsed = (time_elapsed/2).toInt();
+        }
         $('progressbase').innerHTML = length_to_str(time_elapsed); 
     }
 };
@@ -131,7 +136,7 @@ function refresh_infos(infos) {
 function tick() {
     if(time_elapsed%10==1) {
         new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
-    } else if(!paused) {
+    } else {
         refresh_infos(null);
     }
 };
