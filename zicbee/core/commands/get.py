@@ -101,12 +101,11 @@ def do_get(host='localhost', out='/tmp'):
         host += ':9090'
 
     uri_list = []
-    def _append_uri_filename(*args):
-        args = args[0]
+    def _append_uri_filename(args):
+        uri = args[0]
         filename = os.path.join(out,
                 ' - '.join(a for a in args[1:4] if a)
                 + args[0].split('?', 1)[0][-4:])
-        uri = 'http://%s%s'%(host, args[0])
         uri_list.append((uri, filename))
 
     do_search(out=_append_uri_filename, host=host)
