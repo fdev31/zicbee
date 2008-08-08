@@ -279,14 +279,13 @@ class PlayerCtl(object):
         except:
             return None
 
-    def _get_selected(self):
+    @property
+    def selected(self):
         pos = self._cur_song_pos
         if len(self.playlist) == 0 or not (0 <= pos <= len(self.playlist)):
             return None
         else:
             return self._get_infos(self.playlist[pos])
-
-    selected = property(_get_selected)
 
     @property
     def selected_uri(self):
