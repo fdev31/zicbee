@@ -2,6 +2,7 @@ var song_id = null;
 var song_position = 0;
 var time_elapsed = 0;
 var refresh_interval=5000;
+var paused = false;
 
 function wget(what) {
     new Request.JSON({url:what, method: "get"}).send();
@@ -50,7 +51,7 @@ function fill_cmdgroup() {
         'back', 'wget("prev");song_position-=1;time_elapsed=0;',
         'next', 'wget("next");song_position+=1;time_elapsed=0',
         'shuffle', 'wget("shuffle");refresh_playlist.delay(500);',
-        'pause', 'wget("pause");'
+        'pause', 'wget("pause");paused=!paused;'
     ];
 
     while ( offset < groups.length ) {
@@ -130,7 +131,7 @@ function refresh_infos(infos) {
 function tick() {
     if(time_elapsed%10==1) {
         new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
-    } else {
+    } else if(!paused) {
         refresh_infos(null);
     }
 };
