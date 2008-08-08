@@ -121,7 +121,7 @@ do_find_dups.__doc__ = """
 Find duplicates
 Parameters:
     wpt: wrong positive threshold (ceil to not reach), default == auto
-    ar: auto remove (ask for directory delection), the smallest directory always win
+    ar: auto remove (ask for directory deletion), the smallest directory always wins
     """
 
 def do_listallcmds():
