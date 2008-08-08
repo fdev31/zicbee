@@ -88,6 +88,9 @@ function refresh_playlist() {
 }
 
 function length_to_str(l) {
+    if (l<=1) {
+        return '';
+    }
     var seconds = (l%60).toInt();
     if (seconds<10) {
         seconds = "0"+seconds;
