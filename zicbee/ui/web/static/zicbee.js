@@ -1,5 +1,6 @@
-var song_id=null;
-var song_position=0;
+var song_id = null;
+var song_position = 0;
+var time_elapsed = 0;
 var refresh_interval=5000;
 
 function wget(what) {
@@ -46,9 +47,9 @@ function fill_cmdgroup() {
 
     var groups = [
         'search', 'document.location="/db/";',
-        'back', 'wget("prev");',
-        'next', 'wget("next");',
-        'shuffle', 'wget("shuffle");',
+        'back', 'wget("prev");song_position-=1;time_elapsed=0;',
+        'next', 'wget("next");song_position+=1;time_elapsed=0',
+        'shuffle', 'wget("shuffle");refresh_playlist.delay(500);',
         'pause', 'wget("pause");'
     ];
 
@@ -100,8 +101,8 @@ function length_to_str(l) {
 
 function refresh_infos(infos) {
     if (!infos) {
-        song_position += 1;
-        $('progressbase').innerHTML = length_to_str(song_position); 
+        time_elapsed += 1;
+        $('progressbase').innerHTML = length_to_str(time_elapsed); 
     } else if (song_id != infos['id']) {
         song_id = infos['id'];
         if (song_id) {
@@ -121,13 +122,13 @@ function refresh_infos(infos) {
         }
         $('descr').innerHTML = txt;
     } else if(infos) {
-        song_position = infos['song_position']/2; // WTF I need to /2 ?!
-          $('progressbase').innerHTML = length_to_str(song_position); 
+        time_elapsed = (infos['song_position']/2).toInt(); // WTF I need to /2 ?!
+        $('progressbase').innerHTML = length_to_str(time_elapsed); 
     }
 };
 
 function tick() {
-    if(song_position%10==1) {
+    if(time_elapsed%10==1) {
         new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
     } else {
         refresh_infos(null);
