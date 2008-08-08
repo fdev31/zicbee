@@ -9,7 +9,7 @@ from .scan import do_scan
 from .help import do_help
 from .get import do_get
 
-def do_serve():
+def do_serve(pure=False):
     # chdir to serve files at the right place
     import os, sys
     from pkg_resources import resource_filename
@@ -25,12 +25,15 @@ def do_serve():
     try:
         import web.wsgiserver
         print "Running webplayer from", __file__
-        wsgi_apps = ('/db/(.*)', 'web_db_index',
-                '/(.*)', 'webplayer')
-        urls = wsgi_apps
+        if pure:
+            urls = ('/db/(.*)', 'web_db_index',
+                    '/(.*)', 'web_db_index')
+        else:
+            urls = ('/db/(.*)', 'web_db_index',
+                    '/(.*)', 'webplayer')
         fvars = globals().copy()
         fvars.update(locals())
-        web.run(wsgi_apps, fvars)
+        web.run(urls, fvars)
 #        s = web.wsgiserver.CherryPyWSGIServer(('localhost', 9090), wsgi_apps, server_name='localhost')
 #        s.start()
     except:
