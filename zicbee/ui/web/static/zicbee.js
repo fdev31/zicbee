@@ -27,6 +27,33 @@ function print_playlist(pls) {
 
 }
 
+function fill_cmdgroup() {
+    var cmdgroup = $('cmdgroup');
+    var g_name;
+    var g_action;
+    var offset = 0;
+
+    var groups = [
+        'search', 'document.location="/db/";',
+        'back', 'wget("prev");',
+        'next', 'wget("next");',
+        'shuffle', 'wget("shuffle");',
+        'pause', 'wget("pause");'
+    ];
+
+    while ( offset < groups.length ) {
+        g_name = groups[offset];
+        delete groups[offset];
+
+        g_action = groups[offset+1];
+        delete groups[offset+1];
+
+        cmdgroup.innerHTML += '<div class="blockcmd"><img onmouseout=\'this.src="/static/pics/cmd/'+g_name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+g_name+'_sel.png";\' onclick=\''+g_action+'\' src="/static/pics/cmd/'+g_name+'.png" /></div>';
+
+        offset += 2;
+    }
+}
+
 function validateForm() {
     Cookie.write('host', unescape($('fill_form').host.value));
     Cookie.write('pattern', unescape($('fill_form').pattern.value));
@@ -132,6 +159,7 @@ function toto() {
 */
 
 window.addEvent('domready', function() {
+        fill_cmdgroup();
         animatedBee.setup();
         tick();
         tick.periodical(refresh_interval);
