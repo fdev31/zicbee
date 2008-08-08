@@ -11,10 +11,16 @@ function print_playlist(pls) {
     var txt = "<ul>";
     var s=null;
     var idx=null;
+    var ico1=null;
+    var ico2=null;
+    var ico3=null;
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
         idx = s[6];
-        txt += "<li>"+render_song(s)+active_icon('suppr', 'wget("/delete?idx='+idx+'");')+"<a href='/move?i1="+(idx-1)+"&i2="+idx+"'>[^]</a><a href='/move?i1="+idx+"&i2="+(idx+1)+"'>[v]</a>";
+        ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'");');
+        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'");');
+        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'");');
+        txt += "<li>"+render_song(s)+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt
