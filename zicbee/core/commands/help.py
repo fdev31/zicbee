@@ -9,8 +9,11 @@ use
     Exemple:
     %% %(prog)s use lisa search artist: dire st
 
-serve
+serve[::pure]
     Runs a user-accessible www server on port 8080
+
+  pure:
+    don't allow player functionality access
 
 list
     List available Databases.
