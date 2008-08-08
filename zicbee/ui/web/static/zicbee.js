@@ -14,7 +14,7 @@ function print_playlist(pls) {
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
         idx = s[6];
-        txt += "<li>"+render_song(s)+"<a href='/delete?idx="+idx+"'>[X]</a><a href='/move?i1="+(idx-1)+"&i2="+idx+"'>[^]</a><a href='/move?i1="+idx+"&i2="+(idx+1)+"'>[v]</a>";
+        txt += "<li>"+render_song(s)+active_icon('suppr', 'wget("/delete?idx='+idx+'");')+"<a href='/move?i1="+(idx-1)+"&i2="+idx+"'>[^]</a><a href='/move?i1="+idx+"&i2="+(idx+1)+"'>[v]</a>";
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt
@@ -28,7 +28,7 @@ function print_playlist(pls) {
 };
 
 function active_icon(name, action) {
-    return '<div class="blockcmd"><img onmouseout=\'this.src="/static/pics/cmd/'+name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+name+'_sel.png";\' onclick=\''+action+'\' src="/static/pics/cmd/'+name+'.png" /></div>'
+    return '<img onmouseout=\'this.src="/static/pics/cmd/'+name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+name+'_sel.png";\' onclick=\''+action+'\' src="/static/pics/cmd/'+name+'.png" />'
 };
 
 function fill_cmdgroup() {
@@ -52,7 +52,7 @@ function fill_cmdgroup() {
         g_action = groups[offset+1];
         delete groups[offset+1];
 
-        cmdgroup.innerHTML += active_icon(g_name, g_action);
+        cmdgroup.innerHTML += '<div class="blockcmd">'+active_icon(g_name, g_action)+'</div>';
         offset += 2;
     }
 };
