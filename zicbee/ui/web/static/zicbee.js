@@ -27,6 +27,11 @@ function print_playlist(pls) {
 
 }
 
+
+function active_icon(name, action) {
+    return '<div class="blockcmd"><img onmouseout=\'this.src="/static/pics/cmd/'+name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+name+'_sel.png";\' onclick=\''+action+'\' src="/static/pics/cmd/'+name+'.png" /></div>'
+};
+
 function fill_cmdgroup() {
     var cmdgroup = $('cmdgroup');
     var g_name;
@@ -48,8 +53,7 @@ function fill_cmdgroup() {
         g_action = groups[offset+1];
         delete groups[offset+1];
 
-        cmdgroup.innerHTML += '<div class="blockcmd"><img onmouseout=\'this.src="/static/pics/cmd/'+g_name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+g_name+'_sel.png";\' onclick=\''+g_action+'\' src="/static/pics/cmd/'+g_name+'.png" /></div>';
-
+        cmdgroup.innerHTML += active_icon(g_name, g_action);
         offset += 2;
     }
 }
