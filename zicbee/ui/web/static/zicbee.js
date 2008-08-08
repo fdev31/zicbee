@@ -25,8 +25,7 @@ function print_playlist(pls) {
             } )
             */
 
-}
-
+};
 
 function active_icon(name, action) {
     return '<div class="blockcmd"><img onmouseout=\'this.src="/static/pics/cmd/'+name+'.png";\' onmouseover=\'this.src="/static/pics/cmd/'+name+'_sel.png";\' onclick=\''+action+'\' src="/static/pics/cmd/'+name+'.png" /></div>'
@@ -56,7 +55,7 @@ function fill_cmdgroup() {
         cmdgroup.innerHTML += active_icon(g_name, g_action);
         offset += 2;
     }
-}
+};
 
 function validateForm() {
     Cookie.write('host', unescape($('fill_form').host.value));
@@ -101,10 +100,10 @@ function refresh_infos(infos) {
         $('progressbar').tween('width', infos['song_position']/2);
     }
 };
+
 function tick() {
     new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
 };
-
 
 var animatedBee = {
     song : null,
@@ -145,7 +144,7 @@ var hideableForm = {
             this.hidden = true;
         };
     },
-}
+};
 
 /*
 function toto() {
