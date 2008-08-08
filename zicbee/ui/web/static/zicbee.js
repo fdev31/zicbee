@@ -49,7 +49,7 @@ function fill_cmdgroup() {
     var groups = [
         'search', 'document.location="/db/";',
         'back', 'wget("prev");song_position-=1;time_elapsed=0;',
-        'next', 'wget("next");song_position+=1;time_elapsed=0',
+        'next', 'wget("next");song_position+=1;time_elapsed=0;',
         'shuffle', 'wget("shuffle");refresh_playlist.delay(500);',
         'pause', 'wget("pause");paused=!paused;'
     ];
