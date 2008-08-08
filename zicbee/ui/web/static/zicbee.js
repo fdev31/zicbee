@@ -87,15 +87,25 @@ function refresh_playlist() {
     return new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(song_position+1), method: "get", onSuccess: print_playlist}).send();
 }
 
+function length_to_str(l) {
+    var seconds = (l%60).toInt();
+    if (seconds<10) {
+        seconds = "0"+seconds;
+    }
+    return (l/60).toInt() + ':' + seconds;
+}
+
 function refresh_infos(infos) {
-    if (song_id != infos['id']) {
+    if (!infos) {
+        song_position += 1;
+        $('progressbase').innerHTML = length_to_str(song_position); 
+    } else if (song_id != infos['id']) {
         song_id = infos['id'];
         if (song_id) {
             song_position = infos['pls_position']; 
             refresh_playlist();
             txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos, 'songFont');
-            $('progressbase').tween('width', infos['length']);
-            $('progressbar').tween('width', 0);
+            $('progressbase').innerHTML = ''; 
             if (animatedBee.song != song_id) {
                 animatedBee.song = song_id;
                 animatedBee.start();
@@ -107,14 +117,18 @@ function refresh_infos(infos) {
             $('progressbase').tween('width', 0);
         }
         $('descr').innerHTML = txt;
-    } else {
-        $('progressbar').set('tween', {'duration':refresh_interval+500});
-        $('progressbar').tween('width', infos['song_position']/2);
+    } else if(infos) {
+        song_position = infos['song_position']/2; // WTF I need to /2 ?!
+          $('progressbase').innerHTML = length_to_str(song_position); 
     }
 };
 
 function tick() {
-    new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
+    if(song_position%10==1) {
+        new Request.JSON({url:'infos?fmt=json', method: "get", onSuccess: refresh_infos}).send();
+    } else {
+        refresh_infos(null);
+    }
 };
 
 var animatedBee = {
@@ -177,7 +191,7 @@ window.addEvent('domready', function() {
         fill_cmdgroup();
         animatedBee.setup();
         tick();
-        tick.periodical(refresh_interval);
+        tick.periodical(1000);
 
         document.body.innerHTML += '<img id="flowers" src="/static/pics/flowers.png" />';
         if (! $chk(Cookie.read('host'))) {
@@ -187,5 +201,6 @@ window.addEvent('domready', function() {
         hideableForm.Create($('fill_form'));
         hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
+//        $('progressbar').tween('opacity', 0);
     });
 
