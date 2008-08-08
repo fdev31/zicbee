@@ -21,7 +21,7 @@ function print_playlist(pls) {
         ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'");refresh_playlist();');
         ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'");refresh_playlist();');
         ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'");refresh_playlist();');
-        txt += "<li>"+render_song(s)+ico1+ico2+ico3+'</li>';
+        txt += "<li>"+render_song(s, 'listFont')+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
     $('playlist').innerHTML = txt
@@ -71,7 +71,7 @@ function validateForm() {
     hideableForm.toggle();
 };
 
-function render_song(infos) {
+function render_song(infos, font_class) {
         if ( $type(infos) != 'array' ) {
             // Convert to array
             infos = [ infos['uri'],
@@ -80,7 +80,7 @@ function render_song(infos) {
                   infos['title']
                   ];
         }
-        return "<a href='"+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
+        return "<a href='"+infos[0]+"'><font class='"+font_class+"''>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
 };
 
 function refresh_playlist() {
@@ -93,7 +93,7 @@ function refresh_infos(infos) {
         if (song_id) {
             song_position = infos['pls_position']; 
             refresh_playlist();
-            txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos);
+            txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos, 'songFont');
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', 0);
             if (animatedBee.song != song_id) {
