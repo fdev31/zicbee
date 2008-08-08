@@ -1,4 +1,5 @@
 var song_id=null;
+var song_position=0;
 var refresh_interval=5000;
 
 function wget(what) {
@@ -17,9 +18,9 @@ function print_playlist(pls) {
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
         idx = s[6];
-        ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'");');
-        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'");');
-        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'");');
+        ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'");refresh_playlist();');
+        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'");refresh_playlist();');
+        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'");refresh_playlist();');
         txt += "<li>"+render_song(s)+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
@@ -82,14 +83,19 @@ function render_song(infos) {
         return "<a href='"+infos[0]+"'><font class='listFont'>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
 };
 
+function refresh_playlist() {
+    return new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(song_position+1), method: "get", onSuccess: print_playlist}).send();
+}
+
 function refresh_infos(infos) {
     if (song_id != infos['id']) {
         song_id = infos['id'];
         if (song_id) {
-            txt = "Song "+infos['pls_position']+'/'+infos['pls_size']+" : "+render_song(infos);
+            song_position = infos['pls_position']; 
+            refresh_playlist();
+            txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos);
             $('progressbase').tween('width', infos['length']);
             $('progressbar').tween('width', 0);
-            new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(infos['pls_position']+1), method: "get", onSuccess: print_playlist}).send();
             if (animatedBee.song != song_id) {
                 animatedBee.song = song_id;
                 animatedBee.start();
