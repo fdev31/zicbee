@@ -4,9 +4,12 @@ var time_elapsed = 0;
 var refresh_interval=5000;
 var paused = false;
 
-function wget(what) {
-    new Request.JSON({url:what, method: "get"}).send();
-    //window.location.reload();
+function wget(what, onsuccess) {
+    var opts = {url:what, method: "get"};
+    if(onsuccess) {
+        opts['onSuccess'] = onsuccess;
+    }
+    new Request.JSON(opts).send();
     return false;
 };
 
@@ -20,9 +23,9 @@ function print_playlist(pls) {
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
         idx = s[6];
-        ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'");refresh_playlist();');
-        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'");refresh_playlist();');
-        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'");refresh_playlist();');
+        ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'", refresh_playlist);');
+        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'", refresh_playlist);');
+        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'", refresh_playlist);');
         txt += "<li>"+render_song(s, 'listFont')+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
@@ -50,7 +53,7 @@ function fill_cmdgroup() {
         'search', 'document.location="/db/";',
         'back', 'wget("prev");song_position-=1;time_elapsed=0;',
         'next', 'wget("next");song_position+=1;time_elapsed=0;',
-        'shuffle', 'wget("shuffle");refresh_playlist.delay(500);',
+        'shuffle', 'wget("shuffle", function() {refresh_playlist.delay(500)});',
         'pause', 'wget("pause");paused=!paused;'
     ];
 
