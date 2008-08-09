@@ -29,7 +29,9 @@ function print_playlist(pls) {
         txt += "<li>"+render_song(s, 'listFont')+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
-    $('playlist').innerHTML = txt
+    $('playlist').innerHTML = txt;
+    TagTooga.Mp3.go($('playlist'));
+
         /*
     $$('.listFont').each( function(e) {
             e.addEvent('mouseover', function() {e.tween('color', '#ffb');});
@@ -108,7 +110,7 @@ function refresh_infos(infos) {
         time_elapsed += 1;
         $('progressbase').innerHTML = length_to_str(time_elapsed); 
     } else if (song_id != infos['id']) {
-        paused=false;
+        paused = false;
         song_id = infos['id'];
         if (song_id) {
             song_position = infos['pls_position']; 
