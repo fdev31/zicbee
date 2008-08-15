@@ -72,8 +72,8 @@ function fill_cmdgroup() {
 };
 
 function validateForm() {
-    Cookie.write('host', unescape($('fill_form').host.value));
-    Cookie.write('pattern', unescape($('fill_form').pattern.value));
+    Cookie.write('host', $('fill_form').host.value);
+    Cookie.write('pattern', $('fill_form').pattern.value);
     wget('/search?fmt=txt&host='+$('fill_form').host.value+'&pattern='+$('fill_form').pattern.value);
     hideableForm.toggle();
 };
