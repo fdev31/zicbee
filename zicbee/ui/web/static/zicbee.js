@@ -32,12 +32,10 @@ function print_playlist(pls) {
     $('playlist').innerHTML = txt;
     TagTooga.Mp3.go($('playlist'));
 
-        /*
     $$('.listFont').each( function(e) {
-            e.addEvent('mouseover', function() {e.tween('color', '#ffb');});
+            e.addEvent('mouseover', function() {e.tween('color', '#00f');});
             e.addEvent('mouseout', function() {e.tween('color', '#000');});
             } )
-            */
 
 };
 
@@ -186,21 +184,6 @@ var hideableForm = {
         };
     },
 };
-
-/*
-function toto() {
-    $$('.blockcmd').each(function(el) {
-        el.set('tween', {duration: 3000});
-        el.addEvent('mouseenter', function() {
-            el.tween('background-color', '#c50');
-            });
-        el.addEvent('mouseout', function() {
-            el.tween('background-color', '#000');
-            });
-        });
-
-    };
-*/
 
 window.addEvent('domready', function() {
         fill_cmdgroup();
