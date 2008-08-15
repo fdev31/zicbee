@@ -314,6 +314,7 @@ class webplayer:
 
     def REQ_main(self):
         cook_jar = web.cookies(host='localhost', pattern='')
+        cook_jar['pattern'] = urllib.unquote(cook_jar['pattern'])
         af = SimpleSearchForm(True)
         af.fill(cook_jar)
         web.debug(self.player.selected, self.player.infos)
