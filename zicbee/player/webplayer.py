@@ -471,7 +471,7 @@ class web_db_index:
             format = 'html'
 
         pattern = af['pattern'].value
-        fields = tuple('artist album title length __id__'.split())
+        fields = 'artist album title length __id__'.split()
 
         if pattern is None:
             res = None
