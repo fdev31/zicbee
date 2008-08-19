@@ -4,7 +4,10 @@ from zicbee.db import valid_tags
 from zicbee.core.zshell import args, songs
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 
-def do_search(out=None, host=None):
+def do_search(out=None, host='localhost'):
+    if ':' not in host:
+        host += ':9090'
+
     duration = 0
     start_t = time()
 
@@ -16,19 +19,22 @@ def do_search(out=None, host=None):
         song_output = out
     elif out == 'm3u':
         def song_output(song):
-            print song.filename
+            print song[0]
     elif out == 'null':
         def song_output(song): pass
     else:
         def song_output(song):
-            txt = '%s :\n%s '%(repr(song.filename), '| '.join('%s: %s'%(f, getattr(song, f)) for f in fields if f[0] != '_' and getattr(song, f)))
+            txt = '%s :\n%s [%s]'%(song[0],
+                    ' - '.join(str(i) for i in song[1:-2]),
+                    duration_tidy(song[-2])
+                    )
             print txt.decode('utf8').encode('utf8')
 
     num = 0
     if host is not None:
         import urllib
         params = {'pattern':' '.join(args)}
-        uri = 'http://%s/?json=1&%s'%(host, urllib.urlencode(params))
+        uri = 'http://%s/db/?json=1&%s'%(host, urllib.urlencode(params))
         site = urllib.urlopen(uri)
         while True:
             line = site.readline()

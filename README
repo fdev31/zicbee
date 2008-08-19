@@ -1,3 +1,13 @@
+TODO (urgent):
+ Cancel downloads on select.
+ Top & Bottom border of commands should be red/blue
+ Left & Right divs should be stylised (background/no border) 
+ Form should fade-out when user validate search,
+   a click on the bee makes it fade in
+ Right align the "Search" button
+ Left align the "search" form on the /search/ server
+ Change font
+
 BUGS:
  Should adapt samplerate to current song (time is bended now)
  Pause is messed-up if NEXT or PREV is pressed (should un-pause)

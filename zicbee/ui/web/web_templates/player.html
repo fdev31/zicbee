@@ -1,33 +1,22 @@
-$def with (form, song, infos)
+$def with (form)
 <html>
     <head>
-        <script type="text/javascript" src="/static/MochiKit/MochiKit.js"></script>
+        <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
+        <script type="text/javascript" src="/static/zicbee.js"></script>
+        <script type="text/javascript" src="/static/playMp3.js"></script>
+        <link rel="stylesheet" href="/static/main.css" media="screen">
     </head>
-        <body>
-
-<link rel="stylesheet" href="/static/main.css" media="screen">
-<form action="/player/search?fmt=txt">
-   $:form.render()
-   <input type="submit" value="Search" />
-</form>
-
-$if infos.get('running'):
-    <h1>Running</h1>
-$else:
-    <h1>Not running</h1>
-
-$if song:
-    Song ${infos['current']} of ${infos['total']}.
-    <table>
-    $for k, v in song.iteritems():
-        <tr><td><b>${k}:</b></td><td>$v</td></tr>
-    </table>
-$else:
-    <h2>No song played</h2>
-
-<a href="playlist">View playlist</a>
-<a href="#" onclick='doSimpleXMLHttpRequest("next", {});'>Zap!</a>
-
-        </body>
-    </head>
+    <body><img id="bee" src="/static/pics/bee.png" style="margin: 0 auto auto 0; padding: 0; float: left;" />
+        <div id="descrBlock">
+            <div id="descr"></div>
+            <div id="progressbase"><div id="progressbar"></div></div>
+        </div>
+        <div id="cmdgroup">
+        </div>
+        <form id="fill_form" action="javascript:validateForm()" class="formBlock">
+           $:form.render()
+           <input type="submit" value="Search" />
+        </form>
+        <div id="playlist"></div>
+    </body>
 </html>

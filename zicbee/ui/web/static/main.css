@@ -1,13 +1,147 @@
 body {
-	background: #eef;
+/*    background: #eef;*/
+    padding: 0;
+    margin: 0;
+    background-color: #a72b00;
+    background-image: url("pics/tile.png");
+    background-repeat: repeat-x;
+    font-family: 'Lucida Grande',Verdana,Arial,Sans-Serif;
+    z-index: 0;
 }
+
+#flowers {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+}
+
 .answer {
 	background: #ded;
 	border: solid black 1px;
-	margin: 1em auto;
+	margin: 1em 10% 1em 10%;
 	padding: 1em;
+}
+
+#cmdgroup {
+    display: block;
+    position: absolute;
+    top: 135px;
+    left: 375px;
+    z-index: 5;
+}
+
+.blockcmd {
+    display: block;
+    padding: 0.1ex;
+    margin: 1ex;
+    float: left;
+    font-weight: bold;
+/*    width: 100px;*/
+    text-align: center; 
+    font-size: 80%;
+}
+
+.blockcmd a {
+    color: #ffb;
+}
+
+#progressbar {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    height: 1em;
+    background: #eef;
+}
+#progressbase {
+    padding: 0;
+    margin: 1ex 1ex 1ex auto;
+    color: white;
+/*    background: #004;*/
+/*    width: 0;*/
+/*    border: 2px ridge #aac;*/
+}
+
+li {
+    font-weight: bold;
+    text-align: right;
+}
+
+li:hover {
+    color: red;
+}
+.formBlock {
+/*    float: left;*/
+    clear: both;
+    display: block;
+    margin: -1em auto 1em 0;
+/*    border: groove 1px #800;*/
+    background-image: url('pics/transp.png');
+/*    background: #e86;*/
+    padding: 1ex;
+    width: 350px;
+    z-index: 3;
+}
+
+#fill_form {
+    position: absolute;
+    top: 300px;
+    left: -1;
+}
+
+label {
+    font-size: 70%;
+    text-align: right;
+}
+
+.lonelyFormBlock {
+/*    float: right;*/
+/*    clear: right;*/
+    display: block;
+    margin: 1em 1em 1em auto;
+    border: groove 1px #800;
+    background: #e86;
+    padding: 1ex;
+}
+
+#playlist {
+    display: block;
+    background-image: url('pics/transp.png');
+/*    float: right;*/
+/*    background: #b87;*/
+/*    margin-left: 380px;*/
+/*    margin-right: 2em;*/
+    width: auto;
+/*    margin-top: -230px;*/
+/*    border: groove 1px #800;*/
+    padding-right: 1ex;
+    position: absolute;
+    right: -1px;
+    bottom: 0px;
+    z-index: 4;
+}
+
+.songFont {
+    color: white;
+}
+
+#descrBlock {
+    display: block;
+/*    border-left: solid #e86 2px;*/
+/*    border-bottom: solid #e86 2px;*/
+/*    background: #fde;*/
+/*    width: 300px;*/
+/*    margin: 0 0 auto auto;*/
+    padding: 1ex;
+    height: 100px;
+    text-align: right;
+/*    float: right;*/
+    position: absolute;
+    top: 0;
+    right: 0;
 }
 
 a {
     color: black;
+    text-decoration: none;
 }

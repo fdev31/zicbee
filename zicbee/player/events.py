@@ -2,6 +2,7 @@ import gobject
 gobject.threads_init()
 
 from zicbee.core.zutils import DEBUG
+from zicbee.core.debug import log
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):
@@ -74,9 +75,15 @@ class IterableAction(object):
             self.it.next()
         except StopIteration:
             self.stop()
+        except:
+            DEBUG()
+            log.error('STOPPING %r!', self)
         else:
             return True
         return False
+
+    def __repr__(self):
+        return "<IterableAction %s %srunning/%s>"%(self.it, '' if self.running else 'not ', self._delay)
 
     def start(self, delay=0, prio=gobject.PRIORITY_DEFAULT_IDLE):
         """ start action after 'delay' seconds. """

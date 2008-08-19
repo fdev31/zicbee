@@ -2,12 +2,45 @@
 
 from zicbee.db import Database, DB_DIR
 from zicbee.core.zshell import args, songs, DEFAULT_NAME
+from zicbee.core.zutils import DEBUG
 
 from .search import do_search
 from .scan import do_scan
 from .help import do_help
-from .serve import do_serve
 from .get import do_get
+
+def do_serve(pure=False):
+    # chdir to serve files at the right place
+    import os, sys
+    from pkg_resources import resource_filename
+
+    p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
+    os.chdir( p )
+
+    # let's do webplayer
+    import web
+    from zicbee.player.webplayer import webplayer, web_db_index
+
+    sys.argv = ['zicdb', '0.0.0.0:9090']
+    try:
+        import web.wsgiserver
+        print "Running webplayer from", __file__
+        if pure:
+            urls = ('/db/(.*)', 'web_db_index',
+                    '/(.*)', 'web_db_index')
+        else:
+            urls = ('/db/(.*)', 'web_db_index',
+                    '/(.*)', 'webplayer')
+        fvars = globals().copy()
+        fvars.update(locals())
+        web.run(urls, fvars)
+#        s = web.wsgiserver.CherryPyWSGIServer(('localhost', 9090), wsgi_apps, server_name='localhost')
+#        s.start()
+    except:
+        DEBUG()
+        print os.kill(os.getpid(), 9)
+        #print 'kill', os.getpid()
+
 
 def do_list():
     from os import listdir
@@ -91,7 +124,7 @@ do_find_dups.__doc__ = """
 Find duplicates
 Parameters:
     wpt: wrong positive threshold (ceil to not reach), default == auto
-    ar: auto remove (ask for directory delection), the smallest directory always win
+    ar: auto remove (ask for directory deletion), the smallest directory always wins
     """
 
 def do_listallcmds():

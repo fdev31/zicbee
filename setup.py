@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.5'
+VERSION='0.6-alpha'
 
 if 'install' in sys.argv:
     print """Warning:
@@ -31,7 +31,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=0.9', 'mutagen>=1.13' ]
+requirements = [ 'buzhug>=1.2', 'mutagen>=1.14' ]
 
 if os.name in ('nt', 'ce'):
     requirements.append( 'demjson>=1.1' )
@@ -47,7 +47,7 @@ setup (
         keywords='database music tags metadata management',
         packages = find_packages(),
         package_data = {
-            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*', 'ui/*.glade'],
+            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*.css', 'ui/web/static/*.css', 'ui/web/static/MochoKit/*.js', 'ui/gtk/*.glade'],
             },
 
         entry_points = {

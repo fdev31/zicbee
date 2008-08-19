@@ -111,33 +111,66 @@ def _find_property(line):
 
 def _conv_line(txt):
     split_line = txt.split(':')
-    ret = []
+#    web.debug('split line: %s'% split_line)
+
     if len(split_line) > 1:
+        ret = []
         attr = None
         for elt in split_line:
             if attr is None:
+                if elt[0] == '(':
+                    elt = elt[1:].strip()
+                    ret.append('(')
                 attr = elt
+#                web.debug('attr: %s'%elt)
             else:
                 props = _find_property(elt)
+#                web.debug('props: %s'%repr(props))
                 if props:
+                    # get init vars
                     name, val = props
                     vals = val.rsplit(None, 1)
+                    # set defaults
                     bin_operator = 'and'
-                    if len(vals) > 1:
-                        if vals[1] in ('or', 'and'):
+                    next_is_grouped = False
+                    end_of_group = False
+                    if len(vals) > 1: # check the last element
+                        if vals[1] == '(':
+                            vals = vals[0].rsplit(None, 1)
+                            next_is_grouped = True
+                        if vals[1] in ('or', 'and', 'or!', 'and!'):
                             val = vals[0]
+                            if val[-1] == ')':
+                                val = val[:-1].strip()
+                                end_of_group = True
                             bin_operator = vals[1]
+                            if bin_operator[-1] == '!':
+                                bin_operator = bin_operator[:-1] + ' not'
                     ret.append( (attr, val) )
+                    if end_of_group:
+                        ret.append(')')
                     ret.append( bin_operator )
                     attr = name
+                    if next_is_grouped:
+                        ret.append('(')
                 else:
+                    elt = elt.strip()
+                    end_of_group = False
+                    if elt[-1] == ')':
+                        elt = elt[:-1].strip()
+                        end_of_group = True
+#                    web.debug('noprops: %s'%repr((attr, elt)))
                     ret.append( (attr, elt.strip()) )
+                    if end_of_group:
+                        ret.append(')')
         return ret
     else:
+#        web.debug('txt: %s'%txt)
         return txt
 
 def parse_line(line):
     ret = _conv_line(line)
+#    web.debug('RET: %s'%repr(ret))
     # string (simple) handling
     if isinstance(ret, basestring):
         if ret:
@@ -164,6 +197,7 @@ def parse_line(line):
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
                 args[var_name] = eval(value)
             else:
+                # If attr name is capitalized, no case-unsensitive search
                 if attr_name[0].islower():
                     value = value.lower()
                     attr_name += '.lower()'
