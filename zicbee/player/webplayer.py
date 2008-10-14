@@ -6,6 +6,7 @@ import random # shuffle
 import thread
 import web
 import urllib
+import difflib
 from time import sleep
 from pkg_resources import resource_filename
 from threading import RLock
@@ -408,6 +409,20 @@ class webplayer:
                 yield str(list(elt))
         elif format == 'json':
             yield jdump(list(window_iterator))
+
+    def REQ_guess(self, guess):
+        try:
+            self.player.selected.iteritems
+        except AttributeError:
+            yield jdump(False)
+            return
+
+        artist = self.player.selected['artist']
+        title = self.player.selected['title']
+        if difflib.get_close_matches(guess, (artist, title)):
+            yield jdump(True)
+        else:
+            yield jdump(False)
 
     def REQ_shuffle(self):
         return self.player.shuffle()
