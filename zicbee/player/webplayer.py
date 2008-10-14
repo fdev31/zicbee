@@ -14,6 +14,8 @@ from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
 from zicbee.core.zutils import uncompact_int, DEBUG
 
+WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
+
 web.internalerror = web.debugerror
 
 # Set default headers & go to templates directory
@@ -93,6 +95,7 @@ class PlayerCtl(object):
         self.select(-1) # selects the previous track
         self.select(0) # no-op
         """
+
         with self._lock:
             pos = self._cur_song_pos
             self._cur_song_pos += sense
@@ -270,11 +273,11 @@ class PlayerCtl(object):
 
     def _get_infos(self, l):
         try:
-            return dict(album = l[1],
-                        length = int(l[4]),
-                        title = l[3],
-                        __id__ = l[5],
-                        artist = l[1])
+            d = dict(zip(WEB_FIELDS, l))
+            d['length'] = int(d['length'])
+            d['score'] = d['score'] or 0.0
+            d['tags'] = d['tags'] or ''
+            return d
         except:
             return None
 
@@ -471,7 +474,6 @@ class web_db_index:
             format = 'html'
 
         pattern = af['pattern'].value
-        fields = 'artist album title length __id__'.split()
 
         if pattern is None:
             res = None
@@ -481,7 +483,7 @@ class web_db_index:
             urlencode = web.http.urlencode
             ci = compact_int
             res = ([web.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
-                    for r in songs.search(list(fields)+['filename'], pat, **vars)
+                    for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
                     )
         t_sel = time()
 
@@ -491,8 +493,8 @@ class web_db_index:
             yield db_render.plain(af, web.http.url, res)
         elif format == 'json':
             # try to pre-compute useful things
-            field_decoder = zip( fields,
-                    (songs.db.f_decode[songs.db.fields[fname]] for fname in fields)
+            field_decoder = zip( WEB_FIELDS,
+                    (songs.db.f_decode[songs.db.fields[fname]] for fname in WEB_FIELDS)
                     )
             yield
 
