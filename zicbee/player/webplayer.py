@@ -442,10 +442,35 @@ class webplayer:
 #        self.player.seek(int(val))
 
 class web_db_index:
+
+
+    def tag(self, song, tag):
+        song_id = uncompact_int(song)
+        current_tag = songs[song_id].tags
+        if current_tag is not None:
+            tags = set(current_tag.split(':')[1:-1])
+        else:
+            tags = set()
+
+        tags_txt = ':%s:'%(':'.join(tags))
+
+        songs[song_id].tags = tags_txt
+
+    def rate(self, song, rating):
+        song_id = uncompact_int(song)
+        songs[song_id].score = int(rating)
+        web.debug(songs[song_id])
+
     def GET(self, name):
         t0 = time()
         af = DbSimpleSearchForm()
-        if af.validates():
+        if name.startswith('rate/'):
+            self.rate(*name.split('/', 3)[1:])
+            return
+        elif name == 'tag':
+            self.tag(*name.split('/', 3)[1:])
+            return
+        elif af.validates():
             try:
                 af.fill()
                 song_id = af['id'].value
