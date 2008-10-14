@@ -54,6 +54,8 @@ class Database(object):
                 ('title', unicode),
                 ('track', int),
                 ('length', int),
+                ('score', int),
+                ('tags', unicode),
                 mode='open'
                 )
 
