@@ -59,9 +59,6 @@ class Database(object):
                 mode='open'
                 )
 
-    def __len__(self):
-        return len(self.db)
-
     def dump_archive(self, filename):
         """ dump a bz2 archive from this database """
         self.db.cleanup()
