@@ -230,7 +230,7 @@ class PlayerCtl(object):
 
         site = urllib.urlopen(uri)
         total = float(site.info().getheader('Content-Length'))
-        total_length = float(self.selected['length'])
+        total_length = 100
         achieved = 0
 
         data = site.read(2**17)
@@ -249,7 +249,7 @@ class PlayerCtl(object):
                 if not data:
                     break
                 achieved += len(data)
-                web.debug('downloading %s from %s (%f)'%(uri, self, progress))
+                web.debug('downloading %s from %s (%.1f%%)'%(uri, self, progress))
                 fd.write(data)
                 yield
             fd.close()
