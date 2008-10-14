@@ -206,7 +206,6 @@ class PlayerCtl(object):
                     break
                 total += r[4]
                 with self._lock:
-                    r[0]
                     add(r)
                 self.signal_view('update_total', total)
 
