@@ -487,6 +487,9 @@ class web_db_index:
         if name.startswith('rate/'):
             self.rate(*name.split('/', 3)[1:])
             return
+        elif name.startswith('kill'):
+            songs.db.close()
+            raise SystemExit()
         elif name.startswith('tag'):
             self.tag(*name.split('/', 3)[1:])
             return
