@@ -25,8 +25,8 @@ def do_search(out=None, host='localhost'):
     else:
         def song_output(song):
             txt = '%s :\n%s [%s]'%(song[0],
-                    ' - '.join(str(i) for i in song[1:-2]),
-                    duration_tidy(song[-2])
+                    ' - '.join(str(i) for i in song[1:4]),
+                    duration_tidy(song[4])
                     )
             print txt.decode('utf8').encode('utf8')
 

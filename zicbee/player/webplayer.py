@@ -277,7 +277,7 @@ class PlayerCtl(object):
             d = dict(zip(WEB_FIELDS, l))
             d['length'] = int(d['length'])
             d['score'] = d['score'] or 0.0
-            d['tags'] = d['tags'] or ''
+            d['tags'] = d['tags'] or u''
             return d
         except:
             return None
@@ -444,22 +444,42 @@ class webplayer:
 class web_db_index:
 
 
+    '''
     def tag(self, song, tag):
         song_id = uncompact_int(song)
+        web.debug(song_id)
         current_tag = songs[song_id].tags
-        if current_tag is not None:
-            tags = set(current_tag.split(':')[1:-1])
-        else:
+        web.debug(current_tag)
+
+        if current_tag is None:
             tags = set()
+        else:
+            tags = set(current_tag.split(':')[1:-1])
+        web.debug(tags)
+        tags.add(tag)
+        web.debug(tags)
 
-        tags_txt = ':%s:'%(':'.join(tags))
+        tags_txt = unicode(':%s:'%(':'.join(tags)))
+        web.debug(tags_txt)
 
-        songs[song_id].tags = tags_txt
+        try:
+            web.debug(tags_txt)
+            songs[song_id].update(tags=tags_txt)
+            web.debug(songs[song_id])
+        except Exception, e:
+            web.debug('ERR: %s'%e)
+#        web.debug(songs[song_id], tags_txt)
+'''
+
+    def tag(self, song, tag):
+        song_id = uncompact_int(song)
+        song = songs[song_id]
+        song.update(tags=unicode(song.tags+tag+':'))
 
     def rate(self, song, rating):
         song_id = uncompact_int(song)
-        songs[song_id].score = int(rating)
-        web.debug(songs[song_id])
+        songs[song_id].update(score=int(rating))
+#        web.debug(songs[song_id])
 
     def GET(self, name):
         t0 = time()
@@ -467,7 +487,7 @@ class web_db_index:
         if name.startswith('rate/'):
             self.rate(*name.split('/', 3)[1:])
             return
-        elif name == 'tag':
+        elif name.startswith('tag'):
             self.tag(*name.split('/', 3)[1:])
             return
         elif af.validates():
@@ -547,7 +567,7 @@ class web_db_index:
                     yield '\n'
                 web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
             except Exception, e:
-                web.debug(e)
+                web.debug("ERR:", e)
         else:
             yield db_render.index(af, res)
 

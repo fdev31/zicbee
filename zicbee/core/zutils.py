@@ -95,7 +95,7 @@ def duration_tidy(orig):
 # line parser
 
 properties = []
-for name in 'length artist title album filename'.split():
+for name in 'score tags length artist title album filename'.split():
     properties.append(name)
     properties.append(name.title())
 del name
@@ -203,6 +203,6 @@ def parse_line(line):
                     attr_name += '.lower()'
                 else:
                     attr_name = attr_name.lower()
-                str_list.append('"%s" in %s'%(value.replace('"', r'\"'), attr_name))
+                str_list.append('u"%s" in %s'%(value.replace('"', r'\"'), attr_name))
     return ' '.join(str_list), args
 

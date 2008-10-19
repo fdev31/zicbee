@@ -41,6 +41,48 @@ def do_serve(pure=False):
         print os.kill(os.getpid(), 9)
         #print 'kill', os.getpid()
 
+def do_foo():
+    def _printall(*args):
+        print args
+    do_search(_printall)
+
+'''
+def do_tag(tag, host='localhost'):
+    import urllib
+    def song_tagger(song):
+        uri = song[0]
+        print repr(song)
+        sid = (song[0].rsplit('=', 1)[1])
+        tag_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
+        print "tagging: ",tag_uri
+        urllib.urlopen(tag_uri)
+
+    print song_tagger, host, args
+#    import pdb; pdb.set_trace()
+    do_search(out=song_tagger, host=host)
+'''
+
+def do_tag(tag, host='localhost'):
+    import urllib
+    def song_rater(song):
+        uri = song[0]
+        sid = (song[0].rsplit('=', 1)[1])
+        rate_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
+        print "tagging: ",rate_uri
+        urllib.urlopen(rate_uri)
+
+    do_search(out=song_rater, host=host)
+
+def do_rate(rate=1, host='localhost'):
+    import urllib
+    def song_rater(song):
+        uri = song[0]
+        sid = (song[0].rsplit('=', 1)[1])
+        rate_uri = uri[:uri.index('/db/')+3] + '/rate/%s/%s'%(sid, rate)
+        print "rating: ",rate_uri
+        urllib.urlopen(rate_uri)
+
+    do_search(out=song_rater, host=host)
 
 def do_list():
     from os import listdir

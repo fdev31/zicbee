@@ -15,6 +15,8 @@ valid_tags = (
         'title',
         'track',
         'filename',
+        'score',
+        'tags',
         'length')
 
 filters_dict = dict(
