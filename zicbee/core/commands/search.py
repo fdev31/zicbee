@@ -4,7 +4,7 @@ from zicbee.db import valid_tags
 from zicbee.core.zshell import args, songs
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 
-def do_search(out=None, host='localhost'):
+def do_search(out=None, host='localhost', edit_mode=False):
     if ':' not in host:
         host += ':9090'
 
@@ -46,7 +46,13 @@ def do_search(out=None, host='localhost'):
             num += 1
     else:
         pat, kw = parse_line(' '.join(args))
-        for num, res in enumerate(songs.search(None, pat, **kw)):
+
+        if edit_mode:
+            search_fn = songs.u_search
+        else:
+            search_fn = songs.search
+
+        for num, res in enumerate(search_fn(None, pat, **kw)):
             song_output(res)
             duration += res.length
 

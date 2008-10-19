@@ -71,7 +71,7 @@ def do_tag(tag, host='localhost'):
         print "tagging: ",rate_uri
         urllib.urlopen(rate_uri)
 
-    do_search(out=song_rater, host=host)
+    do_search(out=song_rater, host=host, edit_mode=True)
 
 def do_rate(rate=1, host='localhost'):
     import urllib
@@ -82,7 +82,7 @@ def do_rate(rate=1, host='localhost'):
         print "rating: ",rate_uri
         urllib.urlopen(rate_uri)
 
-    do_search(out=song_rater, host=host)
+    do_search(out=song_rater, host=host, edit_mode=True)
 
 def do_list():
     from os import listdir

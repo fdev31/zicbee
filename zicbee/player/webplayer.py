@@ -479,7 +479,6 @@ class web_db_index:
     def rate(self, song, rating):
         song_id = uncompact_int(song)
         songs[song_id].update(score=int(rating))
-#        web.debug(songs[song_id])
 
     def GET(self, name):
         t0 = time()

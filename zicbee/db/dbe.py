@@ -37,17 +37,22 @@ class Database(object):
         self._init()
         self._open()
 
-    def _init(self):
-        self.db = buzhug.Base(self._db_dir)
-        self.search = self.db.select
-        self.destroy = self.db.destroy
-
+    @checkdb
     def __getitem__(self, item):
         return self.db[item]
 
     def __len__(self):
         return len(self.db)
 
+    @checkdb
+    def search(self, *args, **kw):
+        return self.db.select(*args, **kw)
+
+    @checkdb
+    def u_search(self, *args, **kw):
+        return self.db.select_for_update(*args, **kw)
+
+    @checkdb
     def _open(self, db=None):
         if db is None:
             db = self.db
