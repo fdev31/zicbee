@@ -187,7 +187,7 @@ def parse_line(line):
         else:
             attr_name, value = pattern
             var_name = varnames.pop(0)
-            if attr_name in ('length',):
+            if attr_name in ('length', 'score'):
                 # numeric
                 modifier = ''
                 while value[0] in '>=<':
