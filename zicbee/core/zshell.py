@@ -7,7 +7,6 @@ DEFAULT_NAME='songs'
 
 def init(args=None):
     clean_args = args or sys.argv[2:]
-    globals().update(
-            dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)),
-                args=clean_args)
-            )
+    db = Database(os.environ.get('ZDB', DEFAULT_NAME))
+    globals().update( dict(songs=db, args=clean_args) )
+    db.db.cleanup() # XXX: Ugly !
