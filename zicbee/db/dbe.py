@@ -30,17 +30,37 @@ filters_dict = dict(
         )
 
 
+import web
+
+def checkdb(base_fn):
+    return base_fn
+    def _mkdec(somefn):
+        def _auto_db_check(self, *args, **kw):
+            if self.db is None:
+                self._init()
+            return somefn(self, *args, **kw)
+        return _auto_db_check
+
+    return _mkdec(base_fn)
+
+
 class Database(object):
     def __init__(self, name):
         """ Open/Create a database """
         self._db_dir = os.path.join(DB_DIR, name)
         self._init()
+
+    def _init(self):
+        web.debug('init')
+        self.db = buzhug.Base(self._db_dir)
+        self.destroy = self.db.destroy
         self._open()
 
     @checkdb
     def __getitem__(self, item):
         return self.db[item]
 
+    @checkdb
     def __len__(self):
         return len(self.db)
 
@@ -69,6 +89,7 @@ class Database(object):
                 mode='open'
                 )
 
+    @checkdb
     def dump_archive(self, filename):
         """ dump a bz2 archive from this database """
         self.db.cleanup()
@@ -93,6 +114,7 @@ class Database(object):
                     else (k, getattr(item, k))
                     for k in item.fields)
 
+    @checkdb
     def merge(self, directory=None, archive=None, no_dups=True):
         """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
