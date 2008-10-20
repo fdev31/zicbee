@@ -441,14 +441,29 @@ class webplayer:
         web.debug('VAL=%s'%val)
 #        self.player.seek(int(val))
 
+def refresh_db():
+    songs.db.commit()
+    songs._init()
+    songs.db.cleanup()
+
 class web_db_index:
 
     _db_lock = RLock()
 
     def tag(self, song, tag):
         song_id = uncompact_int(song)
-        song = songs[song_id]
-        song.update(tags=unicode(song.tags+tag+':'))
+        try:
+            with self._db_lock:
+                SEP=u','
+                _t = songs[song_id].tags
+                tag_set = set( _t.strip(SEP).split(SEP) ) if _t else set()
+                tag_set.add(unicode(tag))
+                new_tag = ''.join((SEP,SEP.join(tag_set),SEP))
+                songs[song_id].update(tags=new_tag)
+        except Exception, e:
+            web.debug('E!%s'%e)
+        finally:
+            refresh_db()
 
     def rate(self, song, rating):
         song_id = uncompact_int(song)
