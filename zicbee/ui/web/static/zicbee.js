@@ -69,6 +69,17 @@ function fill_cmdgroup() {
     }
 };
 
+function validateTag() {
+    wget('/tag/'+$('tag_form').tag.value);
+    alert(song_id);
+    hideableForm.toggle();
+}
+
+function validateScore() {
+    wget('/score/'+$('score_form').score.value);
+    hideableForm.toggle();
+}
+
 function validateForm() {
     Cookie.write('host', $('fill_form').host.value);
     Cookie.write('pattern', $('fill_form').pattern.value);
@@ -86,7 +97,7 @@ function render_song(infos, font_class) {
                   ];
         }
         return "<a href='"+infos[0]+"'><font class='"+font_class+"''>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
-};
+}
 
 function refresh_playlist() {
     return new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(song_position+1), method: "get", onSuccess: print_playlist}).send();
@@ -199,17 +210,21 @@ var animatedBee = {
 };
 
 var hideableForm = {
-    Create : function(e) {
-        this.elt = e;
+    Create : function(elts) {
+        this.elts = elts;
         this.hidden = false;
         return this;
     },
     toggle: function() {
         if (this.hidden) {
-            this.elt.tween('left', -1);
+            this.elts.each( function(item, index, tab) {
+                $(item).tween('left', -1);
+            } )
             this.hidden = false;
         } else {
-            this.elt.tween('left', -400);
+            this.elts.each( function(item, index, tab) {
+                $(item).tween('left', -400);
+            } )
             this.hidden = true;
         };
     },
@@ -236,6 +251,7 @@ function blindMode() {
         $('descr').innerHTML = '<h1>Blind Test</h1>';
         $('playlist').innerHTML = '<form id="blind_test_form" action="javascript:tryGuess()" class="formBlock"><input type="text" name="pattern" id="artist_v"/><input type="submit" value="Try!" /></form>';
     }
+    return this;
 }
 
 blind_mode = new blindMode();
@@ -251,7 +267,7 @@ window.addEvent('domready', function() {
             Cookie.write('host', 'localhost', {duration: 30});
             Cookie.write('pattern', '', {duration: 30});
         };
-        hideableForm.Create($('fill_form'));
+        hideableForm.Create(['fill_form', 'tag_form', 'score_form']);
         hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
 //        $('progressbar').tween('opacity', 0);

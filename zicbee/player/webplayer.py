@@ -30,6 +30,9 @@ SimpleSearchForm = web.form.Form(
 #        web.form.Textbox('tempname', description='Temporary name'),
         )
 
+TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
+ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
+
 # DB part
 
 db_render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
@@ -319,9 +322,11 @@ class webplayer:
         cook_jar = web.cookies(host='localhost', pattern='')
         cook_jar['pattern'] = urllib.unquote(cook_jar['pattern'])
         af = SimpleSearchForm(True)
+        sf = ScoreForm(True)
+        tf = TagForm(True)
         af.fill(cook_jar)
         web.debug(self.player.selected, self.player.infos)
-        yield render.player(af)
+        yield render.player(af, sf, tf)
 
     REQ_ = REQ_main # default page
 
