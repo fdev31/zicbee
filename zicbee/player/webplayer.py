@@ -443,33 +443,7 @@ class webplayer:
 
 class web_db_index:
 
-
-    '''
-    def tag(self, song, tag):
-        song_id = uncompact_int(song)
-        web.debug(song_id)
-        current_tag = songs[song_id].tags
-        web.debug(current_tag)
-
-        if current_tag is None:
-            tags = set()
-        else:
-            tags = set(current_tag.split(':')[1:-1])
-        web.debug(tags)
-        tags.add(tag)
-        web.debug(tags)
-
-        tags_txt = unicode(':%s:'%(':'.join(tags)))
-        web.debug(tags_txt)
-
-        try:
-            web.debug(tags_txt)
-            songs[song_id].update(tags=tags_txt)
-            web.debug(songs[song_id])
-        except Exception, e:
-            web.debug('ERR: %s'%e)
-#        web.debug(songs[song_id], tags_txt)
-'''
+    _db_lock = RLock()
 
     def tag(self, song, tag):
         song_id = uncompact_int(song)
