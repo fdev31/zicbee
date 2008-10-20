@@ -46,22 +46,6 @@ def do_foo():
         print args
     do_search(_printall)
 
-'''
-def do_tag(tag, host='localhost'):
-    import urllib
-    def song_tagger(song):
-        uri = song[0]
-        print repr(song)
-        sid = (song[0].rsplit('=', 1)[1])
-        tag_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
-        print "tagging: ",tag_uri
-        urllib.urlopen(tag_uri)
-
-    print song_tagger, host, args
-#    import pdb; pdb.set_trace()
-    do_search(out=song_tagger, host=host)
-'''
-
 def do_tag(tag, host='localhost'):
     import urllib
     def song_rater(song):
