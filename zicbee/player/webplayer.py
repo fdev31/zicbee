@@ -466,8 +466,12 @@ class web_db_index:
             refresh_db()
 
     def rate(self, song, rating):
-        song_id = uncompact_int(song)
-        songs[song_id].update(score=int(rating))
+        try:
+            with self._db_lock:
+                song_id = uncompact_int(song)
+                songs[song_id].update(score=int(rating))
+        finally:
+            refresh_db()
 
     def GET(self, name):
         t0 = time()
