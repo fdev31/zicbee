@@ -282,13 +282,14 @@ class PlayerCtl(object):
             d['score'] = d['score'] or 0.0
             d['tags'] = d['tags'] or u''
             return d
-        except:
+        except Exception, e:
+            web.debug('_get_infos ERR: %s'%e)
             return None
 
     @property
     def selected(self):
         pos = self._cur_song_pos
-        if len(self.playlist) == 0 or not (0 <= pos <= len(self.playlist)):
+        if not (0 <= pos <= len(self.playlist)):
             return None
         else:
             return self._get_infos(self.playlist[pos])
@@ -301,7 +302,8 @@ class PlayerCtl(object):
                     raise Exception()
                 txt =  self.playlist[self._cur_song_pos][0]
             return txt
-        except:
+        except Exception, e:
+            web.debug("selected_uri ERR: %s"%e)
             return None
 
     @property
@@ -325,7 +327,6 @@ class webplayer:
         sf = ScoreForm(True)
         tf = TagForm(True)
         af.fill(cook_jar)
-        web.debug(self.player.selected, self.player.infos)
         yield render.player(af, sf, tf)
 
     REQ_ = REQ_main # default page
@@ -539,7 +540,6 @@ class web_db_index:
             res = None
         else:
             pat, vars = parse_line(pattern)
-            web.debug(pattern, pat, vars)
             urlencode = web.http.urlencode
             ci = compact_int
             res = ([web.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
