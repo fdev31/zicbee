@@ -277,7 +277,7 @@ class PlayerCtl(object):
 
     def _get_infos(self, l):
         try:
-            d = dict(zip(WEB_FIELDS, l))
+            d = dict(zip(['uri']+WEB_FIELDS, l))
             d['length'] = int(d['length'])
             d['score'] = d['score'] or 0.0
             d['tags'] = d['tags'] or u''
