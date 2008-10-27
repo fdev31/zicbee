@@ -70,13 +70,12 @@ function fill_cmdgroup() {
 };
 
 function validateTag() {
-    wget('/tag/'+$('tag_form').tag.value);
-    alert(song_id);
+    wget('/db/tag/' + song_id + '/' + $('tag_form').tag.value);
     hideableForm.toggle();
 }
 
 function validateScore() {
-    wget('/score/'+$('score_form').score.value);
+    wget('/db/score/'+ song_id + '/' + $('score_form').score.value);
     hideableForm.toggle();
 }
 
