@@ -5,6 +5,17 @@ import itertools
 import string
 import sys
 from os.path import expanduser, expandvars, abspath
+import logging
+
+log = logging.getLogger('zicbee')
+log.addHandler(logging.FileHandler('/tmp/zicbee.log'))
+if 'DEBUG' in os.environ:
+    try:
+        val = logging.ERROR - int(os.environ['DEBUG'])*10
+    except ValueError:
+        val = logging.DEBUG
+
+    log.setLevel(val)
 
 def DEBUG():
     traceback.print_stack()
@@ -110,8 +121,9 @@ def _find_property(line):
                 return tab[-1], tab[0].strip()
 
 def _conv_line(txt):
+    # TODO: replace with a real parser ?
     split_line = txt.split(':')
-#    web.debug('split line: %s'% split_line)
+    log.debug('split line: %s'% split_line)
 
     if len(split_line) > 1:
         ret = []
@@ -122,10 +134,10 @@ def _conv_line(txt):
                     elt = elt[1:].strip()
                     ret.append('(')
                 attr = elt
-#                web.debug('attr: %s'%elt)
+                log.debug('attr: %s'%elt)
             else:
                 props = _find_property(elt)
-#                web.debug('props: %s'%repr(props))
+                log.debug('props: %s'%repr(props))
                 if props:
                     # get init vars
                     name, val = props
@@ -146,9 +158,11 @@ def _conv_line(txt):
                             bin_operator = vals[1]
                             if bin_operator[-1] == '!':
                                 bin_operator = bin_operator[:-1] + ' not'
+                    log.debug('ret.append(%r, %r)', attr, val)
                     ret.append( (attr, val) )
                     if end_of_group:
                         ret.append(')')
+                    log.debug('ret.append(%r)', bin_operator)
                     ret.append( bin_operator )
                     attr = name
                     if next_is_grouped:
@@ -159,18 +173,19 @@ def _conv_line(txt):
                     if elt[-1] == ')':
                         elt = elt[:-1].strip()
                         end_of_group = True
-#                    web.debug('noprops: %s'%repr((attr, elt)))
+                    log.debug('noprops: %r / %r', attr, repr(elt))
                     ret.append( (attr, elt.strip()) )
                     if end_of_group:
                         ret.append(')')
+        log.debug('ret: %s'%txt)
         return ret
     else:
-#        web.debug('txt: %s'%txt)
+        log.debug('txt: %s'%txt)
         return txt
 
 def parse_line(line):
     ret = _conv_line(line)
-#    web.debug('RET: %s'%repr(ret))
+    log.debug('RET: %s'%repr(ret))
     # string (simple) handling
     if isinstance(ret, basestring):
         if ret:
@@ -183,6 +198,7 @@ def parse_line(line):
     str_list = []
     for pattern in ret:
         if isinstance(pattern, basestring):
+            log.debug('str_list.append("%s")', pattern)
             str_list.append(pattern)
         else:
             attr_name, value = pattern
@@ -194,6 +210,7 @@ def parse_line(line):
                     modifier += value[0]
                     value = value[1:]
 
+                log.debug('str_list.append("%r %r %r")', attr_name, modifier or '==', var_name)
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
                 args[var_name] = eval(value)
             else:
