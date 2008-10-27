@@ -4,6 +4,7 @@ import traceback
 import itertools
 import string
 import sys
+import os
 from os.path import expanduser, expandvars, abspath
 import logging
 
@@ -196,6 +197,13 @@ def parse_line(line):
     varnames = list(string.ascii_letters)
     args = {}
     str_list = []
+
+    def try_dec(txt):
+        try:
+            return txt.decode('utf-8')
+        except UnicodeDecodeError:
+            return txt.decode('latin1')
+
     for pattern in ret:
         if isinstance(pattern, basestring):
             log.debug('str_list.append("%s")', pattern)
@@ -220,6 +228,7 @@ def parse_line(line):
                     attr_name += '.lower()'
                 else:
                     attr_name = attr_name.lower()
-                str_list.append('u"%s" in %s'%(value.replace('"', r'\"'), attr_name))
+                str_list.append('%s in %s'%(try_dec(repr(value)), attr_name))
+                log.debug('str_list.append(%s)'%str_list[-1])
     return ' '.join(str_list), args
 
