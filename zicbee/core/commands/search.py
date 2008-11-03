@@ -24,9 +24,9 @@ def do_search(out=None, host='localhost', edit_mode=False):
         def song_output(song): pass
     else:
         def song_output(song):
-            txt = '%s :\n%s [%s]'%(song[0],
+            txt = '%s :\n%s [%s, score: %s, tags: %s]'%(song[0],
                     ' - '.join(str(i) for i in song[1:4]),
-                    duration_tidy(song[4])
+                    duration_tidy(song[4]), song[5], song[6],
                     )
             print txt.decode('utf8').encode('utf8')
 
