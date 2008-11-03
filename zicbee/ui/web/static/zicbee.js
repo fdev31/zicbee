@@ -1,4 +1,5 @@
 var song_id = null;
+var song_uri = null;
 var song_position = 0;
 var time_elapsed = 0;
 var refresh_interval=5000;
@@ -70,12 +71,12 @@ function fill_cmdgroup() {
 };
 
 function validateTag() {
-    wget('/db/tag/' + song_id + '/' + $('tag_form').tag.value);
+    wget(song_uri.replace(/get.*=/, 'tag/') + $('tag_form').tag.value);
     hideableForm.toggle();
 }
 
 function validateScore() {
-    wget('/db/score/'+ song_id + '/' + $('score_form').score.value);
+    wget(song_uri.replace(/get.*=/, 'score/') + $('score_form').score.value);
     hideableForm.toggle();
 }
 
@@ -146,6 +147,7 @@ function refresh_infos(infos) {
             }
             paused = false;
             song_id = infos['id'];
+            song_uri = infos['uri']
             if (song_id) {
                 song_position = infos['pls_position']; 
                 if(!blind_mode.winner) {
