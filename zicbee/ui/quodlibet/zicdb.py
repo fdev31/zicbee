@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# ZicDBBar (from SearchBar) 20081119 bergamote
+# ZicDBBar (from SearchBar) for quodlibet 2.0
+# Copy it in quodlibet/browsers/zicdb.py
+
 import os
 import random
 
