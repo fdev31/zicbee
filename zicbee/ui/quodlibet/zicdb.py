@@ -11,6 +11,7 @@ import gtk
 import gobject
 import urllib
 from zicbee.player.events import DelayedAction, IterableAction
+from zicbee.core.zutils import compact_int, jdump, jload, parse_line
 
 from quodlibet import config
 from quodlibet import const
@@ -18,6 +19,7 @@ from quodlibet import qltk
 
 from quodlibet.browsers.search import EmptyBar, Limit
 from quodlibet.browsers.iradio import ParseM3U, IRFile
+from quodlibet.formats.remote import RemoteFile
 from quodlibet.parse import Query
 from quodlibet.qltk.cbes import ComboBoxEntrySave
 from quodlibet.qltk.completion import LibraryTagCompletion
@@ -28,6 +30,31 @@ log = getLogger(__name__)
 
 QUERIES = os.path.join(const.USERDIR, "lists", "zqueries")
 ZICDB_HOST = 'chenapan:9090'
+
+class ZDBFile(RemoteFile):
+    multisong = True
+    can_add = False
+
+    format = "Radio Station"
+
+    __CAN_CHANGE = "title artist grouping".split()
+
+    def __init__(self, values):
+        if 'http' in values[0]:
+            RemoteFile.__init__(self, values[0])
+            self["artist"] = values[1]
+            self["album"] = values[2]
+            self["title"] = values[3]
+            self["~#length"] = values[4]
+            self["~#rating"] = values[5] or 0.50
+            #self["~tags"] = values[6]
+        else:
+            RemoteFile.__init__(self, values)
+
+    def write(self): pass
+    def can_change(self, k=None):
+        if k is None: return self.__CAN_CHANGE
+        else: return k in self.__CAN_CHANGE
 
 # Like EmptyBar, but the user can also enter a query manually. This
 # is QL's default browser. EmptyBar handles all the GObject stuff.
@@ -102,10 +129,11 @@ class ZicDBBar(EmptyBar):
         else: hb.hide()
 
     def activate(self):
+        # 'artist album title length score tags'
         start = time()
         if self._text is not None:
             log.info('START: %s self._text=%s', start, self._text)
-            uri = 'http://%s/db/?m3u=1&%s'%(ZICDB_HOST, urllib.urlencode({'pattern': self._text}))
+            uri = 'http://%s/db/?json=1&%s'%(ZICDB_HOST, urllib.urlencode({'pattern': self._text}))
             log.debug('uri=%s', uri)
             try:
                 site = urllib.urlopen(uri)
@@ -113,18 +141,21 @@ class ZicDBBar(EmptyBar):
                 log.error('Connect to %s failed: %s', ZICDB_HOST, e)
                 yield False
             log.info('site=%s %ss', site, time()-start)
+            songs = []
             m3u = []
             while True:
                 for n in xrange(50):
                     line = site.readline()
                     if not line:
                         break
-                    m3u.append(line)
+                    #m3u.append(line)
+                    track = jload(line)
+                    songs.append(ZDBFile(track))
                 log.info('loop %ss', time()-start)
                 yield
                 if not line:
                     break
-            songs = ParseM3U(m3u)
+            #songs = ParseM3U(m3u)
             if songs:
                 self.__combo.prepend_text(self._text)
                 log.debug('combo done')
