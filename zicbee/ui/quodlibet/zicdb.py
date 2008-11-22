@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 
 # ZicDBBar (from SearchBar) for quodlibet 2.0
-# Copy it in quodlibet/browsers/zicdb.py
+# - Copy this file to quodlibet/browsers/zicdb.py
+# - Change ZICDB_HOST
+# - Change your ~/.quodlibet/config to match zicdb rating:
+# [settings]
+# ratings = 10
+
 
 import os
 import random
@@ -42,14 +47,30 @@ class ZDBFile(RemoteFile):
     def __init__(self, values):
         if 'http' in values[0]:
             RemoteFile.__init__(self, values[0])
-            self["artist"] = values[1]
-            self["album"] = values[2]
-            self["title"] = values[3]
-            self["~#length"] = values[4]
-            self["~#rating"] = values[5] or 0.50
-            #self["~tags"] = values[6]
+            RemoteFile.__setitem__(self, "artist", values[1])
+            RemoteFile.__setitem__(self, "album", values[2])
+            RemoteFile.__setitem__(self, "title", values[3])
+            RemoteFile.__setitem__(self, "~#length", values[4])
+            RemoteFile.__setitem__(self, "~#rating", values[5]/10.0 if values[5] else 0.5)
         else:
             RemoteFile.__init__(self, values)
+        self._set_rating_action = DelayedAction(self._set_rating)
+
+    def _set_rating(self):
+        uri = self['~uri']
+        score = self['~#rating']
+        score = int(score*10) #quodlibet uses 1.0 as max, zicdb uses 10
+        sid = (uri.rsplit('=', 1)[1])
+        rate_uri = uri[:uri.index('/db/')+3] + '/rate/%s/%s'%(sid, score)
+        urllib.urlopen(rate_uri)
+
+    def __setitem__(self, key, value):
+        if key == "~#rating":
+            #print '~ new_rate=%s old_rate=%s'%(value, self[key])
+            if key not in self or value != self[key]:
+                self._set_rating_action.start(0.2)
+        RemoteFile.__setitem__(self, key, value)
+        print 'setitem done'
 
     def write(self): pass
     def can_change(self, k=None):
