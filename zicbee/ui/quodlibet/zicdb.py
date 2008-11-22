@@ -70,7 +70,6 @@ class ZDBFile(RemoteFile):
             if key not in self or value != self[key]:
                 self._set_rating_action.start(0.2)
         RemoteFile.__setitem__(self, key, value)
-        print 'setitem done'
 
     def write(self): pass
     def can_change(self, k=None):
