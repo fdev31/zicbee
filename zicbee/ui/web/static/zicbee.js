@@ -71,12 +71,12 @@ function fill_cmdgroup() {
 };
 
 function validateTag() {
-    wget(song_uri.replace(/get.*=/, 'tag/') + $('tag_form').tag.value);
+    wget('/tag/'+$('tag_form').tag.value);
     hideableForm.toggle();
 }
 
 function validateScore() {
-    wget(song_uri.replace(/get.*=/, 'score/') + $('score_form').score.value);
+    wget('/rate/'+$('score_form').score.value);
     hideableForm.toggle();
 }
 
@@ -139,7 +139,7 @@ function refresh_infos(infos) {
     } else {
         if (!infos && !paused) {
             time_elapsed += 1;
-            $('progressbase').innerHTML = length_to_str(time_elapsed); 
+            $('progressbase').innerHTML = length_to_str(time_elapsed);
         } else if (song_id != infos['id'] || blind_mode.winner) {
             if(song_id != infos['id'] && blind_mode.old_value) {
                 blind_mode.reset();
@@ -149,12 +149,12 @@ function refresh_infos(infos) {
             song_id = infos['id'];
             song_uri = infos['uri']
             if (song_id) {
-                song_position = infos['pls_position']; 
+                song_position = infos['pls_position'];
                 if(!blind_mode.winner) {
                     refresh_playlist();
                 }
                 txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos, 'songFont');
-                $('progressbase').innerHTML = ''; 
+                $('progressbase').innerHTML = '';
                 if (animatedBee.song != song_id) {
                     animatedBee.song = song_id;
                     animatedBee.start();
@@ -174,7 +174,7 @@ function refresh_infos(infos) {
         if(old_val+6 < time_elapsed) { // XXX: This is a very strange fix for a buggy backend!!
             time_elapsed = (time_elapsed/2).toInt();
         }
-        $('progressbase').innerHTML = length_to_str(time_elapsed); 
+        $('progressbase').innerHTML = length_to_str(time_elapsed);
     }
 };
 
@@ -192,22 +192,22 @@ var animatedBee = {
     in_progress : false,
 
     setup : function() {
-       },
+    },
     start : function() {
-            animatedBee.stop();
-            animatedBee.in_progress = animatedBee.step.periodical(80);
-        },
+        animatedBee.stop();
+        animatedBee.in_progress = animatedBee.step.periodical(80);
+    },
     step : function() {
-           $('bee').set('tween', {'duration':80});
-           $('bee').tween('margin-left', $random(-30, 0));
-       },
+        $('bee').set('tween', {'duration':80});
+        $('bee').tween('margin-left', $random(-30, 0));
+    },
     stop : function () {
-           if(animatedBee.in_progress) {
-               $clear(animatedBee.in_progress);
-               animatedBee.in_progress = false;
-               $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
-           };
-       },
+        if(animatedBee.in_progress) {
+            $clear(animatedBee.in_progress);
+            animatedBee.in_progress = false;
+            $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
+        };
+    },
 };
 
 var hideableForm = {
@@ -231,20 +231,18 @@ var hideableForm = {
     },
 };
 
-var blind_mode = false;
-
-function blindMode() {
-    this.active = false;
-    this.old_value = false;
-    this.winner = false;
-    this.toggle = function () {
+var blind_mode = {
+    active: false,
+    old_value: false,
+    winner: false,
+    toggle: function() {
         this.old_value = this.active;
         this.active = !this.active;
         if (this.active) {
             this.reset();
         }
-    }
-    this.reset = function () {
+    },
+    reset: function() {
         this.active = true;
         this.old_value = true;
         this.winner = false;
@@ -252,10 +250,7 @@ function blindMode() {
         $('descr').innerHTML = '<h1>Blind Test</h1>';
         $('playlist').innerHTML = '<form id="blind_test_form" action="javascript:tryGuess()" class="formBlock"><input type="text" name="pattern" id="artist_v"/><input type="submit" value="Try!" /></form>';
     }
-    return this;
 }
-
-blind_mode = new blindMode();
 
 window.addEvent('domready', function() {
         fill_cmdgroup();
@@ -273,4 +268,3 @@ window.addEvent('domready', function() {
         $('bee').addEvent('click', function() {hideableForm.toggle()});
 //        $('progressbar').tween('opacity', 0);
     });
-
