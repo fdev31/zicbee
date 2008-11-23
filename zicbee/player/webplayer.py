@@ -37,6 +37,8 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 
 db_render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
 
+import rpdb2; rpdb2.start_embedded_debugger("zic")
+
 DbSimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
         web.form.Textbox('pattern'),
@@ -475,6 +477,7 @@ class web_db_index:
     _db_lock = RLock()
 
     def tag(self, song, tag):
+
         song_id = uncompact_int(song)
         try:
             with self._db_lock:
@@ -588,4 +591,3 @@ class web_db_index:
                 web.debug("ERR:", e)
         else:
             yield db_render.index(af, res)
-
