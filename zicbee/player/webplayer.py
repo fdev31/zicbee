@@ -121,6 +121,18 @@ class PlayerCtl(object):
             self._paused = False
         return dl_it
 
+    def tag(self, tag):
+        ci = compact_int(self.selected['__id__'])
+        uri = 'http://%s/db/tag/%s/%s'%(self.hostname, ci, tag)
+        urllib.urlopen(uri)
+
+    def rate(self, score):
+        web.debug('DEBUG: %s'%self.selected)
+        ci = compact_int(self.selected['__id__'])
+        uri = 'http://%s/db/rate/%s/%s'%(self.hostname, ci, score)
+        web.debug('URI: %s'%uri)
+        urllib.urlopen(uri)
+
     def shuffle(self):
         """ Shuffle the playlist, and selects the first track
         if the playlist is empty, do nothing
@@ -441,6 +453,12 @@ class webplayer:
 
     def REQ_next(self):
         return self.player.select(1)
+
+    def REQ_tag(self, tag):
+        return self.player.tag(unicode(tag.lstrip('/')))
+
+    def REQ_rate(self, score):
+        return self.player.rate(score.lstrip('/'))
 
     def REQ_seek(self, val):
         val = val[1:]
