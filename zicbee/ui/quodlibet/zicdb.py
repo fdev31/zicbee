@@ -36,11 +36,47 @@ log = getLogger(__name__)
 QUERIES = os.path.join(const.USERDIR, "lists", "zqueries")
 ZICDB_HOST = 'chenapan:9090'
 
+class ZDBRater(list):
+    """
+    Rates several track in one request.
+    Uses 1 Rater for each zdb host
+    """
+    def __init__(self, host):
+        list.__init__(self)
+        self._host = host
+        self._set_rating_action = DelayedAction(self._set_rating)
+
+    def _set_rating(self):
+        #http://chenapan:9090/db/multirate/JV=5,K0=5
+        uri =''
+        count = 0
+        while True:
+            try:
+                (song, rating) = self.pop(0)
+            except IndexError:
+                break
+            rating = int(rating*10) #quodlibet uses 1.0 as max, zicdb uses 10
+            uri += '%s=%s,'%(song, rating)
+            count += 1
+            if count >= 50:
+                break
+        rate_uri = '%s/db/multirate/%s'%(self._host, uri)
+        #print 'rate_uri=%s'%rate_uri
+        urllib.urlopen(rate_uri)
+        if len(self):
+            self._set_rating_action.start(1)
+
+    def append(self, song_rating):
+        list.append(self, song_rating)
+        self._set_rating_action.start(1)
+
+
 class ZDBFile(RemoteFile):
     multisong = True
     can_add = False
 
-    format = "Radio Station"
+    format = "ZicDB file"
+    raters = dict()
 
     __CAN_CHANGE = "title artist grouping".split()
 
@@ -54,21 +90,16 @@ class ZDBFile(RemoteFile):
             RemoteFile.__setitem__(self, "~#rating", values[5]/10.0 if values[5] else 0.5)
         else:
             RemoteFile.__init__(self, values)
-        self._set_rating_action = DelayedAction(self._set_rating)
-
-    def _set_rating(self):
-        uri = self['~uri']
-        score = self['~#rating']
-        score = int(score*10) #quodlibet uses 1.0 as max, zicdb uses 10
-        sid = (uri.rsplit('=', 1)[1])
-        rate_uri = uri[:uri.index('/db/')+3] + '/rate/%s/%s'%(sid, score)
-        urllib.urlopen(rate_uri)
+        self._host = self['~uri'].split('/db/')[0]
+        self._sid = self['~uri'].rsplit('=', 1)[1]
+        if not self._host in ZDBFile.raters:
+            ZDBFile.raters[self._host] = ZDBRater(self._host)
 
     def __setitem__(self, key, value):
         if key == "~#rating":
             #print '~ new_rate=%s old_rate=%s'%(value, self[key])
             if key not in self or value != self[key]:
-                self._set_rating_action.start(0.2)
+                ZDBFile.raters[self._host].append((self._sid, value))
         RemoteFile.__setitem__(self, key, value)
 
     def write(self): pass
