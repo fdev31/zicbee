@@ -190,6 +190,7 @@ class PlayerCtl(object):
         (the main one is not affected)
         returns an iterator
         """
+        web.debug('fetch_pl: h=%s tmp=%s'%(hostname, temp))
         hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
@@ -202,7 +203,7 @@ class PlayerCtl(object):
 
             uri = 'http://%s/db/?json=1&%s'%(hostname, urllib.urlencode(kw))
             site = urllib.urlopen(uri)
-
+            web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
             if temp:
                 self._named_playlists[temp] = []
                 add = self._named_playlists[temp]
@@ -224,6 +225,7 @@ class PlayerCtl(object):
                     web.debug("Can't load json description: %s"%line)
                     break
                 total += r[4]
+                web.debug('r=%s'%r)
                 with self._lock:
                     add(r)
                 self.signal_view('update_total', total)
@@ -491,10 +493,24 @@ class web_db_index:
             refresh_db()
 
     def rate(self, song, rating):
+        web.debug('rate: song=%s rating=%s'%(song,rating))
         try:
             with self._db_lock:
                 song_id = uncompact_int(song)
                 songs[song_id].update(score=int(rating))
+        finally:
+            refresh_db()
+
+    def multirate(self, ratings_list):
+        web.debug('rate: ratings_list=%s'%ratings_list)
+        try:
+            ratings = [rating.split('=') for rating in ratings_list.split(',')]
+            with self._db_lock:
+                for song, rating in ratings:
+                        song_id = uncompact_int(song)
+                        songs[song_id].update(score=int(rating))
+        except:
+            pass
         finally:
             refresh_db()
 
@@ -503,6 +519,9 @@ class web_db_index:
         af = DbSimpleSearchForm()
         if name.startswith('rate/'):
             self.rate(*name.split('/', 3)[1:])
+            return
+        if name.startswith('multirate/'):
+            self.multirate(name.split('/', 2)[1])
             return
         elif name.startswith('kill'):
             songs.db.close()
