@@ -53,6 +53,7 @@ setup (
         entry_points = {
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
+                'zicserve = zicbee.core:serve [server]',
                 'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
             "setuptools.installation" : [
