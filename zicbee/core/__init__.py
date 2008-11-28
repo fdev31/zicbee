@@ -1,6 +1,7 @@
-# Syntax:
 # vim: et ts=4 sw=4
-# ./run.py search #shak# in '@filename@L' and #but# in '@filename@L'
+
+def serve():
+    startup('serve')
 
 def startup(action='help'):
     import os
