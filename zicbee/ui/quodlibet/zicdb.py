@@ -138,7 +138,7 @@ class ZicDBBar(EmptyBar):
 
         host_l = gtk.Label(_("_Host:"))
         host_l.set_use_underline(True)
-        host_combo = ComboBoxEntrySave(ZDBQUERIES, model="searchbar", count=10)
+        host_combo = ComboBoxEntrySave(ZDBHOSTS, model="searchbar", count=10)
 
         clear = qltk.ClearButton(self, tips)
 
@@ -169,6 +169,7 @@ class ZicDBBar(EmptyBar):
         self.pack_start(hb2)
         self.show_all()
         self.__combo = combo
+        self.__host_combo = host_combo
         self.__limit.hide()
 
     def __mnemonic_activate(self, label, group_cycling):
@@ -231,6 +232,7 @@ class ZicDBBar(EmptyBar):
                     log.debug('songs emmited: %ss for %s songs', time()-start, len(songs))
                     if self.__save: self.save()
                     self.__combo.write(ZDBQUERIES)
+                    self.__host_combo.write(ZDBHOSTS)
 
     def set_text(self, text):
         log.debug('text=%s',text)
