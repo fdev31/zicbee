@@ -2,7 +2,7 @@
 
 # ZicDBBar (from SearchBar) for quodlibet 2.0
 # - Copy this file to quodlibet/browsers/zicdb.py
-# - Change ZICDB_HOST
+# - Change DEFAULT_ZICDB_HOST
 # - Change your ~/.quodlibet/config to match zicdb rating:
 # [settings]
 # ratings = 10
@@ -17,6 +17,7 @@ import gobject
 import urllib
 from zicbee.player.events import DelayedAction, IterableAction
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
+from zicbee.core.debug import log
 
 from quodlibet import config
 from quodlibet import const
@@ -30,11 +31,10 @@ from quodlibet.qltk.cbes import ComboBoxEntrySave
 from quodlibet.qltk.completion import LibraryTagCompletion
 from quodlibet.qltk.songlist import SongList
 from quodlibet.qltk.x import Tooltips
-from logging import getLogger
-log = getLogger(__name__)
 
-QUERIES = os.path.join(const.USERDIR, "lists", "zqueries")
-ZICDB_HOST = 'chenapan:9090'
+ZDBQUERIES = os.path.join(const.USERDIR, "lists", "zdbqueries")
+ZDBHOSTS = os.path.join(const.USERDIR, "lists", "zdbhosts")
+DEFAULT_ZICDB_HOST = 'chenapan:9090'
 
 class ZDBRater(list):
     """
@@ -47,7 +47,6 @@ class ZDBRater(list):
         self._set_rating_action = DelayedAction(self._set_rating)
 
     def _set_rating(self):
-        #http://chenapan:9090/db/multirate/JV=5,K0=5
         uri =''
         count = 0
         while True:
@@ -61,7 +60,7 @@ class ZDBRater(list):
             if count >= 50:
                 break
         rate_uri = '%s/db/multirate/%s'%(self._host, uri)
-        #print 'rate_uri=%s'%rate_uri
+        log.debug('rate_uri=%s', rate_uri)
         urllib.urlopen(rate_uri)
         if len(self):
             self._set_rating_action.start(1)
@@ -77,6 +76,7 @@ class ZDBFile(RemoteFile):
 
     format = "ZicDB file"
     raters = dict()
+    dirty_tags = ('private-id3v2-frame',)
 
     __CAN_CHANGE = "title artist grouping".split()
 
@@ -93,22 +93,22 @@ class ZDBFile(RemoteFile):
         self._host = self['~uri'].split('/db/')[0]
         self._sid = self['~uri'].rsplit('=', 1)[1]
         if not self._host in ZDBFile.raters:
+            log.debug('create new Rater for %s', self._host)
             ZDBFile.raters[self._host] = ZDBRater(self._host)
 
     def __setitem__(self, key, value):
         if key == "~#rating":
-            #print '~ new_rate=%s old_rate=%s'%(value, self[key])
+            log.debug('rate=: %s -> %s',self[key], value)
             if key not in self or value != self[key]:
                 ZDBFile.raters[self._host].append((self._sid, value))
-        RemoteFile.__setitem__(self, key, value)
+        if key not in self.dirty_tags:
+            RemoteFile.__setitem__(self, key, value)
 
     def write(self): pass
     def can_change(self, k=None):
         if k is None: return self.__CAN_CHANGE
         else: return k in self.__CAN_CHANGE
 
-# Like EmptyBar, but the user can also enter a query manually. This
-# is QL's default browser. EmptyBar handles all the GObject stuff.
 class ZicDBBar(EmptyBar):
 
     name = _("ZicDB Search")
@@ -118,21 +118,28 @@ class ZicDBBar(EmptyBar):
 
     def __init__(self, library, player):
         super(ZicDBBar, self).__init__(library, player)
-
+        self._host = None
         self.__save = bool(player)
         self.set_spacing(12)
+
+        hb2 = gtk.HBox(spacing=3)
 
         self.__limit = Limit()
         self.pack_start(self.__limit, expand=False)
 
-        hb2 = gtk.HBox(spacing=3)
+
         l = gtk.Label(_("_Search:"))
         l.connect('mnemonic-activate', self.__mnemonic_activate)
         tips = Tooltips(self)
-        combo = ComboBoxEntrySave(QUERIES, model="searchbar", count=8)
+        combo = ComboBoxEntrySave(ZDBQUERIES, model="searchbar", count=20)
         combo.child.set_completion(LibraryTagCompletion(library.librarian))
         l.set_mnemonic_widget(combo.child)
         l.set_use_underline(True)
+
+        host_l = gtk.Label(_("_Host:"))
+        host_l.set_use_underline(True)
+        host_combo = ComboBoxEntrySave(ZDBQUERIES, model="searchbar", count=10)
+
         clear = qltk.ClearButton(self, tips)
 
         search = gtk.Button()
@@ -143,10 +150,16 @@ class ZicDBBar(EmptyBar):
         search.add(hb)
         tips.set_tip(search, _("Search your library"))
         search.connect_object('clicked', self.__text_parse, combo.child)
+        host_combo.child.connect_object('activate', self.__text_parse, combo.child)
+        host_combo.child.connect('changed', self.__get_host)
+        host_combo.child.connect('realize', lambda w: w.grab_focus())
+        host_combo.child.connect('populate-popup', self.__menu, self.__limit)
         combo.child.connect('activate', self.__text_parse)
         combo.child.connect('changed', self.__test_filter)
         combo.child.connect('realize', lambda w: w.grab_focus())
         combo.child.connect('populate-popup', self.__menu, self.__limit)
+        hb2.pack_start(host_l, expand=False)
+        hb2.pack_start(host_combo, expand=False)
         hb2.pack_start(l, expand=False)
         hb3 = gtk.HBox()
         hb3.pack_start(combo)
@@ -181,41 +194,43 @@ class ZicDBBar(EmptyBar):
 
     def activate(self):
         # 'artist album title length score tags'
-        start = time()
         if self._text is not None:
+            self._host = self._host or DEFAULT_ZICDB_HOST
+            start = time()
             log.info('START: %s self._text=%s', start, self._text)
-            uri = 'http://%s/db/?json=1&%s'%(ZICDB_HOST, urllib.urlencode({'pattern': self._text}))
-            log.debug('uri=%s', uri)
+            uri = 'http://%s/db/?json=1&%s'%(self._host, urllib.urlencode({'pattern': self._text}))
+            log.info('uri=%s', uri)
             try:
                 site = urllib.urlopen(uri)
             except Exception, e:
-                log.error('Connect to %s failed: %s', ZICDB_HOST, e)
+                log.error('Connect to %s failed: %s', self._host, e)
                 yield False
-            log.info('site=%s %ss', site, time()-start)
-            songs = []
-            m3u = []
-            while True:
-                for n in xrange(50):
-                    line = site.readline()
+            else:
+                log.info('site=%s %ss', site, time()-start)
+                songs = []
+                m3u = []
+                while True:
+                    #lstart = time()
+                    for n in xrange(50):
+                        line = site.readline()
+                        if not line:
+                            break
+                        track = jload(line)
+                        songs.append(ZDBFile(track))
+                    #log.debug('loop %ss', time()-lstart)
+                    yield
                     if not line:
                         break
-                    #m3u.append(line)
-                    track = jload(line)
-                    songs.append(ZDBFile(track))
-                log.info('loop %ss', time()-start)
-                yield
-                if not line:
-                    break
-            #songs = ParseM3U(m3u)
-            if songs:
-                self.__combo.prepend_text(self._text)
-                log.debug('combo done')
-                if self.__limit.get_property('visible'):
-                    songs = self.__limit.limit(songs)
-                self.emit('songs-selected', songs, None)
-                if self.__save: self.save()
-                self.__combo.write(QUERIES)
-            log.info('END %ss for %s songs', time()-start, len(songs))
+                log.debug('got songs from server: %ss for %s songs', time()-start, len(songs))
+                if songs:
+                    self.__combo.prepend_text(self._text)
+                    if self.__limit.get_property('visible'):
+                        songs = self.__limit.limit(songs)
+                    log.debug('emitting songs-selected')
+                    self.emit('songs-selected', songs, None)
+                    log.debug('songs emmited: %ss for %s songs', time()-start, len(songs))
+                    if self.__save: self.save()
+                    self.__combo.write(ZDBQUERIES)
 
     def set_text(self, text):
         log.debug('text=%s',text)
@@ -227,22 +242,25 @@ class ZicDBBar(EmptyBar):
         log.debug('entry=%s',entry)
         text = entry.get_text()
         if Query.is_parsable(text):
-            log.debug('is parsable=')
             self._text = text.decode('utf-8')
-            gobject.timeout_add(1000, self.activate)
+            gobject.timeout_add(500, self.activate)
             it = self.activate()
             it.next()
             IterableAction(it).start(0.001, prio=gobject.PRIORITY_DEFAULT_IDLE)
-            #self.activate()
 
     def __test_filter(self, textbox):
         if not config.getboolean('browsers', 'color'):
             textbox.modify_text(gtk.STATE_NORMAL, None)
             return
         text = textbox.get_text().decode('utf-8')
-        log.debug('text=%s',text)
+        #log.debug('text=%s',text)
         color = Query.is_valid_color(text)
         if color and textbox.get_property('sensitive'):
             textbox.modify_text(gtk.STATE_NORMAL, gtk.gdk.color_parse(color))
+
+    def __get_host(self, textbox):
+        text = textbox.get_text().decode('utf-8')
+        #log.debug('host=%s',text)
+        self._host = text
 
 browsers = [ZicDBBar]
