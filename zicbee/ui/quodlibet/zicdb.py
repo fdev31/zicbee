@@ -24,7 +24,7 @@ from quodlibet import const
 from quodlibet import qltk
 
 from quodlibet.browsers.search import EmptyBar, Limit
-from quodlibet.browsers.iradio import ParseM3U, IRFile
+#from quodlibet.browsers.iradio import ParseM3U
 from quodlibet.formats.remote import RemoteFile
 from quodlibet.parse import Query
 from quodlibet.qltk.cbes import ComboBoxEntrySave
@@ -216,8 +216,11 @@ class ZicDBBar(EmptyBar):
                         line = site.readline()
                         if not line:
                             break
-                        track = jload(line)
-                        songs.append(ZDBFile(track))
+                        try:
+                            track = jload(line)
+                            songs.append(ZDBFile(track))
+                        except Exception, e:
+                            log.error('Error while fetching song %s: %s', line, e)
                     #log.debug('loop %ss', time()-lstart)
                     yield
                     if not line:
