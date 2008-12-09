@@ -6,7 +6,7 @@ import buzhug
 from zicbee.core.config import DB_DIR
 
 valid_ext = ('.ogg','.mp3', '.mp4',
-    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf')
+    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga')
 
 valid_tags = (
         'genre',
