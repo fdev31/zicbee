@@ -31,11 +31,8 @@ def do_serve(pure=False):
         else:
             urls = ('/db/(.*)', 'web_db_index',
                     '/(.*)', 'webplayer')
-        fvars = globals().copy()
-        fvars.update(locals())
-        web.run(urls, fvars)
-#        s = web.wsgiserver.CherryPyWSGIServer(('localhost', 9090), wsgi_apps, server_name='localhost')
-#        s.start()
+        app = web.application(urls, locals())
+        app.run()
     except:
         DEBUG()
         print os.kill(os.getpid(), 9)

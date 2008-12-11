@@ -335,13 +335,14 @@ class webplayer:
     lastlog = []
 
     def REQ_main(self):
+        web.debug('coin')
         cook_jar = web.cookies(host='localhost', pattern='')
         cook_jar['pattern'] = urllib.unquote(cook_jar['pattern'])
         af = SimpleSearchForm(True)
         sf = ScoreForm(True)
         tf = TagForm(True)
         af.fill(cook_jar)
-        yield render.player(af, sf, tf)
+        yield unicode(render.player(af, sf, tf))
 
     REQ_ = REQ_main # default page
 
@@ -586,9 +587,9 @@ class web_db_index:
         t_sel = time()
 
         if format == 'm3u':
-            yield db_render.playlist(web.http.url, res)
+            yield unicode(db_render.playlist(web.http.url, res))
         elif format == 'plain':
-            yield db_render.plain(af, web.http.url, res)
+            yield unicode(db_render.plain(af, web.http.url, res))
         elif format == 'json':
             # try to pre-compute useful things
             field_decoder = zip( WEB_FIELDS,
@@ -607,4 +608,4 @@ class web_db_index:
             except Exception, e:
                 web.debug("ERR:", e)
         else:
-            yield db_render.index(af, res)
+            yield unicode(db_render.index(af, res))
