@@ -1,0 +1,14 @@
+
+QUICKSTART
+
+# start the daemon
+./run.py serve &
+
+# read some help (to start, you only need to know "scan" command)
+./run.py help
+./run.py scan $HOME/Music/
+./run.py search artist: black or title: guitar
+
+... That' all !
+You may want to visit http://127.0.0.1:9090/ to access the web interface
+
