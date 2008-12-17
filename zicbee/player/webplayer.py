@@ -581,7 +581,8 @@ class web_db_index:
             pat, vars = parse_line(pattern)
             urlencode = web.http.urlencode
             ci = compact_int
-            res = ([web.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+
+            res = ([web.webapi.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
                     )
         t_sel = time()
