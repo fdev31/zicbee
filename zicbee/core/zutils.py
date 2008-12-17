@@ -184,6 +184,8 @@ def _conv_line(txt):
         log.debug('txt: %s'%txt)
         return txt
 
+RAW_ATTRS = ('filename',)
+
 def parse_line(line):
     ret = _conv_line(line)
     log.debug('RET: %s'%repr(ret))
@@ -222,6 +224,9 @@ def parse_line(line):
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
                 args[var_name] = eval(value)
             else:
+                if attr_name in RAW_ATTRS:
+                    value = str(value)
+
                 # If attr name is capitalized, no case-unsensitive search
                 if attr_name[0].islower():
                     value = value.lower()
