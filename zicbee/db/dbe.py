@@ -45,6 +45,19 @@ def checkdb(base_fn):
 
 
 class Database(object):
+
+    DB_SCHEME = (
+                ('filename', str),
+                ('genre', unicode),
+                ('artist', unicode),
+                ('album', unicode),
+                ('title', unicode),
+                ('track', int),
+                ('length', int),
+                ('score', int),
+                ('tags', unicode),
+                )
+
     def __init__(self, name):
         """ Open/Create a database """
         self._db_dir = os.path.join(DB_DIR, name)
@@ -76,18 +89,8 @@ class Database(object):
     def _open(self, db=None):
         if db is None:
             db = self.db
-        db.create(
-                ('filename', str),
-                ('genre', unicode),
-                ('artist', unicode),
-                ('album', unicode),
-                ('title', unicode),
-                ('track', int),
-                ('length', int),
-                ('score', int),
-                ('tags', unicode),
-                mode='open'
-                )
+        kw = dict(mode='open')
+        db.create(*self.DB_SCHEME, **kw)
 
     @checkdb
     def dump_archive(self, filename):
