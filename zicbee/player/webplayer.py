@@ -516,6 +516,7 @@ class web_db_index:
             refresh_db()
 
     def GET(self, name):
+        hd = web.webapi.ctx.homedomain
         t0 = time()
         af = DbSimpleSearchForm()
         if name.startswith('rate/'):
@@ -582,7 +583,7 @@ class web_db_index:
             urlencode = web.http.urlencode
             ci = compact_int
 
-            res = ([web.webapi.ctx.homedomain+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+            res = ([hd+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
                     )
         t_sel = time()
