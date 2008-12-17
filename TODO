@@ -1,0 +1,14 @@
+Before 1.0:
+ - distribution cleanup
+
+Before 0.9:
+ - cleaner javascript/cookies/sessions
+
+Before 0.8: (slight feature/stable)
+ - add themes support for www
+ - add play, pause, next, prev, list
+
+Before 0.7 (cleanup/refactor)
+ - add cleaner configuration:: more unified (prepare themes handling)
+   -> ensure default host is well given
+ - fixes egg/root installation (temporary file created)
