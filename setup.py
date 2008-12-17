@@ -65,7 +65,7 @@ setup (
 
         extras_require = dict(
             player='pyglet>=1.1beta1',
-            server='web.py>=0.22',
+            server='web.py>=0.31',
             ),
 
         dependency_links = [
