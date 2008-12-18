@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.6-alpha'
+VERSION='0.6'
 
 if 'install' in sys.argv:
     print """Warning:
