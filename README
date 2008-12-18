@@ -12,3 +12,7 @@ QUICKSTART
 ... That' all !
 You may want to visit http://127.0.0.1:9090/ to access the web interface
 
+NOTE: if you installed zicbee system-wide,
+   you may use "zicdb" from any directory instead of using "run.py".
+   Also check "zicserve" as an alias to "zicdb serve".
+
