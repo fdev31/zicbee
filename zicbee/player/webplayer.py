@@ -14,6 +14,12 @@ from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
 from zicbee.core.zutils import uncompact_int, DEBUG
+from zicbee.core.config import config
+
+import logging
+log = logging.getLogger()
+
+web.config.debug = True if config.debug and str(config.debug).lower() in ('on', 'yes') else False
 
 WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
 

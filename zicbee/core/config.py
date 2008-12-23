@@ -13,6 +13,7 @@ defaults_dict = {
         'download_dir' : '/tmp',
         'db_host' : 'localhost:9090',
         'player_host' : 'localhost:9090',
+        'debug' : '',
         'default_search' : '',
         }
 
@@ -36,4 +37,9 @@ class ConfigObj(object):
 
 atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 config = ConfigObj()
+
+if config.debug:
+    import logging
+    log = logging.getLogger()
+    log.setLevel(logging.DEBUG)
 
