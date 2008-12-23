@@ -43,8 +43,24 @@ def do_foo():
         print args
     do_search(_printall)
 
+import urllib
+def do_play(host='localhost:9090'):
+    play_uri = 'http://%s/search?id=&host=%s&pattern=%s'%(host, host, urllib.quote(u' '.join(args)))
+    print urllib.urlopen(play_uri).read()
+
+def do_pause(host='localhost:9090'):
+    play_uri = 'http://%s/pause'%(host)
+    print urllib.urlopen(play_uri).read()
+
+def do_next(host='localhost:9090'):
+    play_uri = 'http://%s/next'%(host)
+    print urllib.urlopen(play_uri).read()
+
+def do_prev(host='localhost:9090'):
+    play_uri = 'http://%s/prev'%(host)
+    print urllib.urlopen(play_uri).read()
+
 def do_tag(tag, host='localhost'):
-    import urllib
     def song_rater(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
@@ -55,7 +71,6 @@ def do_tag(tag, host='localhost'):
     do_search(out=song_rater, host=host, edit_mode=True)
 
 def do_rate(rate=1, host='localhost'):
-    import urllib
     def song_rater(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
