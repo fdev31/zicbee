@@ -116,7 +116,7 @@ class PlayerCtl(object):
             elif self._cur_song_pos < -1:
                 self._cur_song_pos = -1
 
-            song_name = "zsong.zic"
+            song_name = config.streaming_file
             web.debug('download: %s'%self.selected_uri)
             dl_it = self._download_zic(self.selected_uri, song_name)
             dl_it.next()
@@ -588,6 +588,7 @@ class web_db_index:
             pat, vars = parse_line(pattern)
             urlencode = web.http.urlencode
             ci = compact_int
+            web.debug('searching %s %s...'%(pat, vars))
 
             res = ([hd+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
                     for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
