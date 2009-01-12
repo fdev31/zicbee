@@ -432,8 +432,8 @@ class webplayer:
         window_iterator = (pls[i] + [i] for i in xrange(start, min(len(pls), end)))
 
         if format == 'txt':
-            for elt in window_iterator:
-                yield str(list(elt))
+            for e in window_iterator:
+                yield '%s\n'%(' , '.join(str(t) for t in e))
         elif format == 'json':
             yield jdump(list(window_iterator))
 

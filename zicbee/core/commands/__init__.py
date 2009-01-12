@@ -46,7 +46,16 @@ def do_foo():
 import urllib
 def do_play(host='localhost:9090'):
     play_uri = 'http://%s/search?id=&host=%s&pattern=%s'%(host, host, urllib.quote(u' '.join(args)))
-    print urllib.urlopen(play_uri).read()
+    urllib.urlopen(play_uri).read()
+
+def do_playlist(host='localhost:9090'):
+    play_uri = 'http://%s/playlist?fmt=txt'%(host)
+    site = urllib.urlopen(play_uri)
+    while True:
+        l = site.readline()
+        if not l:
+            break
+        print l
 
 def do_pause(host='localhost:9090'):
     play_uri = 'http://%s/pause'%(host)
