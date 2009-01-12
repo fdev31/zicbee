@@ -365,6 +365,9 @@ class webplayer:
         except (IndexError, KeyError):
             it = None
         finally:
+            if it:
+                for x in it:
+                    yield
             yield web.redirect('/')
 
         if it:
