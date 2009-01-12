@@ -10,6 +10,7 @@ import difflib
 from time import sleep
 from pkg_resources import resource_filename
 from threading import RLock
+import itertools
 from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
@@ -365,11 +366,7 @@ class webplayer:
         except (IndexError, KeyError):
             it = None
         finally:
-            if it:
-                for x in it:
-                    yield
-            yield web.redirect('/')
-
+            return itertools.chain(it, [web.redirect('/')])
 
     def REQ_delete(self):
         i = web.input()
