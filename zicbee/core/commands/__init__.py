@@ -63,15 +63,15 @@ def do_pause(host='localhost:9090'):
 
 def do_shuffle(host='localhost:9090'):
     play_uri = 'http://%s/shuffle'%(host)
-    print urllib.urlopen(play_uri).read()
+    urllib.urlopen(play_uri).read()
 
 def do_next(host='localhost:9090'):
     play_uri = 'http://%s/next'%(host)
-    print urllib.urlopen(play_uri).read()
+    urllib.urlopen(play_uri).read()
 
 def do_prev(host='localhost:9090'):
     play_uri = 'http://%s/prev'%(host)
-    print urllib.urlopen(play_uri).read()
+    urllib.urlopen(play_uri).read()
 
 def do_tag(tag, host='localhost'):
     def song_rater(song):
