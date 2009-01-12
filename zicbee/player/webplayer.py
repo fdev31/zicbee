@@ -370,9 +370,6 @@ class webplayer:
                     yield
             yield web.redirect('/')
 
-        if it:
-            for x in it:
-                yield
 
     def REQ_delete(self):
         i = web.input()
