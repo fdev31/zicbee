@@ -80,6 +80,9 @@ class PlayerCtl(object):
                     try:
                         with self._lock:
                             self.position = int(self.player.prop_stream_pos/10000)
+                    except IOError:
+                        self.position = None
+                        self.player = mp.MPlayer()
                     except:
                         self.position = None
 
