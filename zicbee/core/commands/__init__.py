@@ -52,6 +52,10 @@ def do_pause(host='localhost:9090'):
     play_uri = 'http://%s/pause'%(host)
     print urllib.urlopen(play_uri).read()
 
+def do_shuffle(host='localhost:9090'):
+    play_uri = 'http://%s/shuffle'%(host)
+    print urllib.urlopen(play_uri).read()
+
 def do_next(host='localhost:9090'):
     play_uri = 'http://%s/next'%(host)
     print urllib.urlopen(play_uri).read()
