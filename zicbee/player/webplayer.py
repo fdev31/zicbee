@@ -10,6 +10,7 @@ import difflib
 from time import sleep
 from pkg_resources import resource_filename
 from threading import RLock
+import itertools
 from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
@@ -368,11 +369,7 @@ class webplayer:
         except (IndexError, KeyError):
             it = None
         finally:
-            if it:
-                for x in it:
-                    yield
-            yield web.redirect('/')
-
+            return itertools.chain(it, [web.redirect('/')])
 
     def REQ_delete(self):
         i = web.input()
@@ -435,8 +432,8 @@ class webplayer:
         window_iterator = (pls[i] + [i] for i in xrange(start, min(len(pls), end)))
 
         if format == 'txt':
-            for elt in window_iterator:
-                yield str(list(elt))
+            for e in window_iterator:
+                yield '%s\n'%(' , '.join(str(t) for t in e))
         elif format == 'json':
             yield jdump(list(window_iterator))
 
