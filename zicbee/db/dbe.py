@@ -30,8 +30,6 @@ filters_dict = dict(
         )
 
 
-import web
-
 def checkdb(base_fn):
     return base_fn
     def _mkdec(somefn):
@@ -64,7 +62,6 @@ class Database(object):
         self._init()
 
     def _init(self):
-        web.debug('init')
         self.db = buzhug.Base(self._db_dir)
         self.destroy = self.db.destroy
         self._open()
