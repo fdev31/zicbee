@@ -54,6 +54,9 @@ search[::out] <match command>
 
   Exemple:
   %% %(prog)s search filename: shak length > 3*60
+
+fullhelp
+    List all available commands (with associated help if available)
     """%dict(
             tags = '\n\t- '.join(valid_tags),
             prog = "zicdb")
