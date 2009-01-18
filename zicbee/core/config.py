@@ -15,6 +15,7 @@ defaults_dict = {
         'player_host' : 'localhost:9090',
         'debug' : '',
         'default_search' : '',
+        'web_skin' : '',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
