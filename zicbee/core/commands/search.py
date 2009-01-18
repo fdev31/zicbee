@@ -3,8 +3,9 @@ import sys
 from zicbee.db import valid_tags
 from zicbee.core.zshell import args, songs
 from zicbee.core.zutils import duration_tidy, parse_line, jload
+from zicbee.core.config import config
 
-def do_search(out=None, host='localhost', edit_mode=False):
+def do_search(out=None, host=config.db_host, edit_mode=False):
     """ Search for song, display results.
     See "help" for a more complete documentation
     """

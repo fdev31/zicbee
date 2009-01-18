@@ -9,6 +9,7 @@ from weakref import WeakKeyDictionary
 
 from .search import do_search
 from zicbee.core.zutils import duration_tidy
+from zicbee.core.config import config
 
 def DownloadGenerator(uri):
     uri, filename = uri
@@ -96,7 +97,7 @@ class Downloader(object):
                 _download_infos['count'], duration_tidy(t)))
 
 
-def do_get(host='localhost', out='/tmp'):
+def do_get(host=config.db_host, out=config.download_dir):
     """ Get songs (same syntax as search)
     See "help" for a more complete documentation
     """
