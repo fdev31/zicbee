@@ -487,11 +487,13 @@ class web_db_index:
 
         song_id = uncompact_int(song)
         try:
+            tag = unicode(tag)
             with self._db_lock:
                 SEP=u','
                 _t = songs[song_id].tags
                 tag_set = set( _t.strip(SEP).split(SEP) ) if _t else set()
-                tag_set.add(unicode(tag))
+                for single_tag in tag.split(','):
+                    tag_set.add(single_tag.strip())
                 new_tag = ''.join((SEP,SEP.join(tag_set),SEP))
                 songs[song_id].update(tags=new_tag)
         except Exception, e:
