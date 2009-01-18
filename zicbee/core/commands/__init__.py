@@ -8,6 +8,10 @@ from .search import do_search
 from .scan import do_scan
 from .help import do_help
 from .get import do_get
+from .player import (do_play, do_pause,
+        do_next, do_prev, do_shuffle,
+        do_infos, do_playlist,
+        do_tag, do_rate)
 
 def do_serve(pure=False):
     # chdir to serve files at the right place
@@ -43,55 +47,6 @@ def do_foo():
         print args
     do_search(_printall)
 
-import urllib
-def do_play(host='localhost:9090'):
-    play_uri = 'http://%s/search?id=&host=%s&pattern=%s'%(host, host, urllib.quote(u' '.join(args)))
-    urllib.urlopen(play_uri).read()
-
-def do_playlist(host='localhost:9090'):
-    play_uri = 'http://%s/playlist?fmt=txt'%(host)
-    site = urllib.urlopen(play_uri)
-    while True:
-        l = site.readline()
-        if not l:
-            break
-        print l
-
-def do_pause(host='localhost:9090'):
-    play_uri = 'http://%s/pause'%(host)
-    print urllib.urlopen(play_uri).read()
-
-def do_shuffle(host='localhost:9090'):
-    play_uri = 'http://%s/shuffle'%(host)
-    urllib.urlopen(play_uri).read()
-
-def do_next(host='localhost:9090'):
-    play_uri = 'http://%s/next'%(host)
-    urllib.urlopen(play_uri).read()
-
-def do_prev(host='localhost:9090'):
-    play_uri = 'http://%s/prev'%(host)
-    urllib.urlopen(play_uri).read()
-
-def do_tag(tag, host='localhost'):
-    def song_rater(song):
-        uri = song[0]
-        sid = (song[0].rsplit('=', 1)[1])
-        rate_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
-        print "tagging: ",rate_uri
-        urllib.urlopen(rate_uri)
-
-    do_search(out=song_rater, host=host, edit_mode=True)
-
-def do_rate(rate=1, host='localhost'):
-    def song_rater(song):
-        uri = song[0]
-        sid = (song[0].rsplit('=', 1)[1])
-        rate_uri = uri[:uri.index('/db/')+3] + '/rate/%s/%s'%(sid, rate)
-        print "rating: ",rate_uri
-        urllib.urlopen(rate_uri)
-
-    do_search(out=song_rater, host=host, edit_mode=True)
 
 def do_list():
     from os import listdir
