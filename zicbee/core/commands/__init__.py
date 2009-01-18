@@ -14,6 +14,10 @@ from .player import (do_play, do_pause,
         do_tag, do_rate)
 
 def do_serve(pure=False):
+    """ Create a ZicDB instance
+    parameters:
+        pure (default: False): just start DB serving, no player
+    """
     # chdir to serve files at the right place
     import os, sys
     from pkg_resources import resource_filename
@@ -42,13 +46,15 @@ def do_serve(pure=False):
         print os.kill(os.getpid(), 9)
         #print 'kill', os.getpid()
 
-def do_foo():
-    def _printall(*args):
-        print args
-    do_search(_printall)
+#do_serve.__doc__ = 
+#def do_foo():
+#    def _printall(*args):
+#        print args
+#    do_search(_printall)
 
 
 def do_list():
+    """ List available databases (some can be specified with "use" argument) """
     from os import listdir
     from os.path import isfile, join
 
@@ -60,32 +66,33 @@ def do_list():
             print txt
 
 def do_shell():
+    """ Start a PDB (dev/hackers only)"""
     import pdb; pdb.set_trace()
 
-do_shell.__doc__ = 'Spawns a shell'
-
 def do_bundle():
+    """ Dump used database to specified archive (any filename) """
     if len(args) != 1:
         raise SystemExit("Need filename name as agment !")
     songs.dump_archive(args[0])
 
-do_bundle.__doc__ = 'Dump an archive (at given filename)'
-
 def do_reset():
+    """ Destroy all songs on used database """
     songs.destroy()
     print "Database cleared!"
 
-do_reset.__doc__ = 'Destroys the database'
-
 
 def do_hash():
+    """ List all songs by id and hash (mostly to debug find_dups command) """
     for i in songs.get_hash_iterator():
         print "%8d / %s"%i
 
-do_hash.__doc__ = """ Returns a list of id / hash lines """
-
 def do_find_dups(wpt=None, ar=None):
-
+    """
+    Find duplicates (WIP)
+    Parameters:
+        wpt: wrong positive threshold (ceil to not reach), default == auto
+        ar: auto remove (ask for directory deletion), the smallest directory always wins
+    """
     import itertools
     import heapq
     from os.path import dirname
@@ -126,14 +133,9 @@ def do_find_dups(wpt=None, ar=None):
         print total_cnt.next()-cnt.next()-1, "# songs to be removed..."
 
 
-do_find_dups.__doc__ = """
-Find duplicates
-Parameters:
-    wpt: wrong positive threshold (ceil to not reach), default == auto
-    ar: auto remove (ask for directory deletion), the smallest directory always wins
-    """
 
 def do_fullhelp():
+    """ The developper's help (WIP functions also) """
     g = globals()
     undoc = []
     for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
@@ -142,6 +144,4 @@ def do_fullhelp():
         else:
             undoc.append(cmd.func_name[3:])
     print "undocumented:", ', '.join(undoc)
-
-do_fullhelp.__doc__ = """ The developper's help (WIP functions also) """
 
