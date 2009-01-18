@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.6'
+VERSION='0.7-rc1'
 
 if 'install' in sys.argv:
     print """Warning:

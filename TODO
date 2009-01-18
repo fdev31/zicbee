@@ -6,9 +6,11 @@ Before 0.9:
 
 Before 0.8: (slight feature/stable)
  - add themes support for www
- - add play, pause, next, prev, list
 
-Before 0.7 (cleanup/refactor)
+<--- WE ARE HERE
+
+0.7 (cleanup/refactor)
+ - add play, pause, next, prev, list
  - add cleaner configuration:: more unified (prepare themes handling)
    -> ensure default host is well given
  - fixes egg/root installation (temporary file created)
