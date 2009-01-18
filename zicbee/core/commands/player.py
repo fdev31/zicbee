@@ -8,6 +8,7 @@ __all__ = [
 import urllib
 from zicbee.core.zshell import args
 from zicbee.core.config import config
+from .search import do_search
 
 def do_play(dbhost=config.db_host, phost=config.player_host):
     """ Play the specified pattern, same syntax as "search". """
