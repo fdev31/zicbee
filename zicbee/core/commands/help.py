@@ -2,6 +2,7 @@
 from zicbee.db import valid_tags
 
 def do_help():
+        """ Show a nifty help about most used commands """
         print "Welcome to ZicDB!".center(80)
         print """
 use

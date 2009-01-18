@@ -5,6 +5,9 @@ from zicbee.core.zshell import args, songs
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 
 def do_search(out=None, host='localhost', edit_mode=False):
+    """ Search for song, display results.
+    See "help" for a more complete documentation
+    """
     if ':' not in host:
         host += ':9090'
 

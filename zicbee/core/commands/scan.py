@@ -7,6 +7,9 @@ from zicbee.core.zshell import args, songs
 from zicbee.core.zutils import duration_tidy, clean_path
 
 def do_scan():
+    """ Scan a directory for songs (fill Database)
+    See "help" for a more complete documentation
+    """
     if not args:
         sys.exit('At least one argument must be specified!')
 

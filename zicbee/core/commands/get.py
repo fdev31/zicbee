@@ -97,6 +97,9 @@ class Downloader(object):
 
 
 def do_get(host='localhost', out='/tmp'):
+    """ Get songs (same syntax as search)
+    See "help" for a more complete documentation
+    """
     if ':' not in host:
         host += ':9090'
 
