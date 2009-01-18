@@ -178,7 +178,7 @@ Parameters:
     ar: auto remove (ask for directory deletion), the smallest directory always wins
     """
 
-def do_listallcmds():
+def do_fullhelp():
     g = globals()
     undoc = []
     for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
@@ -188,5 +188,5 @@ def do_listallcmds():
             undoc.append(cmd.func_name[3:])
     print "undocumented:", ', '.join(undoc)
 
-do_listallcmds.__doc__ = """ The developper's help (WIP functions also) """
+do_fullhelp.__doc__ = """ The developper's help (WIP functions also) """
 
