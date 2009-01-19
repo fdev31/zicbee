@@ -2,6 +2,8 @@ import os
 import atexit
 import ConfigParser
 
+__all__ = ['DB_DIR', 'defaults_dict', 'config']
+
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
 try: # Ensure personal dir exists
     os.mkdir(DB_DIR)
@@ -36,7 +38,9 @@ class ConfigObj(object):
     def __getattr__(self, name):
         return self._cfg.get('DEFAULT', name)
 
+# Ensure the file is written on drive
 atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
+
 config = ConfigObj()
 
 if config.debug:
