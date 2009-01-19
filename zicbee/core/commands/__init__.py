@@ -3,6 +3,7 @@
 from zicbee.db import Database, DB_DIR
 from zicbee.core.zshell import args, songs, DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
+import itertools
 
 from .search import do_search
 from .scan import do_scan
@@ -93,7 +94,6 @@ def do_find_dups(wpt=None, ar=None):
         wpt: wrong positive threshold (ceil to not reach), default == auto
         ar: auto remove (ask for directory deletion), the smallest directory always wins
     """
-    import itertools
     import heapq
     from os.path import dirname
 
