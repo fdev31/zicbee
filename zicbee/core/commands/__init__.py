@@ -3,6 +3,7 @@
 from zicbee.db import Database, DB_DIR
 from zicbee.core.zshell import args, songs, DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
+from zicbee.core.config import config
 import itertools
 
 from .search import do_search
@@ -13,6 +14,20 @@ from .player import (do_play, do_pause,
         do_next, do_prev, do_shuffle,
         do_infos, do_playlist,
         do_tag, do_rate)
+
+
+def do_kill(host=config.db_host):
+    """ Kills the current db_host or any specified as argument """
+    play_uri = 'http://%s/kill'%(host)
+    urllib.urlopen(play_uri).read()
+
+def do_stfu(host=config.player_host):
+    """ Kills the current player_host
+    (in case db_host and player_host are the same, this command
+    is equivalent to "kill")
+    """
+    play_uri = 'http://%s/kill'%(host)
+    urllib.urlopen(play_uri).read()
 
 def do_serve(pure=False):
     """ Create a ZicDB instance
