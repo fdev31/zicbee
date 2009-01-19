@@ -133,9 +133,9 @@ def do_find_dups(wpt=None, ar=None):
         print total_cnt.next()-cnt.next()-1, "# songs to be removed..."
 
 
-
 def do_fullhelp():
-    """ The developper's help (WIP functions also) """
+    """ The Hacker's help (WIP functions included) """
+    import inspect
     g = globals()
     undoc = []
     for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
