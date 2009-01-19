@@ -23,7 +23,7 @@ def do_kill(host=config.db_host):
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
-        print "Killed."
+        print "RIP."
 
 def do_stfu(host=config.player_host):
     """ Kills the current player_host
@@ -34,7 +34,7 @@ def do_stfu(host=config.player_host):
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
-        print "Killed."
+        print "RIP."
 
 def do_serve(pure=False):
     """ Create a ZicDB instance
