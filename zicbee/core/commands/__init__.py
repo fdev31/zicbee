@@ -138,10 +138,36 @@ def do_fullhelp():
     import inspect
     g = globals()
     undoc = []
-    for cmd in (g[name] for name in g.keys() if name[:3] == 'do_'):
+    command_functions = [g[name] for name in g.keys() if name[:3] == 'do_']
+    command_functions.sort()
+    commands_display = []
+    remote_commands_display = []
+    for cmd in command_functions:
         if cmd.__doc__:
-            print "%s:\n%s\n"%(cmd.func_name[3:], ('\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip())))
+            arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
+            if dflt_values is None:
+                dflt_values = []
+            else:
+                dflt_values = list(dflt_values)
+
+            # Ensure they have the same length
+            if len(dflt_values) < len(arg_names):
+                dflt_values = [None] * (len(dflt_values) - len(arg_names))
+                map(None, arg_names, dflt_values)
+
+            doc = ':'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
+
+            if any(h for h in arg_names if h.startswith('host') or h.endswith('host')):
+                out = remote_commands_display
+            else:
+                out = commands_display
+
+            out.append( "%s[::%s]"%(cmd.func_name[3:], doc) if len(doc) > 1 else cmd.func_name[3:] ) # title
+            out.append( "%s\n"%( ('\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip()))) ) # body
         else:
             undoc.append(cmd.func_name[3:])
-    print "undocumented:", ', '.join(undoc)
+
+    for cmd in itertools.chain( ['[REMOTE COMMANDS]\n'], remote_commands_display, ['[LOCAL COMMANDS]\n'], commands_display ):
+        print cmd
+    print "Not documented:", ', '.join(undoc)
 
