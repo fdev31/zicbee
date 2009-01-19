@@ -56,7 +56,17 @@ def do_prev(host=config.player_host):
     urllib.urlopen(play_uri).read()
 
 def do_tag(tag, host=config.player_host):
-    """ Tag current song with specified tag name (EXPERIMENTAL) """
+    """ Tag selected pattern with specified rating.
+    options:
+        tag
+        host=<db_host>
+        + same pattern as "search"
+    ex:
+        tag::jazz,funny artist: richard cheese
+        tag::rock artist: noir d
+    Note multi-tagging is allowed by using "," separator (NO BLANK!)
+(EXPERIMENTAL)
+    """
     def song_rater(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
@@ -65,8 +75,16 @@ def do_tag(tag, host=config.player_host):
 
     do_search(out=song_rater, host=host, edit_mode=True)
 
-def do_rate(rate=1, host=config.player_host):
-    """ Rate current song with specified rating (EXPERIMENTAL) """
+def do_rate(rate=1, host=config.db_host):
+    """ Rate selected pattern with specified rating.
+    options:
+        rate=1
+        host=<db_host>
+        + same pattern as "search"
+    ex:
+        rate::3:guntah.myhost.com artist: Brassens
+        rate::0 title: Very bad song artist: very bad artist
+(EXPERIMENTAL) """
     def song_rater(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
