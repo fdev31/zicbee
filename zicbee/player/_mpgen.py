@@ -30,6 +30,9 @@ class MPlayer(object):
     def __init__(self):
         self._spawn()
 
+    def wait(self):
+        self._mplayer.wait()
+
     def _spawn(self):
         self._mplayer = subprocess.Popen(
                 [self.exe_name, '-cache', '128', '-slave', '-quiet', '-idle'],
