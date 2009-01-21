@@ -25,6 +25,9 @@ class MPlayer(object):
     def __init__(self):
         self._spawn()
 
+    def wait(self):
+        self._mplayer.wait()
+
     def _spawn(self):
         self._mplayer = subprocess.Popen(
                 [self.exe_name, '-cache', '128', '-slave', '-quiet', '-idle'],
@@ -43,7 +46,7 @@ class MPlayer(object):
     def _get_meta(self):
         try:
             meta = self.prop_metadata.split(',')
-        except:
+        except AttributeError:
             return None
         else:
             return dict(zip(meta[::2], meta[1::2]))
@@ -87,6 +90,43 @@ class MPlayer(object):
             except:
                 return val
         return ret
+
+    def radio_step_channel(self, *args):
+        """ radio_step_channel <-1|1>
+    Step forwards (1) or backwards (-1) in channel list. Works only when the
+    'channels' radio parameter was set.
+
+        """
+        if len(args) != 1:
+            raise TypeError('radio_step_channel takes 1 arguments (%d given)'%len(args))
+        return self.command('radio_step_channel', *args)
+
+    def radio_set_channel(self, *args):
+        """ radio_set_channel <channel>
+    Switch to <channel>. The 'channels' radio parameter needs to be set.
+
+        """
+        if len(args) != 1:
+            raise TypeError('radio_set_channel takes 1 arguments (%d given)'%len(args))
+        return self.command('radio_set_channel', *args)
+
+    def radio_set_freq(self, *args):
+        """ radio_set_freq <frequency in MHz>
+    Set the radio tuner frequency.
+
+        """
+        if len(args) != 1:
+            raise TypeError('radio_set_freq takes 1 arguments (%d given)'%len(args))
+        return self.command('radio_set_freq', *args)
+
+    def radio_step_freq(self, *args):
+        """ radio_step_freq <value>
+    Tune frequency by the <value> (positive - up, negative - down). 
+
+        """
+        if len(args) != 1:
+            raise TypeError('radio_step_freq takes 1 arguments (%d given)'%len(args))
+        return self.command('radio_step_freq', *args)
 
     def seek(self, *args):
         """ seek <value> [type]
@@ -897,23 +937,6 @@ class MPlayer(object):
             raise TypeError('teletext_go_link takes 1 arguments (%d given)'%len(args))
         return self.command('teletext_go_link', *args)
 
-    def dvdnav(self, *args):
-        """ dvdnav <button_name>
-    Press the given dvdnav button.
-        up
-        down
-        left
-        right
-        menu
-        select
-        prev
-        mouse
-
-        """
-        if len(args) != 1:
-            raise TypeError('dvdnav takes 1 arguments (%d given)'%len(args))
-        return self.command('dvdnav', *args)
-
     def menu(self, *args):
         """ menu <command>
     Execute an OSD menu command.
@@ -1059,6 +1082,11 @@ class MPlayer(object):
         lambda self, val: self.set_property("loop", val),
         doc = '''as -loop''')
         
+    prop_pause = property(
+        lambda self: self.get_property("pause"),
+        None,
+        doc = '''1 if paused, use with pausing_keep_force''')
+        
     prop_filename = property(
         lambda self: self.get_property("filename"),
         None,
@@ -1098,6 +1126,11 @@ class MPlayer(object):
         lambda self: self.get_property("chapter"),
         lambda self, val: self.set_property("chapter", val),
         doc = '''select chapter''')
+        
+    prop_chapters = property(
+        lambda self: self.get_property("chapters"),
+        None,
+        doc = '''number of chapters''')
         
     prop_angle = property(
         lambda self: self.get_property("angle"),
