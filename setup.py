@@ -14,9 +14,6 @@ if 'install' in sys.argv:
     print """Warning:
 You will need to install some parts manually:
 
-pyglet      http://pyglet.org/
-            (with avbin support: http://code.google.com/p/avbin/)
-
 If it can't build, try to comment the line:
             'python-cjson>=1.0.5',
 
@@ -64,13 +61,20 @@ setup (
         install_requires = requirements,
 
         extras_require = dict(
-            player='pyglet>=1.2',
+#            player='pyglet>=1.2',
             server='web.py>=0.31',
             ),
 
         dependency_links = [
             'eggs',
-            'http://code.google.com/p/pyglet/downloads/list',
+#            'http://code.google.com/p/pyglet/downloads/list',
             ],
         )
+
+dec = "*"*80
+print dec
+print "* WARNING"
+print dec
+print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
+print dec
 
