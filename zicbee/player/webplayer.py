@@ -600,7 +600,7 @@ class web_db_index:
         t_sel = time()
 
         if format == 'm3u':
-            yield unicode(db_render.playlist(web.http.url, res))
+            yield unicode(db_render.m3u(web.http.url, res))
         elif format == 'plain':
             yield unicode(db_render.plain(af, web.http.url, res))
         elif format == 'json':
