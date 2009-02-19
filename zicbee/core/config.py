@@ -45,8 +45,8 @@ config = ConfigObj()
 
 
 media_config = {
-        'song.mp3' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2*14},
-        'song.flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2*20},
+        'song.mp3' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
+        'song.flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
         }
 
 if config.debug:
