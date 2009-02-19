@@ -4,8 +4,11 @@
 import os
 import sys
 
-for path in ('%s%seggs/%s'%(os.curdir, os.path.sep, egg) for egg in os.listdir('eggs') if egg.endswith('.egg') or os.path.isdir(egg)):
-    sys.path.appendpath)
+for name in os.listdir('eggs'):
+    egg_name = os.path.join(os.curdir, 'eggs', name)
+    if name.endswith('.egg') or os.path.isdir(egg_name):
+        print "appending %s to your python path..."%name
+        sys.path.append(egg_name)
 
 from zicbee.core import startup
 startup()
