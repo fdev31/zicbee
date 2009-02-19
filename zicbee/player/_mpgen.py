@@ -27,17 +27,22 @@ class MPlayer(object):
 
     exe_name = 'mplayer' if os.sep == '/' else 'mplayer.exe'
 
-    def __init__(self):
-        self._spawn()
+    def __init__(self, cache=128):
+        self._spawn(cache)
 
     def wait(self):
         self._mplayer.wait()
 
-    def _spawn(self):
+    def _spawn(self, cache):
         self._mplayer = subprocess.Popen(
-                [self.exe_name, '-cache', '128', '-slave', '-quiet', '-idle'],
+                [self.exe_name, '-cache', '%s'cache, '-slave', '-quiet', '-idle'],
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
+        self._cache = cache
         self._readlines()
+
+    def set_cache(cache):
+        if cache != self._cache:
+            self._spawn(cache)
 
     def __del__(self):
         self._mplayer.stdin.write('quit\\n')
