@@ -40,7 +40,25 @@ setup (
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
-        long_description='A simple Music database engine',
+        license='BSD',
+        platform='All',
+        description='A simple & powerful distributed Music database engine',
+        long_description='''
+ZicBee is a project grouping multiple applications to manage play and handle music databases.
+
+For now there is a Swiss-army knife tool: zicdb
+
+Some plugins for quodlibet has also be developed. ZicBee is fast,
+portable (but not very ported...) and flexible.
+
+While the project is stable and usable (there online doc and a nice www gui),
+it's mostly interesting for hackers and developers for now.
+
+See features list, it's mostly handy for people with large databases,
+with optionally multiple computers.
+It can be adapted to handle video too, hacking some bit of code.
+        ''',
+        url='http://code.google.com/p/zicdb/',
         keywords='database music tags metadata management',
         packages = find_packages(),
         package_data = {
@@ -71,10 +89,11 @@ setup (
             ],
         )
 
-dec = "*"*80
-print dec
-print "* WARNING"
-print dec
-print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
-print dec
+if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'dist' in a):
+    dec = "*"*80
+    print dec
+    print "* WARNING"
+    print dec
+    print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
+    print dec
 
