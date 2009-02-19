@@ -263,7 +263,7 @@ window.addEvent('domready', function() {
             Cookie.write('host', 'localhost', {duration: 30});
             Cookie.write('pattern', '', {duration: 30});
         };
-        hideableForm.Create(['fill_form', 'tag_form', 'score_form']);
+        hideableForm.Create(['fill_form']);
         hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
 //        $('progressbar').tween('opacity', 0);
