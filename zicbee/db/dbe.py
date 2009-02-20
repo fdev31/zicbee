@@ -6,7 +6,7 @@ import buzhug
 from zicbee.core.config import DB_DIR
 
 valid_ext = ('.ogg','.mp3', '.mp4',
-    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga')
+    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
 
 valid_tags = (
         'genre',
@@ -153,12 +153,13 @@ class Database(object):
         if directory is not None and not us_prefix:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
-                    if fname[-4:].lower() in valid_ext:
+                    if '.' + fname.rsplit('.', 1)[-1].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
 
                         try:
                             tags = File(fullpath)
-                        except Exception:
+                        except Exception, e:
+                            print 'Error reading %s: %s'%(fullpath, e)
                             tags = None
 
                         if not tags:

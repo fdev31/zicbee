@@ -15,7 +15,7 @@ from time import time
 from zicbee.core.zshell import songs
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
 from zicbee.core.zutils import uncompact_int, DEBUG
-from zicbee.core.config import config
+from zicbee.core.config import config, media_config
 
 import logging
 log = logging.getLogger()
@@ -81,7 +81,8 @@ class PlayerCtl(object):
                     try:
                         with self._lock:
                             self.position = int(self.player.prop_stream_pos/10000)
-                    except IOError:
+                    except IOError, e:
+                        web.debug('E: %s'%e)
                         self.position = None
                         # restart player
                         self.player.wait()
@@ -129,6 +130,8 @@ class PlayerCtl(object):
             web.debug('select: %d'%self._cur_song_pos)
             if pos != self._cur_song_pos:
                 web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
+                cache = media_config[self.selected_type]['player_cache']
+                self.player.set_cache(cache)
                 self.player.loadfile(song_name)
             self._paused = False
         return dl_it
@@ -266,7 +269,8 @@ class PlayerCtl(object):
         total_length = 100
         achieved = 0
 
-        data = site.read(2**17)
+        init_sz = media_config[self.selected_type]['init_chunk_size']
+        data = site.read(init_sz)
         fd.write(data) # read ~130k (a few seconds in general)
         achieved += len(data)
         self._running = True
@@ -274,9 +278,9 @@ class PlayerCtl(object):
 #        web.debug('downloading %d'%achieved)
 
         try:
-            BUF_SZ = 2**14 # 16k micro chunks
+            buf_sz = media_config[self.selected_type]['chunk_size'] # 16k micro chunks
             while True:
-                data = site.read(BUF_SZ)
+                data = site.read(buf_sz)
                 progress = total_length * (achieved / total)
 #                self.signal_view('download_progress', progress)
                 if not data:
@@ -319,6 +323,10 @@ class PlayerCtl(object):
             return None
         else:
             return self._get_infos(self.playlist[pos])
+
+    @property
+    def selected_type(self):
+        return self.selected_uri.rsplit('/', 1)[1].split('?', 1)[0]
 
     @property
     def selected_uri(self):
@@ -594,7 +602,7 @@ class web_db_index:
             ci = compact_int
             web.debug('searching %s %s...'%(pat, vars))
 
-            res = ([hd+'/db/get/%s?id=%s'%('song'+r.filename[-4:], ci(int(r.__id__))), r]
+            res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
                     for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
                     )
         t_sel = time()
