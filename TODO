@@ -37,23 +37,19 @@ Before *0.8*: (slight feature/stable)
     * inc. playlist resume
     * www and text interface
 
-Before *0.7* (cleanup/refactor):
+<--- *WE ARE HERE*
 
- DONE:
+*0.7* (cleanup/refactor):
+
  * add play, pause, next, prev, list
  * add cleaner configuration:: more unified (prepare themes handling)
    -> ensure default host is well given
  * public repositories (Hg) setup
  * add some docs on the website
  * add screenshots on website
- TODO:
- * first fixes if reports
-
-<--- *WE ARE HERE*
 
 *0.7*-rc1 (first public release)
  * site launch
-
  * fixes egg/root installation (temporary file created)
 
 *the underground* (unreleased mode, use mercurial to recover)
