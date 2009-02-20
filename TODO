@@ -31,11 +31,14 @@ Before *0.9*:
  * rating/tag fully working
 
 Before *0.8*: (slight feature/stable)
+ TODO:
  * integrate/complete tag & scoring support
  * add themes support for www player (and DB ?)
  * nice to have: stored playlists (including position)
     * inc. playlist resume
     * www and text interface
+ DONE:
+ * add support for FLAC
 
 <--- *WE ARE HERE*
 
