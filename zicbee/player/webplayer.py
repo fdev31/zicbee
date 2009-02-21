@@ -220,6 +220,7 @@ class PlayerCtl(object):
             site = urllib.urlopen(uri)
             web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
             if temp:
+                # TODO: temporary playlist support
                 self._named_playlists[temp] = []
                 add = self._named_playlists[temp]
             else:
