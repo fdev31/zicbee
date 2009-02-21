@@ -528,8 +528,6 @@ class web_db_index:
                 for song, rating in ratings:
                         song_id = uncompact_int(song)
                         songs[song_id].update(score=int(rating))
-        except:
-            pass
         finally:
             refresh_db()
 
