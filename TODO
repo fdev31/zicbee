@@ -23,20 +23,21 @@ For *1.1*: (architecture cleanup)
 
 Before *1.0*: (very useable, db schema freeze)
  * distribution cleanup
+ * add themes support for www player (and DB ?)
  * good duplicates detection
 
 Before *0.9*:
  * cleaner javascript/cookies/sessions
  * satisfying duplicates detection
  * rating/tag fully working
+ * stored playlists (including position)
+    * inc. playlist resume
+    * www and text interface
 
 Before *0.8*: (slight feature/stable)
  TODO:
  * integrate/complete tag & scoring support
- * add themes support for www player (and DB ?)
- * nice to have: stored playlists (including position)
-    * inc. playlist resume
-    * www and text interface
+ * admin features (scan a path, list/switch db)
  DONE:
  * add support for FLAC
 
