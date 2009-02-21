@@ -70,13 +70,13 @@ function fill_cmdgroup() {
     }
 };
 
-function validateTag() {
-    wget('/tag/'+$('tag_form').tag.value);
+function validateTag(tag) {
+    wget('/tag/'+tag);
     hideableForm.toggle();
 }
 
-function validateScore() {
-    wget('/rate/'+$('score_form').score.value);
+function validateScore(score) {
+    wget('/rate/'+score);
     hideableForm.toggle();
 }
 
@@ -263,7 +263,7 @@ window.addEvent('domready', function() {
             Cookie.write('host', 'localhost', {duration: 30});
             Cookie.write('pattern', '', {duration: 30});
         };
-        hideableForm.Create(['fill_form']);
+        hideableForm.Create(['form_panel']);
         hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
 //        $('progressbar').tween('opacity', 0);

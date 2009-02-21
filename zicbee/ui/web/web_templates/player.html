@@ -13,20 +13,19 @@ $def with (form, score_form, tag_form)
         </div>
         <div id="cmdgroup">
         </div>
-        <form id="fill_form" action="javascript:validateForm()" class="formBlock">
-           $:form.render()
-           <input type="submit" value="Search" />
-        </form>
-        <!--
-        <form id="tag_form" action="javascript:validateTag()" class="formBlock">
-           $:tag_form.render()
-           <input type="submit" value="Tag this song!" />
-        </form>
-        <form id="score_form" action="javascript:validateScore()" class="formBlock">
-           $:score_form.render()
-           <input type="submit" value="Rate this song!" />
-        </form>
-        -->
-        <div id="playlist"></div>
+        <div id="form_panel" class="formBlock" >
+            <form id="fill_form" action="javascript:validateForm()">
+                $:form.render()
+                <input type="submit" value="Search" />
+            </form>
+            <form id="tag_form" action="javascript:validateTag($('tag_form').tag.value)">
+                $:tag_form.render()
+                <input type="submit" value="Tag this song!" />
+            </form>
+            <form id="score_form" action="javascript:validateScore($('score_form').score.value)">
+                $:score_form.render()
+                <input type="submit" value="Rate this song!" />
+            </form>
+        </div>
     </body>
 </html>
