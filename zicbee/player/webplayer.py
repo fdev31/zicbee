@@ -327,7 +327,11 @@ class PlayerCtl(object):
 
     @property
     def selected_type(self):
-        return self.selected_uri.rsplit('/', 1)[1].split('?', 1)[0]
+        # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
+        try:
+            return self.selected_uri.rsplit('song.', 1)[1].split('?', 1)[0]
+        except:
+            return 'mp3'
 
     @property
     def selected_uri(self):

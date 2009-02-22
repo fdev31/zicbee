@@ -4,9 +4,12 @@ __all__ = ['Database', 'valid_tags']
 import os
 import buzhug
 from zicbee.core.config import DB_DIR
+from zicbee.core.config import media_config
 
-valid_ext = ('.ogg','.mp3', '.mp4',
-    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
+#valid_ext = ('.ogg','.mp3', '.mp4',
+#    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
+
+valid_ext = ['.%s'%ext for ext in media_config.keys()]
 
 valid_tags = (
         'genre',
