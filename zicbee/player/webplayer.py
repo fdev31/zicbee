@@ -28,7 +28,7 @@ web.internalerror = web.debugerror
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
-render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
+render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -42,7 +42,7 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 
 # DB part
 
-db_render = web.template.render(resource_filename('zicbee.ui.web', 'web_templates'))
+db_render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 
 DbSimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
