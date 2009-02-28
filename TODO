@@ -8,6 +8,9 @@ IDEAS:
     * +tags: add the given keyword(s) to tags
     * example: `artist: Rolling album: stone +tags: rock`
   * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
+  * add podcasts support (atom/rss/etc...)
+    * example: ```feed: http://blah title: something```
+    * add named feeds support (use "myradio" instead of http://....)
   * add views support (aka "dynamic playlists", stored also...)
     * example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
   * re-write zicbee in C (the executable, not the project !)
