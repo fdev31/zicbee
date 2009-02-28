@@ -1,6 +1,12 @@
 IDEAS:
   * video support
   * picture support
+      (merge with imgplayer.js ?)
+  * add update support from syntax
+    * example: `artist: Rolling album: stone tags: rock`
+  * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
+  * re-write zicbee in C (the executable, not the project !)
+    * have python fallback (use code generation from cmd/requests description?)
   * upnp/dlna support
   * database operations (difference, merge, substract, etc...)
   * let choice of multiples players/backends
