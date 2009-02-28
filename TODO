@@ -3,8 +3,13 @@ IDEAS:
   * picture support
       (merge with imgplayer.js ?)
   * add update support from syntax
+    * playlist: store a playlist (TODO: without other argument it GETS a playlist...)
+    * +score: change the score of the given pattern
+    * +tags: add the given keyword(s) to tags
     * example: `artist: Rolling album: stone +tags: rock`
   * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
+  * add views support (aka "dynamic playlists", stored also...)
+    * example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
   * re-write zicbee in C (the executable, not the project !)
     * have python fallback (use code generation from cmd/requests description?)
   * upnp/dlna support
