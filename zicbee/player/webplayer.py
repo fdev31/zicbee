@@ -320,7 +320,7 @@ class PlayerCtl(object):
     @property
     def selected(self):
         pos = self._cur_song_pos
-        if not (0 <= pos <= len(self.playlist)):
+        if not (0 <= pos < len(self.playlist)):
             return None
         else:
             return self._get_infos(self.playlist[pos])
