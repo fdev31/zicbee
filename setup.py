@@ -28,7 +28,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=1.4', 'mutagen>=1.14' ]
+requirements = [ 'buzhug>=1.5', 'mutagen>=1.14' ]
 
 if os.name in ('nt', 'ce'):
     requirements.append( 'demjson>=1.1' )
