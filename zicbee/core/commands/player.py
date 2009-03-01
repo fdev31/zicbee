@@ -64,16 +64,23 @@ def do_tag(tag, host=config.player_host):
     ex:
         tag::jazz,funny artist: richard cheese
         tag::rock artist: noir d
-    Note multi-tagging is allowed by using "," separator (NO BLANK!)
-(EXPERIMENTAL)
+    NOTE:
+     - without a search pattern it will tag the currently playing song
+     - multi-tagging is allowed by using "," separator (NO BLANK!)
+
     """
-    def song_rater(song):
+
+    def song_tagger(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
-        rate_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
-        urllib.urlopen(rate_uri)
+        tag_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
+        urllib.urlopen(tag_uri)
 
-    do_search(out=song_rater, host=host, edit_mode=True)
+    if args:
+        do_search(out=song_tagger, host=host, edit_mode=True)
+    else:
+        tag_uri = 'http://%s/tag/%s'%(host, tag)
+        urllib.urlopen(tag_uri)
 
 def do_rate(rate=1, host=config.db_host):
     """ Rate selected pattern with specified rating.
@@ -84,12 +91,19 @@ def do_rate(rate=1, host=config.db_host):
     ex:
         rate::3:guntah.myhost.com artist: Brassens
         rate::0 title: Very bad song artist: very bad artist
-(EXPERIMENTAL) """
+     NOTE: without a search pattern it will rate the currently playing song
+        """
+
     def song_rater(song):
         uri = song[0]
         sid = (song[0].rsplit('=', 1)[1])
         rate_uri = uri[:uri.index('/db/')+3] + '/rate/%s/%s'%(sid, rate)
         urllib.urlopen(rate_uri)
 
-    do_search(out=song_rater, host=host, edit_mode=True)
+    if args:
+        do_search(out=song_rater, host=host, edit_mode=True)
+    else:
+        rate_uri = 'http://%s/rate/%s'%(host, tag)
+        urllib.urlopen(rate_uri)
+
 
