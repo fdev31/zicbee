@@ -67,6 +67,7 @@ class Database(object):
     def _init(self):
         self.db = buzhug.Base(self._db_dir)
         self.destroy = self.db.destroy
+        self.cleanup = self.db.cleanup
         self._open()
 
     @checkdb
