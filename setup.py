@@ -97,10 +97,19 @@ It can be adapted to handle video too, hacking some bit of code.
         )
 
 if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'dist' in a):
-    dec = "*"*80
-    print dec
-    print "* WARNING"
-    print dec
-    print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
-    print dec
+    # test copied from zicbee/player/_mpgen.py [and mp.py]:
+    exe_name = 'mplayer' if os.sep == '/' else 'mplayer.exe'
+    import subprocess
+    if subprocess.call(exe_name):
+        dec = "*"*80
+        print dec
+        print dec
+        print ''
+        print "* WARNING !! mplayer seems not accessible, please install properly."
+        print dec
+        print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
+        print '* FOR A PURE SERVER YOU WILL NEED TO RUN "zicdb serve::pure=1"'
+        print ''
+        print dec
+        print dec
 
