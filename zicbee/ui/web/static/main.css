@@ -80,7 +80,7 @@ li:hover {
     background-image: url('pics/transp.png');
     padding: 1ex;
     width: 350px;
-    z-index: 3;
+    z-index: 6;
 }
 
 label {
