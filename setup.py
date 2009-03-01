@@ -45,14 +45,15 @@ setup (
         description='A simple & powerful distributed Music database engine',
         long_description='''
 ZicBee is a project grouping multiple applications to manage play and handle music databases.
+It takes ideas from Quodlibet and Mpd, both very good music mplayers with their own strengths.
 
 For now there is a Swiss-army knife tool: zicdb
 
 Some plugins for quodlibet has also be developed. ZicBee is fast,
 portable (but not very ported...) and flexible.
 
-While the project is stable and usable (there online doc and a nice www gui),
-it's mostly interesting for hackers and developers for now.
+While the project is stable and usable (there are online docs and a nice www gui),
+it's mostly interesting for hackers and developers from now, I didn't confront to real users yet :P
 
 See features list, it's mostly handy for people with large databases,
 with optionally multiple computers.
