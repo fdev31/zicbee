@@ -5,8 +5,17 @@ from zicbee.db import Database
 
 DEFAULT_NAME='songs'
 
-def init(args=None):
+def init(args=None, db_name=None):
     clean_args = args or sys.argv[2:]
-    db = Database(os.environ.get('ZDB', DEFAULT_NAME))
+    try:
+        db
+    except NameError:
+        pass
+    else:
+        db.cleanup() # XXX: Ugly !
+        db.close()
+
+    db = Database(db_name or os.environ.get('ZDB', DEFAULT_NAME))
     globals().update( dict(songs=db, args=clean_args) )
     db.db.cleanup() # XXX: Ugly !
+
