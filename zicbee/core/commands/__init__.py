@@ -69,13 +69,6 @@ def do_serve(pure=False):
         print os.kill(os.getpid(), 9)
         #print 'kill', os.getpid()
 
-#do_serve.__doc__ = 
-#def do_foo():
-#    def _printall(*args):
-#        print args
-#    do_search(_printall)
-
-
 def do_list():
     """ List available databases (some can be specified with "use" argument) """
     from os import listdir
