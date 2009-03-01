@@ -61,8 +61,15 @@ It can be adapted to handle video too, hacking some bit of code.
         url='http://code.google.com/p/zicdb/',
         keywords='database music tags metadata management',
         packages = find_packages(),
+        zip_safe=False,
         package_data = {
-            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*.css', 'ui/web/static/*.css', 'ui/web/static/MochoKit/*.js', 'ui/gtk/*.glade'],
+            'zicbee': [
+                'ui/web/templates/*.html',
+                'ui/web/static/*.css',
+                'ui/web/static/*.js',
+                'ui/web/static/pics/*.*',
+                'ui/web/static/pics/cmd/*.*',
+                'ui/gtk/*.glade'],
             },
 
         entry_points = {
