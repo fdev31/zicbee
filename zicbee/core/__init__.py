@@ -36,9 +36,6 @@ def startup(action='help'):
         import zicbee.core.commands as cmds
         commands_dict = dict((i[3:], getattr(cmds, i)) for i in dir(cmds) if i.startswith('do_'))
         commands_dict.get(action, cmds.do_help)(*params, **kparams)
-#        print dir(cmds)
-#        exec('cmds.do_%s(*params, **kparams)'%action, commands_dict)
-#        getattr(cmds, 'do_'+action, cmds.do_help)(*params, **kparams)
     except KeyboardInterrupt:
         print "Abort!"
 
