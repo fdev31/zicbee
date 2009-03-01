@@ -10,6 +10,8 @@ use
     Exemple:
     %% %(prog)s use lisa search artist: dire st
 
+    NOTE: you can alternatively use the "ZDB" environment variable instead
+
 serve[::pure]
     Runs a user-accessible www server on port 8080
 
