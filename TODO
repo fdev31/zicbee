@@ -33,6 +33,7 @@ For *1.1*: (architecture cleanup)
  * write some backends detection and loading
  * need to split zicdb executable ?
  * Much more doc
+ * Minimal plugin support (at least enough to make one for audioscrobbler)
  
 
 Before *1.0*: (very useable, db schema freeze)
