@@ -27,6 +27,7 @@ IDEAS:
   * add "size" lookup option, limiting the size of the answer (in s)
     * add advanced "skip" option, to skip a number of entries
     * add advanced "limit" option, to limit the number of entries answered
+ * add minimal plugin support (at least enough to make one for audioscrobbler)
 
 
 For *1.1*: (architecture cleanup)
