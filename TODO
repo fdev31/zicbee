@@ -8,16 +8,10 @@ IDEAS:
     * +tags: add the given keyword(s) to tags
     * example: `artist: Rolling album: stone +tags: rock`
   * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
-  * add podcasts support (atom/rss/etc...)
-    * example: ```feed: http://blah title: something```
-    * add named feeds support (use "myradio" instead of http://....)
-  * add views support (aka "dynamic playlists", stored also...)
-    * example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
   * re-write zicbee in C (the executable, not the project !)
     * have python fallback (use code generation from cmd/requests description?)
-  * upnp/dlna support
+  * let choice of multiples players
   * database operations (difference, merge, substract, etc...)
-  * let choice of multiples players/backends
   * allow alternative databases synchronization (SQL, XML, ...)
   * unify output format (re-architecture output operations)
     * add support for rss/rdf/atom formats as output
@@ -27,7 +21,18 @@ IDEAS:
   * add "size" lookup option, limiting the size of the answer (in s)
     * add advanced "skip" option, to skip a number of entries
     * add advanced "limit" option, to limit the number of entries answered
- * add minimal plugin support (at least enough to make one for audioscrobbler)
+  * add views support (aka "dynamic playlists", stored also...)
+    * example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
+  * pluggable audio backend/minimal plugin support:
+      * upnp/dlna support
+      * audioscrobbler
+        * syntax proposition: just "audioscrobbler:" ?
+      * podcasts (atom/rss/etc...)
+        * example: ```feed: http://blah title: something```
+        * add named feeds support (use "myradio" instead of http://....)
+      * specific hardware support (ipod...)  <-- give me one if you want it ;P
+      * more...
+  * automatic (but clever...) autodetection of mountpoints
 
 
 For *1.1*: (architecture cleanup)
