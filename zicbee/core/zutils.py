@@ -67,17 +67,21 @@ def uncompact_int(str_val):
 
 json_engine = None
 try:
-    from cjson import encode as jdump, decode as jload
-    json_engine = 'cjson'
+    from json import dumps as jdump, loads as jload
+    json_engine = "python's built-in"
 except ImportError:
     try:
-        from simplejson import dumps as jdump, loads as jload
-        json_engine = 'simplejson'
+        from cjson import encode as jdump, decode as jload
+        json_engine = 'cjson'
     except ImportError:
-        from demjson import encode as jdump, decode as jload
-        json_engine = 'demjson'
+        try:
+            from simplejson import dumps as jdump, loads as jload
+            json_engine = 'simplejson'
+        except ImportError:
+            from demjson import encode as jdump, decode as jload
+            json_engine = 'demjson'
 
-sys.stderr.write("using %s.\n"%json_engine)
+sys.stderr.write("using %s engine.\n"%json_engine)
 ################################################################################
 
 _plur = lambda val: 's' if val > 1 else ''

@@ -30,10 +30,12 @@ Good luck !"""
 
 requirements = [ 'buzhug>=1.5', 'mutagen>=1.14' ]
 
-if os.name in ('nt', 'ce'):
-    requirements.append( 'demjson>=1.1' )
-else:
-    requirements.append( 'python-cjson>=1.0.5' )
+if sys.version_info[:2] < (2, 6):
+    # add cjson dependency
+    if os.name in ('nt', 'ce'):
+        requirements.append( 'demjson>=1.1' )
+    else:
+        requirements.append( 'python-cjson>=1.0.5' )
 
 setup (
         name='zicbee',
