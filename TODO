@@ -56,7 +56,7 @@ Before *0.9*:
 
 Before *0.8*: (slight feature/stable)
  TODO:
- * admin features (scan a path, list/switch db)
+ * /admin on www (kill/restart the server, scan a path, list/switch db, ... to be completed with features going)
 
  DONE:
  * add support for FLAC
