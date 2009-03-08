@@ -17,6 +17,31 @@ from .player import (do_play, do_pause,
         do_tag, do_rate)
 
 
+def do_loop():
+    from zicbee.core import parse_cmd, execute_cmd, setup_db
+    while True:
+        try:
+            l = raw_input("ZicBee> ").strip()
+        except EOFError:
+            break
+        try:
+            cmd, new_args = l.split(None, 1)
+        except ValueError:
+            cmd = l
+            new_args = ''
+
+        if cmd in ('bye', 'exit', 'logout'):
+            break
+
+        new_args = new_args.split() # gets all remaining args
+        db_name, new_args, action, p, kw = parse_cmd(cmd, *new_args)
+        if db_name:
+            # re-init db & args
+            setup_db(db_name, new_args)
+        else:
+            args[:] = new_args # remplace args with new args
+        execute_cmd(action, *p, **kw)
+
 def do_kill(host=config.db_host):
     """ Kills the current db_host or any specified as argument """
     play_uri = 'http://%s/kill'%(host)
