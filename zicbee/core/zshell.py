@@ -6,7 +6,6 @@ from zicbee.db import Database
 DEFAULT_NAME='songs'
 
 def init(args=None, db_name=None):
-    clean_args = args or sys.argv[2:]
     try:
         db
     except NameError:
@@ -16,6 +15,6 @@ def init(args=None, db_name=None):
         db.close()
 
     db = Database(db_name or os.environ.get('ZDB', DEFAULT_NAME))
-    globals().update( dict(songs=db, args=clean_args) )
+    globals().update( dict(songs=db, args=args) )
     db.db.cleanup() # XXX: Ugly !
 
