@@ -51,12 +51,15 @@ def do_serve(pure=False):
     # let's do webplayer
     import web
     from zicbee.core.httpdb import web_db_index
-    from zicbee.player.webplayer import webplayer
+    try:
+        from zicbee.player.webplayer import webplayer
+    except RuntimeError:
+        web.debug("Can't load webplayer, falling-back to pure db mode")
+        pure = True
 
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
-        import web.wsgiserver
-        print "Running webplayer from", __file__
+        print "Running web%s from %s"%('db' if pure else 'player', __file__)
         if pure:
             urls = ('/db/(.*)', 'web_db_index',
                     '/(.*)', 'web_db_index')
