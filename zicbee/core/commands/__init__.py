@@ -1,7 +1,8 @@
 # vim: et ts=4 sw=4
 
 from zicbee.db import Database, DB_DIR
-from zicbee.core.zshell import args, songs, DEFAULT_NAME
+from zicbee.core import zshell
+from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
 from zicbee.core.config import config
 import urllib
@@ -39,7 +40,7 @@ def do_loop():
             # re-init db & args
             setup_db(db_name, new_args)
         else:
-            args[:] = new_args # remplace args with new args
+            zshell.args[:] = new_args # remplace args with new args
         execute_cmd(action, *p, **kw)
 
 def do_kill(host=config.db_host):
@@ -116,19 +117,19 @@ def do_shell():
 
 def do_bundle():
     """ Dump used database to specified archive (any filename) """
-    if len(args) != 1:
+    if len(zshell.args) != 1:
         raise SystemExit("Need filename name as agment !")
-    songs.dump_archive(args[0])
+    zshell.songs.dump_archive(zshell.args[0])
 
 def do_reset():
     """ Destroy all songs on used database """
-    songs.destroy()
+    zshell.songs.destroy()
     print "Database cleared!"
 
 
 def do_hash():
     """ List all songs by id and hash (mostly to debug find_dups command) """
-    for i in songs.get_hash_iterator():
+    for i in zshell.songs.get_hash_iterator():
         print "%8d / %s"%i
 
 def do_find_dups(wpt=None, ar=None):
@@ -147,9 +148,9 @@ def do_find_dups(wpt=None, ar=None):
     total_cnt = itertools.count()
 
     if wpt is None:
-        wpt = min(1000, len(songs)/60) # take untaged/corrupted data into account
+        wpt = min(1000, len(zshell.songs)/60) # take untaged/corrupted data into account
 
-    for num, footprint in songs.get_hash_iterator():
+    for num, footprint in zshell.songs.get_hash_iterator():
         if footprint not in hash_dict:
             hash_dict[footprint] = [num]
         else:
@@ -159,7 +160,7 @@ def do_find_dups(wpt=None, ar=None):
         for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
             h = []
             for num in m:
-                song = songs[num]
+                song = zshell.songs[num]
                 heapq.heappush(h,
                         (len(song.filename), song))
 
@@ -173,7 +174,7 @@ def do_find_dups(wpt=None, ar=None):
             print "#", cnt.next()
             for num in m:
                 total_cnt.next()
-                print "%d: %s"%(num, songs[num].filename)
+                print "%d: %s"%(num, zshell.songs[num].filename)
         print total_cnt.next()-cnt.next()-1, "# songs to be removed..."
 
 

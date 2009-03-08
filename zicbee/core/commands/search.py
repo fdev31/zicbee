@@ -1,7 +1,7 @@
 from time import time
 import sys
 from zicbee.db import valid_tags
-from zicbee.core.zshell import args, songs
+from zicbee.core import zshell
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 from zicbee.core.config import config
 
@@ -37,7 +37,7 @@ def do_search(out=None, host=config.db_host, edit_mode=False):
     num = 0
     if host is not None:
         import urllib
-        params = {'pattern':' '.join(args)}
+        params = {'pattern':' '.join(zshell.args)}
         uri = 'http://%s/db/?json=1&%s'%(host, urllib.urlencode(params))
         site = urllib.urlopen(uri)
         while True:
@@ -49,12 +49,12 @@ def do_search(out=None, host=config.db_host, edit_mode=False):
             duration += r[4]
             num += 1
     else:
-        pat, kw = parse_line(' '.join(args))
+        pat, kw = parse_line(' '.join(zshell.args))
 
         if edit_mode:
-            search_fn = songs.u_search
+            search_fn = zshell.songs.u_search
         else:
-            search_fn = songs.search
+            search_fn = zshell.songs.search
 
         for num, res in enumerate(search_fn(None, pat, **kw)):
             song_output(res)

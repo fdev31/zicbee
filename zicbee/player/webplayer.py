@@ -13,7 +13,7 @@ from time import time
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
 from zicbee.core.zutils import uncompact_int, DEBUG
 from zicbee.core.config import config, media_config
-from zicbee.core.httpdb import WEB_FIELDS, render, web, songs
+from zicbee.core.httpdb import WEB_FIELDS, render, web
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),

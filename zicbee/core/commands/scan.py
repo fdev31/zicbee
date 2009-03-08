@@ -3,24 +3,24 @@ import itertools
 import os
 import sys
 from time import time
-from zicbee.core.zshell import args, songs
+from zicbee.core import zshell
 from zicbee.core.zutils import duration_tidy, clean_path
 
 def do_scan():
     """ Scan a directory for songs (fill Database)
     See "help" for a more complete documentation
     """
-    if not args:
+    if not zshell.args:
         sys.exit('At least one argument must be specified!')
 
     newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
-    orig_nb = len(songs)
+    orig_nb = len(zshell.songs)
     start_t = time()
 
     archives = []
     directories = []
 
-    for path in args:
+    for path in zshell.args:
         path = clean_path(path)
         if os.path.isdir(path):
             directories.append(path)
@@ -30,7 +30,7 @@ def do_scan():
     def _scan(**kw):
         print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
         try:
-            for status_char in songs.merge(**kw):
+            for status_char in zshell.songs.merge(**kw):
                 print status_char,
                 if newline_iterator.next():
                     print ''
@@ -47,12 +47,12 @@ def do_scan():
         _scan(directory=path)
 
     elapsed = time() - start_t
-    delta = len(songs)-orig_nb
+    delta = len(zshell.songs)-orig_nb
     print "\nProcessed %d (%s%d) songs in %s (%.2f/s.)"%(
-            len(songs),
+            len(zshell.songs),
             '-' if delta < 0 else '+',
             delta,
             duration_tidy(elapsed),
-            len(songs)/elapsed)
+            len(zshell.songs)/elapsed)
 
 

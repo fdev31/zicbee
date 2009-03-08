@@ -7,7 +7,7 @@ import os
 import web
 from threading import RLock
 from time import time
-from zicbee.core.zshell import songs
+from zicbee.core import zshell
 from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int
 from zicbee.core.config import config
 
@@ -30,9 +30,9 @@ DbSimpleSearchForm = web.form.Form(
         )
 
 def refresh_db():
-    songs.db.commit()
-    songs._init()
-    songs.db.cleanup()
+    zshell.songs.db.commit()
+    zshell.songs._init()
+    zshell.songs.db.cleanup()
 
 class web_db_index:
 
@@ -45,12 +45,12 @@ class web_db_index:
             tag = unicode(tag)
             with self._db_lock:
                 SEP=u','
-                _t = songs[song_id].tags
+                _t = zshell.songs[song_id].tags
                 tag_set = set( _t.strip(SEP).split(SEP) ) if _t else set()
                 for single_tag in tag.split(','):
                     tag_set.add(single_tag.strip())
                 new_tag = ''.join((SEP,SEP.join(tag_set),SEP))
-                songs[song_id].update(tags=new_tag)
+                zshell.songs[song_id].update(tags=new_tag)
         except Exception, e:
             web.debug('E!%s'%e)
         finally:
@@ -61,7 +61,7 @@ class web_db_index:
         try:
             with self._db_lock:
                 song_id = uncompact_int(song)
-                songs[song_id].update(score=int(rating))
+                zshell.songs[song_id].update(score=int(rating))
         finally:
             refresh_db()
 
@@ -72,7 +72,7 @@ class web_db_index:
             with self._db_lock:
                 for song, rating in ratings:
                         song_id = uncompact_int(song)
-                        songs[song_id].update(score=int(rating))
+                        zshell.songs[song_id].update(score=int(rating))
         finally:
             refresh_db()
 
@@ -87,7 +87,7 @@ class web_db_index:
             self.multirate(name.split('/', 2)[1])
             return
         elif name.startswith('kill'):
-            songs.db.close()
+            zshell.songs.db.close()
             raise SystemExit()
         elif name.startswith('tag'):
             self.tag(*name.split('/', 3)[1:])
@@ -99,7 +99,7 @@ class web_db_index:
                 if song_id:
                     song_id = uncompact_int(song_id)
                     if name.startswith("get"):
-                        filename = songs[song_id].filename
+                        filename = zshell.songs[song_id].filename
                         web.header('Content-Type', 'application/x-audio')
                         web.header('Content-Disposition',
                                 'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
@@ -115,7 +115,7 @@ class web_db_index:
                             y = (yield data)
                         return
                     else:
-                        song = songs[song_id]
+                        song = zshell.songs[song_id]
                         for f in song.fields:
                             yield "<b>%s</b>: %s<br/>"%(f, getattr(song, f))
                         return
@@ -146,7 +146,7 @@ class web_db_index:
             web.debug('searching %s %s...'%(pat, vars))
 
             res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
-                    for r in songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
+                    for r in zshell.songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
                     )
         t_sel = time()
 
@@ -157,7 +157,7 @@ class web_db_index:
         elif format == 'json':
             # try to pre-compute useful things
             field_decoder = zip( WEB_FIELDS,
-                    (songs.db.f_decode[songs.db.fields[fname]] for fname in WEB_FIELDS)
+                    (zshell.songs.db.f_decode[zshell.songs.db.fields[fname]] for fname in WEB_FIELDS)
                     )
             yield
 

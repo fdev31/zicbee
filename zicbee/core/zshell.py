@@ -11,10 +11,13 @@ def init(args=None, db_name=None):
     except NameError:
         pass
     else:
+        print "db cleanup"
         db.cleanup() # XXX: Ugly !
         db.close()
 
-    db = Database(db_name or os.environ.get('ZDB', DEFAULT_NAME))
+    db_name = db_name or os.environ.get('ZDB', DEFAULT_NAME)
+    print "opening %s..."%db_name
+    db = Database(db_name)
     globals().update( dict(songs=db, args=args) )
     db.db.cleanup() # XXX: Ugly !
 
