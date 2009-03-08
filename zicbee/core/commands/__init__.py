@@ -50,7 +50,8 @@ def do_serve(pure=False):
 
     # let's do webplayer
     import web
-    from zicbee.player.webplayer import webplayer, web_db_index
+    from zicbee.core.httpdb import web_db_index
+    from zicbee.player.webplayer import webplayer
 
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
