@@ -7,7 +7,6 @@ import thread
 import urllib
 import difflib
 from time import sleep
-from pkg_resources import resource_filename
 from threading import RLock
 import itertools
 from time import time
