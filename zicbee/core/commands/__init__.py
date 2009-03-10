@@ -74,14 +74,15 @@ def do_serve(pure=False):
     p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
     os.chdir( p )
 
-    # let's do webplayer
     import web
     from zicbee.core.httpdb import web_db_index
-    try:
-        from zicbee.player.webplayer import webplayer
-    except RuntimeError:
-        web.debug("Can't load webplayer, falling-back to pure db mode")
-        pure = True
+    if not pure:
+        # let's do webplayer
+        try:
+            from zicbee.player.webplayer import webplayer
+        except RuntimeError:
+            web.debug("Can't load webplayer, falling-back to pure db mode")
+            pure = True
 
     sys.argv = ['zicdb', '0.0.0.0:9090']
     try:
