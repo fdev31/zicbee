@@ -201,7 +201,7 @@ def do_fullhelp():
                 dflt_values = [None] * (len(dflt_values) - len(arg_names))
                 map(None, arg_names, dflt_values)
 
-            doc = ':'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
+            doc = '::'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
 
             if any(h for h in arg_names if h.startswith('host') or h.endswith('host')):
                 out = remote_commands_display
