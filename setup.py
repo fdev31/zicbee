@@ -61,10 +61,10 @@ See features list, it's mostly handy for people with large databases,
 with optionally multiple computers.
 It can be adapted to handle video too, hacking some bit of code.
         ''',
-        url='http://code.google.com/p/zicdb/',
-        keywords='database music tags metadata management',
+        url = 'http://code.google.com/p/zicdb/',
+        keywords = 'database music tags metadata management',
         packages = find_packages(),
-        zip_safe=False,
+        zip_safe = False,
         package_data = {
             'zicbee': [
                 'ui/web/templates/*.html',
