@@ -20,6 +20,10 @@ from .player import (do_play, do_pause,
 
 def do_loop():
     from zicbee.core import parse_cmd, execute_cmd, setup_db
+    try:
+        import readline
+    except ImportError, e:
+        print 'import readline failed: %s'%e
     while True:
         try:
             l = raw_input("ZicBee> ").strip()
