@@ -130,8 +130,16 @@ class PlayerCtl(object):
         if len(self.playlist) == 0:
             return
         with self._lock:
+            pos = self._cur_song_pos
+            current = None
+            if (0 <= pos < len(self.playlist)):
+                current = self.playlist.pop(pos)
             random.shuffle(self.playlist)
-            self._cur_song_pos = 0
+            if current:
+                self.playlist.insert(0, current)
+                self._cur_song_pos = 0
+            else:
+                self._cur_song_pos = -1
 
     def seek(self, val):
         """ Seek according to given value
@@ -187,6 +195,7 @@ class PlayerCtl(object):
 
         if ':' not in hostname:
             hostname += ':9090'
+        new_song_pos = -1
 
         with self._lock:
             self.hostname = hostname
@@ -199,8 +208,12 @@ class PlayerCtl(object):
                 self._named_playlists[temp] = []
                 add = self._named_playlists[temp]
             else:
+                current = self.playlist[self._cur_song_pos] if self.selected else None
                 self.playlist[:] = []
                 add = self.playlist.append
+                if current:
+                    new_song_pos = 0
+                    add(current)
 
         total = 0
         done = False
@@ -230,7 +243,7 @@ class PlayerCtl(object):
         else:
             # reset song position
             with self._lock:
-                self._cur_song_pos = 0
+                self._cur_song_pos = new_song_pos
                 self._tmp_total_length = total
 
     def _download_zic(self, uri, fname):
@@ -262,7 +275,7 @@ class PlayerCtl(object):
                 if not data:
                     break
                 achieved += len(data)
-                web.debug('downloading %s from %s (%.1f%%)'%(uri, self, progress))
+#                web.debug('downloading %s from %s (%.1f%%)'%(uri, self, progress))
                 fd.write(data)
                 yield
             fd.close()

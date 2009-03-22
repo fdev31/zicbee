@@ -18,6 +18,7 @@ defaults_dict = {
         'debug' : '',
         'default_search' : '',
         'web_skin' : '',
+        'fork': 'blank_me_to_stop_forking_on_serve_mode',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
