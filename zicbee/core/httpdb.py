@@ -30,9 +30,9 @@ DbSimpleSearchForm = web.form.Form(
         )
 
 def refresh_db():
-    zshell.songs.db.commit()
-    zshell.songs._init()
-    zshell.songs.db.cleanup()
+    zshell.songs.commit()
+    zshell.songs._create()
+    zshell.songs.cleanup()
 
 class web_db_index:
 
@@ -87,7 +87,7 @@ class web_db_index:
             self.multirate(name.split('/', 2)[1])
             return
         elif name.startswith('kill'):
-            zshell.songs.db.close()
+            zshell.songs.close()
             raise SystemExit()
         elif name.startswith('tag'):
             self.tag(*name.split('/', 3)[1:])
@@ -155,9 +155,10 @@ class web_db_index:
         elif format == 'plain':
             yield unicode(render.plain(af, web.http.url, res))
         elif format == 'json':
+            some_db = zshell.songs.databases.itervalues().next()['handle']
             # try to pre-compute useful things
             field_decoder = zip( WEB_FIELDS,
-                    (zshell.songs.db.f_decode[zshell.songs.db.fields[fname]] for fname in WEB_FIELDS)
+                    (some_db.f_decode[some_db.fields[fname]] for fname in WEB_FIELDS)
                     )
             yield
 

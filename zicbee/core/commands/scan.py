@@ -41,10 +41,10 @@ def do_scan():
             traceback.print_exc()
 
     for path in archives:
-        _scan(archive=path)
+        _scan(archive=path, db_name=zshell.DEFAULT_NAME)
 
     for path in directories:
-        _scan(directory=path)
+        _scan(directory=path, db_name=zshell.DEFAULT_NAME)
 
     elapsed = time() - start_t
     delta = len(zshell.songs)-orig_nb
