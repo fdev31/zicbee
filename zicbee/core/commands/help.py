@@ -7,8 +7,17 @@ def do_help():
         print """
 use
     Not a command by itself, used to specify active database (default: songs)
+    You can specify mutiple databases at once using ',' separator (without spaces)
     Exemple:
     %% %(prog)s use lisa search artist: dire st
+    %% %(prog)s use usb_drive,songs search artist: dire st
+    %% %(prog)s use songs,ipod search artist: dire st
+
+    The first exemple is using only one db (not the default one of course),
+    the next uses usb drive and fallbacks to default db
+    the last one uses the ipod database as fallback for commands (like search)
+    WARNING: using more than one database will most probably lead to song conflicts and won't be usable
+     consider this feature very experimental, use only if you know what you are doing.
 
     NOTE: you can alternatively use the "ZDB" environment variable instead
 
