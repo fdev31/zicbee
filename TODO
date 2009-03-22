@@ -61,6 +61,9 @@ Before *0.8*: (slight feature/stable)
  DONE:
  * add support for FLAC
  * integrate/complete tagging & scoring support
+ * add support for multiple DBs at once
+   * (ie. have separate databases for your mp3 player & your local drive)
+   * see "use" command for usage
 
 <--- *WE ARE HERE*
 
