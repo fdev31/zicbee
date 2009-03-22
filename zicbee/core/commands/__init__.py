@@ -200,7 +200,7 @@ def do_find_dups(wpt=None, ar=None):
 
 
 def do_fullhelp():
-    """ The Hacker's help (WIP functions included) """
+    """ The Hacker's help [read standard help before !!] (WIP functions included) """
     import inspect
     g = globals()
     undoc = []
