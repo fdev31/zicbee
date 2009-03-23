@@ -18,7 +18,7 @@ from .player import (do_play, do_pause,
         do_tag, do_rate)
 
 
-def do_loop():
+def do_shell():
     from zicbee.core import parse_cmd, execute_cmd, setup_db
     try:
         import readline
@@ -132,7 +132,7 @@ def do_list():
                 txt += ' [default]'
             print txt
 
-def do_shell():
+def do_debug():
     """ Start a PDB (dev/hackers only)"""
     import pdb; pdb.set_trace()
 
