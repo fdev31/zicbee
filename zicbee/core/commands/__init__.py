@@ -49,7 +49,7 @@ def do_loop():
 
 def do_kill(host=config.db_host):
     """ Kills the current db_host or any specified as argument """
-    play_uri = 'http://%s/kill'%(host)
+    play_uri = 'http://%s/db/kill'%(host)
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
@@ -60,7 +60,7 @@ def do_stfu(host=config.player_host):
     (in case db_host and player_host are the same, this command
     is equivalent to "kill")
     """
-    play_uri = 'http://%s/kill'%(host)
+    play_uri = 'http://%s/db/kill'%(host)
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
