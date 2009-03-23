@@ -50,6 +50,8 @@ class PlayerCtl(object):
         return '<Player[%d] playing %s (views=%d)>'%(len(self.playlist), self.selected, len(self.views))
 
     def _main_loop(self):
+        errors = dict(count=0)
+
         while True:
             if not self._paused and len(self.playlist):
                 try:
@@ -68,13 +70,14 @@ class PlayerCtl(object):
                     web.debug('pos: %s'%self.position)
 
                     if self.position is None:
-                        i = self.select(1)
-                        while True:
-                            try:
-                                with self._lock:
-                                    i.next()
-                            except StopIteration:
-                                break
+                        if errors['count'] > 2:
+                            i = self.select(1)
+                            while True:
+                                try:
+                                    with self._lock:
+                                        i.next()
+                                except StopIteration:
+                                    break
                 except Exception, e:
                     web.debug('E: %s'%e)
                 except:
