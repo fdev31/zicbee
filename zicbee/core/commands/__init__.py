@@ -60,11 +60,11 @@ def do_stfu(host=config.player_host):
     (in case db_host and player_host are the same, this command
     is equivalent to "kill")
     """
-    play_uri = 'http://%s/db/kill'%(host)
+    play_uri = 'http://%s/close'%(host)
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
-        print "RIP."
+        print "Silence."
 
 def do_serve(pure=False):
     """ Create a ZicDB instance

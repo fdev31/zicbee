@@ -46,6 +46,14 @@ class PlayerCtl(object):
         thread.start_new_thread(self._main_loop, tuple())
         self._named_playlists = dict()
 
+    def close(self):
+        try:
+            self.player.quit()
+        except Exception, e:
+            print "E: %s"%e
+        finally:
+            self.player.wait()
+
     def __repr__(self):
         return '<Player[%d] playing %s (views=%d)>'%(len(self.playlist), self.selected, len(self.views))
 
@@ -357,6 +365,9 @@ class webplayer:
         yield unicode(render.player(af, sf, tf))
 
     REQ_ = REQ_main # default page
+
+    def REQ_close(self):
+        self.player.close()
 
     def REQ_search(self):
         it = None
