@@ -57,16 +57,15 @@ Before *0.9*:
     * www and text interface
 
 Before *0.8*: (slight feature/stable)
- TODO:
- * complete admin commands (set to set a variable)
-
  DONE:
  * add support for FLAC
  * interactive shell support
+   (experimental, see "zicdb shell" or "zicbee" commands and report problems)
  * integrate/complete tagging & scoring support
  * add support for multiple DBs at once
    * (ie. have separate databases for your mp3 player & your local drive)
    * see "use" command for usage
+ * complete admin commands (set to set a variable)
 
 <--- *WE ARE HERE*
 
