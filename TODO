@@ -47,6 +47,7 @@ Before *1.0*: (very useable, db schema freeze)
  * good duplicates detection
 
 Before *0.9*:
+ * feature shell mode (don't respawn a python each time, commands completion, etc...)
  * cleaner javascript/cookies/sessions (prepare theme support)
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
