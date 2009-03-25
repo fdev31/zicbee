@@ -5,6 +5,7 @@ from zicbee.core import zshell
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
 from zicbee.core.config import config
+from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
 import itertools
 
@@ -17,35 +18,43 @@ from .player import (do_play, do_pause,
         do_infos, do_playlist,
         do_tag, do_rate)
 
+from cmd import Cmd
+class Shell(Cmd):
+    def __init__(self):
+        Cmd.__init__(self)
+        self.commands = [name for name, obj in globals().iteritems() if name.startswith('do_') and callable(obj)]
+
+    def get_names(self):
+        return self.commands
+
+    def onecmd(self, line):
+        if not line:
+            line = 'help'
+
+        try:
+            cmd, arg = line.split(None, 1)
+        except:
+            cmd = line
+            arg = ''
+        self.lastcmd = line
+        if cmd == '':
+            return self.default(line)
+        elif cmd in ('EOF', 'bye', 'exit', 'logout'):
+            raise SystemExit('bye bye')
+        else:
+            db_name, new_args, action, p, kw = parse_cmd(line.split(None, 1)[0], arg)
+            if db_name:
+                # re-init db & args
+                setup_db(db_name, new_args)
+            else:
+                zshell.args[:] = new_args # remplace args with new args
+
+            execute_cmd(action, *p, **kw)
 
 def do_shell():
-    from zicbee.core import parse_cmd, execute_cmd, setup_db
-    try:
-        import readline
-    except ImportError, e:
-        print 'import readline failed: %s'%e
-    while True:
-        try:
-            l = raw_input("ZicBee> ").strip()
-        except EOFError:
-            break
-        try:
-            cmd, new_args = l.split(None, 1)
-        except ValueError:
-            cmd = l
-            new_args = ''
-
-        if cmd in ('bye', 'exit', 'logout'):
-            break
-
-        new_args = new_args.split() # gets all remaining args
-        db_name, new_args, action, p, kw = parse_cmd(cmd, *new_args)
-        if db_name:
-            # re-init db & args
-            setup_db(db_name, new_args)
-        else:
-            zshell.args[:] = new_args # remplace args with new args
-        execute_cmd(action, *p, **kw)
+    shell = Shell()
+    shell.prompt = "ZicBee> "
+    shell.cmdloop('Welcome to zicbee, press ENTER for help.')
 
 def do_kill(host=config.db_host):
     """ Kills the current db_host or any specified as argument """
