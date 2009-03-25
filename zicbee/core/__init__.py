@@ -39,6 +39,9 @@ def execute_cmd(action, *params, **kparams):
     except KeyboardInterrupt:
         print "Abort!"
 
+def shell():
+    startup('shell')
+
 def startup(*args):
     import os
     import sys

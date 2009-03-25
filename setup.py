@@ -78,6 +78,7 @@ It can be adapted to handle video too, hacking some bit of code.
         entry_points = {
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
+                'zicbee = zicbee.core:shell',
                 'zicserve = zicbee.core:serve [server]',
                 'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
