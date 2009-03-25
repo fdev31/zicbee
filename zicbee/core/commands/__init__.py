@@ -8,6 +8,12 @@ from zicbee.core.config import config
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
 import itertools
+import socket
+
+try:
+    socket.setdefaulttimeout(int(config.socket_timeout)) # setsocket  timeout, for interactive cmds
+except Exception, e:
+    print "unable to set socket timeout to '%s': %s."%(config.socket_timeout, e)
 
 from .search import do_search
 from .scan import do_scan
