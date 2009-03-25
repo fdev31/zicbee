@@ -420,7 +420,7 @@ class webplayer:
         _d['pls_position'] = self.player._cur_song_pos
         _d['song_position'] = self.player.position
         _d['pls_size'] = len(self.player.playlist)
-        _d['paused'] = self._paused
+        _d['paused'] = self.player._paused
 
         try:
             _d['id'] = compact_int(_d.pop('__id__'))
