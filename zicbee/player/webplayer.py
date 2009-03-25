@@ -86,6 +86,9 @@ class PlayerCtl(object):
                                         i.next()
                                 except StopIteration:
                                     break
+                            errors['count'] = 0
+                        else:
+                            errors['count'] += 1
                 except Exception, e:
                     web.debug('E: %s'%e)
                 except:

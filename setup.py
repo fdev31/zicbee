@@ -107,7 +107,11 @@ if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'd
     # test copied from zicbee/player/_mpgen.py [and mp.py]:
     exe_name = 'mplayer' if os.sep == '/' else 'mplayer.exe'
     import subprocess
-    if subprocess.Popen([exe_name, '-really-quiet']).wait():
+    try:
+        ret = subprocess.Popen([exe_name, '-really-quiet']).wait()
+    except OSError:
+        ret = 255
+    if ret:
         dec = "*"*80
         print dec
         print dec
