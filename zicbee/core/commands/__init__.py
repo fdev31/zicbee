@@ -4,7 +4,7 @@ from zicbee.db import Database, DB_DIR
 from zicbee.core import zshell
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
-from zicbee.core.config import config
+from zicbee.core.config import config, DB_DIR
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
 import itertools
@@ -28,6 +28,22 @@ from cmd import Cmd
 class Shell(Cmd):
     def __init__(self):
         Cmd.__init__(self)
+        self.history = dict(filename=None, value=[])
+        if config.enable_history:
+            try:
+                import os
+                history_file = os.path.join(DB_DIR, 'shell_history.txt')
+                self.history['filename'] = history_file
+                self.history['value'] = [l.rstrip() for l in file(history_file).readlines()]
+                import readline
+                for hist in self.history['value']:
+                    readline.add_history(hist)
+            except Exception, e:
+                print "No history loaded: %s"%e
+                self.history['value'] = []
+        else:
+            self.history['value'] = []
+
         self.commands = [name for name, obj in globals().iteritems() if name.startswith('do_') and callable(obj)]
 
     def get_names(self):
@@ -46,6 +62,10 @@ class Shell(Cmd):
         if cmd == '':
             return self.default(line)
         elif cmd in ('EOF', 'bye', 'exit', 'logout'):
+            try:
+                file(self.history['filename'], 'w').writelines("%s\n"%l for l in list(set(self.history['value'])))
+            except Exception, e:
+                print "Cannot save history file: %s."%(e)
             raise SystemExit('bye bye')
         else:
             db_name, new_args, action, p, kw = parse_cmd(line.split(None, 1)[0], arg)
@@ -61,6 +81,8 @@ class Shell(Cmd):
                 print "ERROR: %s"%e
             except KeyboardInterrupt:
                 print "Interrupted!"
+            else:
+                self.history['value'].append(line)
 
 def do_shell():
     shell = Shell()

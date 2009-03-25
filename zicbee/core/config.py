@@ -20,6 +20,7 @@ defaults_dict = {
         'web_skin' : '',
         'fork': 'blank_me_to_stop_forking_on_serve_mode',
         'socket_timeout': '30',
+        'enable_history': 'blank_to_disable',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
