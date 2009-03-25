@@ -49,7 +49,12 @@ class Shell(Cmd):
             else:
                 zshell.args[:] = new_args # remplace args with new args
 
-            execute_cmd(action, *p, **kw)
+            try:
+                execute_cmd(action, *p, **kw)
+            except Exception, e:
+                print "ERROR: %s"%e
+            except KeyboardInterrupt:
+                print "Interrupted!"
 
 def do_shell():
     shell = Shell()
