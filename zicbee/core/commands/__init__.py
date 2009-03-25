@@ -4,7 +4,7 @@ from zicbee.db import Database, DB_DIR
 from zicbee.core import zshell
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.core.zutils import DEBUG
-from zicbee.core.config import config, DB_DIR
+from zicbee.core.config import config, DB_DIR, defaults_dict
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
 import itertools
@@ -90,6 +90,32 @@ def do_shell():
     shell = Shell()
     shell.prompt = "ZicBee> "
     shell.cmdloop('Welcome to zicbee, press ENTER for help.')
+
+def do_set():
+    """ set a config variable to the given value """
+    if len(zshell.args) != 2:
+        print "Takes exactly 2 arguments: set <variable> <value>, see 'get' for a list of variables."
+    else:
+        setattr(config, zshell.args[0], zshell.args[1])
+
+def do_get():
+    """ Get a list of config values or dump the whole file """
+    if zshell.args:
+        values = zshell.args
+    else:
+        values = defaults_dict.keys()
+        print "[DEFAULT]"
+
+    not_found = []
+    for param in values:
+        try:
+            print "%s = %s"%(param, getattr(config, param))
+        except:
+            not_found.append(param)
+
+    if not_found:
+        print "unavaible: %s"%(', '.join(not_found))
+
 
 def do_kill(host=config.db_host):
     """ Kills the current db_host or any specified as argument """
