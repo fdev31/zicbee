@@ -57,7 +57,9 @@ class Shell(Cmd):
             cmd, arg = line.split(None, 1)
         except:
             cmd = line
-            arg = ''
+            arg = []
+        else:
+            arg = arg.split()
         self.lastcmd = line
         if cmd == '':
             return self.default(line)
@@ -68,7 +70,7 @@ class Shell(Cmd):
                 print "Cannot save history file: %s."%(e)
             raise SystemExit('bye bye')
         else:
-            db_name, new_args, action, p, kw = parse_cmd(line.split(None, 1)[0], arg)
+            db_name, new_args, action, p, kw = parse_cmd(line.split(None, 1)[0], *arg)
             if db_name:
                 # re-init db & args
                 setup_db(db_name, new_args)
