@@ -43,6 +43,7 @@ For *1.1*: (architecture cleanup)
 
 Before *1.0*: (very useable, db schema freeze)
  * distribution cleanup
+ * fill feature gap between www (poor) & text (rich) ui
  * add themes support for www player (and DB ?)
  * good duplicates detection
 
@@ -57,10 +58,11 @@ Before *0.9*:
 
 Before *0.8*: (slight feature/stable)
  TODO:
- * /admin on www (kill/restart the server, scan a path, list/switch db, ... to be completed with features going)
+ * complete admin commands (set to set a variable)
 
  DONE:
  * add support for FLAC
+ * interactive shell support
  * integrate/complete tagging & scoring support
  * add support for multiple DBs at once
    * (ie. have separate databases for your mp3 player & your local drive)
