@@ -70,7 +70,9 @@ class PlayerCtl(object):
                     web.debug('pos: %s'%self.position)
 
                     if self.position is None:
+                        errors['count'] += 1
                         if errors['count'] > 2:
+                            errors['count'] = 0
                             i = self.select(1)
                             while True:
                                 try:
