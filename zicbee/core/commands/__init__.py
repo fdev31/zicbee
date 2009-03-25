@@ -8,6 +8,7 @@ from zicbee.core.config import config, DB_DIR, defaults_dict
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
 import itertools
+from time import time as get_time
 import socket
 
 try:
@@ -78,7 +79,12 @@ class Shell(Cmd):
                 zshell.args[:] = new_args # remplace args with new args
 
             try:
+                t0 = get_time()
                 execute_cmd(action, *p, **kw)
+                elapsed = get_time() - t0
+                if elapsed > 0.4:
+                    print "took %.1fs"%elapsed
+
             except Exception, e:
                 print "ERROR: %s"%e
             except KeyboardInterrupt:
