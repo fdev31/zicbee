@@ -117,19 +117,23 @@ def do_get():
         print "unavaible: %s"%(', '.join(not_found))
 
 
-def do_kill(host=config.db_host):
+def do_kill(host=None):
     """ Kills the current db_host or any specified as argument """
+    if host is None:
+        host = config.db_host
     play_uri = 'http://%s/db/kill'%(host)
     try:
         urllib.urlopen(play_uri).read()
     except IOError:
         print "RIP."
 
-def do_stfu(host=config.player_host):
+def do_stfu(host=None):
     """ Kills the current player_host
     (in case db_host and player_host are the same, this command
     is equivalent to "kill")
     """
+    if host is None:
+        config.player_host
     play_uri = 'http://%s/close'%(host)
     try:
         urllib.urlopen(play_uri).read()

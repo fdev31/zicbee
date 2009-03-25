@@ -97,10 +97,16 @@ class Downloader(object):
                 _download_infos['count'], duration_tidy(t)))
 
 
-def do_get(host=config.db_host, out=config.download_dir):
+def do_get(host=None, out=None):
     """ Get songs (same syntax as search)
     See "help" for a more complete documentation
     """
+    if out is None:
+        out = config.download_dir
+
+    if host is None:
+        host = config.db_host
+
     if ':' not in host:
         host += ':9090'
 

@@ -5,10 +5,13 @@ from zicbee.core import zshell
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 from zicbee.core.config import config
 
-def do_search(out=None, host=config.db_host, edit_mode=False):
+def do_search(out=None, host=None, edit_mode=False):
     """ Search for song, display results.
     See "help" for a more complete documentation
     """
+    if host is None:
+        host = config.db_host
+
     if ':' not in host:
         host += ':9090'
 

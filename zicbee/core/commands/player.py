@@ -10,13 +10,21 @@ from zicbee.core.zshell import args
 from zicbee.core.config import config
 from .search import do_search
 
-def do_play(dbhost=config.db_host, phost=config.player_host):
+def do_play(dbhost=None, phost=None):
     """ Play the specified pattern, same syntax as "search". """
+
+    if phost is None:
+        phost = config.player_host
+
+    if dbhost is None:
+        dbhost = config.db_host
     play_uri = 'http://%s/search?id=&host=%s&pattern=%s'%(phost, dbhost, urllib.quote(u' '.join(args)))
     urllib.urlopen(play_uri).read()
 
-def do_infos(host=config.player_host):
+def do_infos(host=None):
     """ Show informations about currently playing song """
+    if host is None:
+        host = config.player_host
     play_uri = 'http://%s/infos?fmt=txt'%(host)
     site = urllib.urlopen(play_uri)
     while True:
@@ -25,8 +33,10 @@ def do_infos(host=config.player_host):
             break
         print l,
 
-def do_playlist(host=config.player_host):
+def do_playlist(host=None):
     """ Show current playing list """
+    if host is None:
+        host = config.player_host
     play_uri = 'http://%s/playlist?fmt=txt'%(host)
     site = urllib.urlopen(play_uri)
     while True:
@@ -35,27 +45,35 @@ def do_playlist(host=config.player_host):
             break
         print l,
 
-def do_pause(host=config.player_host):
+def do_pause(host=None):
     """ Toggle pause on player """
+    if host is None:
+        host = config.player_host
     play_uri = 'http://%s/pause'%(host)
     urllib.urlopen(play_uri).read()
 
-def do_shuffle(host=config.player_host):
+def do_shuffle(host=None):
+    if host is None:
+        host = config.player_host
     """ Shuffles the playing list (results in a random playlist) """
     play_uri = 'http://%s/shuffle'%(host)
     urllib.urlopen(play_uri).read()
 
-def do_next(host=config.player_host):
+def do_next(host=None):
     """ Switch to next track """
+    if host is None:
+        host = config.player_host
     play_uri = 'http://%s/next'%(host)
     urllib.urlopen(play_uri).read()
 
-def do_prev(host=config.player_host):
+def do_prev(host=None):
     """ Switch to previous track """
+    if host is None:
+        host = config.player_host
     play_uri = 'http://%s/prev'%(host)
     urllib.urlopen(play_uri).read()
 
-def do_tag(tag, host=config.player_host):
+def do_tag(tag, host=None):
     """ Tag selected pattern with specified rating.
     options:
         tag
@@ -76,18 +94,21 @@ def do_tag(tag, host=config.player_host):
         tag_uri = uri[:uri.index('/db/')+3] + '/tag/%s/%s'%(sid, tag)
         urllib.urlopen(tag_uri)
 
+    if host is None:
+        host = config.player_host
+
     if args:
         do_search(out=song_tagger, host=host, edit_mode=True)
     else:
         tag_uri = 'http://%s/tag/%s'%(host, tag)
         urllib.urlopen(tag_uri)
 
-def do_rate(rate=1, host=config.db_host):
+def do_rate(rate=1, host=None):
     """ Rate selected pattern with specified rating.
     options:
         rate=1
-        host=<db_host>
-        + same pattern as "search"
+        host=<db_host if pattern given, else defaults to player host to tag current song>
+        + same pattern as "search" (optionnal)
     ex:
         rate::3:guntah.myhost.com artist: Brassens
         rate::0 title: Very bad song artist: very bad artist
@@ -101,9 +122,9 @@ def do_rate(rate=1, host=config.db_host):
         urllib.urlopen(rate_uri)
 
     if args:
-        do_search(out=song_rater, host=host, edit_mode=True)
+        do_search(out=song_rater, host=host or config.db_host, edit_mode=True)
     else:
-        rate_uri = 'http://%s/rate/%s'%(host, tag)
+        rate_uri = 'http://%s/rate/%s'%(host or config.player_host, tag)
         urllib.urlopen(rate_uri)
 
 
