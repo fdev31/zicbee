@@ -4,6 +4,7 @@ from zicbee.db import valid_tags
 from zicbee.core import zshell
 from zicbee.core.zutils import duration_tidy, parse_line, jload
 from zicbee.core.config import config
+from zicbee.core.debug import log, DEBUG
 
 def do_search(out=None, host=None, edit_mode=False):
     """ Search for song, display results.
@@ -47,7 +48,14 @@ def do_search(out=None, host=None, edit_mode=False):
             line = site.readline()
             if not line:
                 break
-            r = jload(line)
+            try:
+                r = jload(line)
+            except:
+                DEBUG()
+                for l in site.readlines():
+                    log.error(l.rstrip())
+                raise
+
             song_output(r)
             duration += r[4]
             num += 1
