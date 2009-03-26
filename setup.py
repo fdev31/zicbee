@@ -102,6 +102,12 @@ It can be adapted to handle video too, hacking some bit of code.
 #            'http://sourceforge.net/project/showfiles.php?group_id=167078&package_id=190037&release_id=664931',
 #            'http://code.google.com/p/pyglet/downloads/list',
             ],
+        classifiers = ['Development Status :: 4 - Beta',
+                'Environment :: Console',
+                'Intended Audience :: Developers',
+                'Operating System :: OS Independent',
+                ],
+
         )
 
 if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'dist' in a):
