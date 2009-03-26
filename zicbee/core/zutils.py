@@ -224,12 +224,21 @@ def parse_line(line):
         else:
             attr_name, value = pattern
             var_name = varnames.pop(0)
-            if attr_name in ('length', 'score'):
+            if attr_name in ('length', 'score', 'id'):
+                is_id = attr_name == 'id'
+                if is_id:
+                    attr_name = '__id__'
                 # numeric
                 modifier = ''
                 while value[0] in '>=<':
                     modifier += value[0]
                     value = value[1:]
+
+                if is_id:
+                    try:
+                        value = str(uncompact_int(value))
+                    except Exception, e:
+                        log.error("uncompact_int: %s"%e)
 
                 log.debug('str_list.append("%r %r %r")', attr_name, modifier or '==', var_name)
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
