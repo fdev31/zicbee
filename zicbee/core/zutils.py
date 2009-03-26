@@ -126,6 +126,11 @@ def _find_property(line):
                 return tab[-1], tab[0].strip()
 
 def _conv_line(txt):
+    """ Converts a syntax string to an easy to parse array of datas
+    data consists of str or (str, str) tuples
+    str values are operators like: or, and, !or, (, ), etc...
+    tuples are: key: value
+    """
     # TODO: replace with a real parser ?
     split_line = txt.split(':')
     log.debug('split line: %s'% split_line)
@@ -191,6 +196,8 @@ def _conv_line(txt):
 RAW_ATTRS = ('filename',)
 
 def parse_line(line):
+    """ Gets a line in the form "<name>: value <other name>: value"
+   Returns an evaluable python string """
     ret = _conv_line(line)
     log.debug('RET: %s'%repr(ret))
     # string (simple) handling
