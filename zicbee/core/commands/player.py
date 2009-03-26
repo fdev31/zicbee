@@ -124,7 +124,7 @@ def do_rate(rate=1, host=None):
     if args:
         do_search(out=song_rater, host=host or config.db_host, edit_mode=True)
     else:
-        rate_uri = 'http://%s/rate/%s'%(host or config.player_host, tag)
+        rate_uri = 'http://%s/rate/%s'%(host or config.player_host, rate)
         urllib.urlopen(rate_uri)
 
 
