@@ -48,16 +48,16 @@ config = ConfigObj()
 
 
 media_config = {
-        'mp3' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'ogg' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'mp4' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'aac' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'vqf' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'wmv' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'wma' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'm4a' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'asf' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
-        'oga' : {'player_cache': 128, 'init_chunk_size': 2**17, 'chunk_size': 2**14},
+        'mp3' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'ogg' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'mp4' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'aac' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'vqf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'wmv' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'wma' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'm4a' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'asf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'oga' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
         'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
         }
 

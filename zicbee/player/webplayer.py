@@ -75,10 +75,11 @@ class PlayerCtl(object):
                     except:
                         self.position = None
 
-                    web.debug('pos: %s'%self.position)
+                    web.debug('pos: %s, errors: %s'%(self.position, errors))
 
                     if self.position is None:
                         if errors['count'] > 2:
+                            errors['count'] = 0
                             i = self.select(1)
                             while True:
                                 try:
@@ -86,7 +87,6 @@ class PlayerCtl(object):
                                         i.next()
                                 except StopIteration:
                                     break
-                            errors['count'] = 0
                         else:
                             errors['count'] += 1
                 except Exception, e:
