@@ -62,10 +62,22 @@ search[::out] <match command>
     if field name starts with a capital, the search is case-sensitive
 
   Possible fields:
+\t- id (compact style)
 \t- %(tags)s
 
-  Exemple:
-  %% %(prog)s search filename: shak length > 3*60
+  Working Exemples:
+  %% %(prog)s search filename: shak length: > 3*60
+    > songs with "shak" in filename and of more than 3 min
+  %% %(prog)s search artist: shak length: > 3*60 or artist: black
+    > songs with "shak" or "black" in artist name and of more than 3 min
+  %% %(prog)s search artist: shak length: > 3*60 and title: mo
+    > songs with "shak" in artist name and of more than 3 min and with "mo" on the title
+  %% %(prog)s search tags: jazz title: moon
+    > songs tagged "jazz" and with titles containing "moon"
+  %% %(prog)s search score: >2
+    > songs with a score higher than 2
+  %% %(prog)s search score: >2 score: <= 3 tags: rock length: <= 120
+    > a quite dumb search ;) (the selected songs will have a score of 3, less than 2 min and tagged as "rock")
 
 fullhelp
     List all available commands (with associated help if available)
