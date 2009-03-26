@@ -75,7 +75,7 @@ class PlayerCtl(object):
                     except:
                         self.position = None
 
-                    web.debug('pos: %s'%self.position)
+                    web.debug('pos: %s, errors: %s'%(self.position, errors))
 
                     if self.position is None:
                         if errors['count'] > 2:
