@@ -7,6 +7,12 @@ from itertools import chain
 from zicbee.core.config import DB_DIR
 from zicbee.core.config import media_config
 
+try:
+    required_buzhug = [1, 5]
+    assert [int(d) for d in buzhug.version.split('.')] >= required_buzhug
+except AssertionError:
+    raise SystemExit('Wrong buzhug installed, please install at least version %s'%('.'.join(required_buzhug)))
+
 #valid_ext = ('.ogg','.mp3', '.mp4',
 #    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
 

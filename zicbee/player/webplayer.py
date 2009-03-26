@@ -11,7 +11,8 @@ from threading import RLock
 import itertools
 from time import time
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line
-from zicbee.core.zutils import uncompact_int, DEBUG
+from zicbee.core.zutils import uncompact_int
+from zicbee.core.debug import DEBUG
 from zicbee.core.config import config, media_config
 from zicbee.core.httpdb import WEB_FIELDS, render, web
 
@@ -39,6 +40,7 @@ class PlayerCtl(object):
         except:
             # TODO: add different backends!
             # (maybe adapt mp interface to be more generic)
+            DEBUG()
             raise RuntimeError("No backend could be loaded!")
         self.position = None
         self._lock = RLock()

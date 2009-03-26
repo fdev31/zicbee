@@ -1,8 +1,7 @@
 import gobject
 gobject.threads_init()
 
-from zicbee.core.zutils import DEBUG
-from zicbee.core.debug import log
+from zicbee.core.debug import DEBUG, log
 
 class DelayedAction(object):
     def __init__(self, fn, *args, **kw):

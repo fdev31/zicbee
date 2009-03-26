@@ -61,8 +61,3 @@ media_config = {
         'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
         }
 
-if config.debug:
-    import logging
-    log = logging.getLogger()
-    log.setLevel(logging.DEBUG)
-

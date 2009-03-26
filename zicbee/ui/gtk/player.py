@@ -14,7 +14,8 @@ import gobject
 import sys
 from pkg_resources import resource_filename
 from zicbee.core.config import config
-from zicbee.core.zutils import duration_tidy, DEBUG
+from zicbee.core.zutils import duration_tidy
+from zicbee.core.debug import DEBUG
 from zicbee.player.events import DelayedAction, IterableAction
 from zicbee.player.playerlogic import PlayerCtl
 

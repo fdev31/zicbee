@@ -6,21 +6,8 @@ import string
 import sys
 import os
 from os.path import expanduser, expandvars, abspath
+from zicbee.core.debug import log # forward some symbols
 import logging
-
-log = logging.getLogger('zicbee')
-log.addHandler(logging.FileHandler('/tmp/zicbee.log'))
-if 'DEBUG' in os.environ:
-    try:
-        val = logging.ERROR - int(os.environ['DEBUG'])*10
-    except ValueError:
-        val = logging.DEBUG
-
-    log.setLevel(val)
-
-def DEBUG():
-    traceback.print_stack()
-    traceback.print_exc()
 
 # Filename path cleaner
 def clean_path(path):

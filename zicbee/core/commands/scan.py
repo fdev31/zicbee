@@ -4,6 +4,7 @@ import os
 import sys
 from time import time
 from zicbee.core import zshell
+from zicbee.core.debug import DEBUG
 from zicbee.core.zutils import duration_tidy, clean_path
 
 def do_scan():
@@ -36,9 +37,7 @@ def do_scan():
                     print ''
                 sys.stdout.flush()
         except Exception, e:
-            print "ERROR!", str(e)
-            import traceback
-            traceback.print_exc()
+            DEBUG()
 
     for path in archives:
         _scan(archive=path, db_name=zshell.DEFAULT_NAME)

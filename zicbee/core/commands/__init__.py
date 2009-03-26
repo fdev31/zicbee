@@ -3,7 +3,7 @@
 from zicbee.db import Database, DB_DIR
 from zicbee.core import zshell
 from zicbee.core.zshell import DEFAULT_NAME
-from zicbee.core.zutils import DEBUG
+from zicbee.core.debug import DEBUG, log
 from zicbee.core.config import config, DB_DIR, defaults_dict
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
 import urllib
@@ -14,7 +14,7 @@ import socket
 try:
     socket.setdefaulttimeout(int(config.socket_timeout)) # setsocket  timeout, for interactive cmds
 except Exception, e:
-    print "unable to set socket timeout to '%s': %s."%(config.socket_timeout, e)
+    log.warning("unable to set socket timeout to '%s': %s.", config.socket_timeout, e)
 
 from .search import do_search
 from .scan import do_scan
@@ -182,6 +182,7 @@ def do_serve(pure=False):
                 from zicbee.player.webplayer import webplayer
             except RuntimeError:
                 web.debug("Can't load webplayer, falling-back to pure db mode")
+                DEBUG()
                 pure = True
 
         sys.argv = ['zicdb', '0.0.0.0:9090']
