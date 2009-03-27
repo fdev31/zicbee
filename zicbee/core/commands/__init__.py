@@ -98,30 +98,28 @@ def do_shell():
     shell.cmdloop('Welcome to zicbee, press ENTER for help.')
 
 def do_set():
-    """ set a config variable to the given value """
-    if len(zshell.args) != 2:
-        print "Takes exactly 2 arguments: set <variable> <value>, see 'get' for a list of variables."
-    else:
-        setattr(config, zshell.args[0], zshell.args[1])
+    """ set a config variable to the given value
+    list all variables and values if no argument is given"""
 
-def do_get():
-    """ Get a list of config values or dump the whole file """
-    if zshell.args:
-        values = zshell.args
-    else:
+    if not zshell.args:
         values = defaults_dict.keys()
         print "[DEFAULT]"
+        not_found = []
+        for param in values:
+            try:
+                print "%s = %s"%(param, getattr(config, param))
+            except:
+                not_found.append(param)
 
-    not_found = []
-    for param in values:
-        try:
-            print "%s = %s"%(param, getattr(config, param))
-        except:
-            not_found.append(param)
+        if not_found:
+            print "unavaible: %s"%(', '.join(not_found))
 
-    if not_found:
-        print "unavaible: %s"%(', '.join(not_found))
-
+    elif len(zshell.args) == 2 or (len(zshell.args) == 3 and zshell.args[1] == '='):
+        if zshell.args[1] == '=':
+            del zshell.args[1]
+        setattr(config, zshell.args[0], zshell.args[1])
+    else:
+        print "Takes exactly 2 arguments: set <variable> <value>, takes no param to list variables."
 
 def do_kill(host=None):
     """ Kills the current db_host or any specified as argument """
