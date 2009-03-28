@@ -116,8 +116,10 @@ def do_set():
     list all variables and values if no argument is given"""
 
     if not zshell.args:
+        # dumps *
         values = defaults_dict.keys()
-        print "[DEFAULT]"
+#        print "[DEFAULT]"
+
         not_found = []
         for param in values:
             try:
