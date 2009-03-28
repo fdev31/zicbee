@@ -27,7 +27,7 @@ from .player import (do_play, do_pause,
 
 from cmd import Cmd
 class Shell(Cmd):
-    def __init__(self):
+    def __init__(self, prompt='ZicBee'):
         Cmd.__init__(self)
         self.history = dict(filename=None, value=[])
         if config.enable_history:
@@ -46,6 +46,11 @@ class Shell(Cmd):
             self.history['value'] = []
 
         self.commands = [name for name, obj in globals().iteritems() if name.startswith('do_') and callable(obj)]
+        self._prompt = prompt
+        self._refresh_prompt()
+
+    def _refresh_prompt(self):
+        self.prompt = "[%s > %s]\n%s> "%(config.db_host, config.player_host, self._prompt)
 
     def get_names(self):
         return self.commands
@@ -92,9 +97,11 @@ class Shell(Cmd):
             else:
                 self.history['value'].append(line)
 
+            self._refresh_prompt()
+
 def do_shell():
     shell = Shell()
-    shell.prompt = "ZicBee> "
+    shell._prompt = 'ZicBee'
     shell.cmdloop('Welcome to zicbee, press ENTER for help.')
 
 def do_set():
