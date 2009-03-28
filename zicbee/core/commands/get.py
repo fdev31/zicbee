@@ -20,7 +20,10 @@ def DownloadGenerator(uri):
     site = urllib.urlopen(uri)
     out_file = file(filename, 'w')
     BUF_SZ = 2**16
-    total_size = int(site.info().getheader('Content-Length'))
+    try:
+        total_size = int(site.info().getheader('Content-Length'))
+    except TypeError:
+        total_size = None
     actual_size = 0
     progress_p = 0
 
@@ -31,7 +34,12 @@ def DownloadGenerator(uri):
             break
         out_file.write(data)
         actual_size += len(data)
-        percent = total_size/actual_size
+
+        if total_size:
+            percent = total_size/actual_size
+        else:
+            percent = actual_size
+
         if percent != progress_p:
             yield percent
 
