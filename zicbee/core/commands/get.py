@@ -8,7 +8,7 @@ from itertools import chain
 from weakref import WeakKeyDictionary
 
 from .search import do_search
-from zicbee.core.zutils import duration_tidy
+from zicbee.core.zutils import duration_tidy, safe_path
 from zicbee.core.config import config
 
 def DownloadGenerator(uri):
@@ -114,8 +114,9 @@ def do_get(host=None, out=None):
     def _append_uri_filename(args):
         uri = args[0]
         filename = os.path.join(out,
-                ' - '.join(a for a in args[1:4] if a)
+                safe_path( ' - '.join(a for a in args[1:4] if a)
                 + args[0].split('?', 1)[0][-4:])
+                )
         uri_list.append((uri, filename))
 
     do_search(out=_append_uri_filename, host=host)
