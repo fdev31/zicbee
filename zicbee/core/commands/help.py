@@ -1,8 +1,25 @@
 # vim: et ts=4 sw=4
 from zicbee.db import valid_tags
+from zicbee.core import zshell
+from zicbee.core.zutils import get_help_from_func
 
 def do_help():
         """ Show a nifty help about most used commands """
+        if zshell.args:
+            from zicbee.core import commands
+            not_found = []
+            for arg in zshell.args:
+                try:
+                    cmd = getattr(commands, 'do_%s'%arg)
+                except AttributeError:
+                    cmd = None
+                    not_found.append(arg)
+
+                if cmd:
+                    cmd_help, cmd_is_remote = get_help_from_func(cmd)
+                    print cmd_help
+            return
+
         print "Welcome to ZicDB!".center(80)
         print """
 use
@@ -50,7 +67,15 @@ get[::host][::out] <match command>
     %% %(prog)s get::out=/tmp/download::host=gunter.biz artist: black
     %% %(prog)s get::gunter.biz artist: black
 
-search[::out] <match command>
+play[::dbhost::phost] <match command>
+    Set playlist to specified request and start playing if previously stopped
+
+    dbhost:
+      the computer owning the songs
+    phost:
+      the playback computer
+
+search[::out::host] <match command>
 
   out:
     specifies the output format (for now: m3u or null or default)

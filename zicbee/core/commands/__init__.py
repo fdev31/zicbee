@@ -3,6 +3,7 @@
 from zicbee.db import Database, DB_DIR
 from zicbee.core import zshell
 from zicbee.core.zshell import DEFAULT_NAME
+from zicbee.core.zutils import get_help_from_func
 from zicbee.core.debug import DEBUG, log
 from zicbee.core.config import config, DB_DIR, defaults_dict
 from zicbee.core import parse_cmd, execute_cmd, setup_db # needed by shell command
@@ -107,6 +108,7 @@ class Shell(Cmd):
             self._refresh_prompt()
 
 def do_shell():
+    """ Starts a shell allowing you any command. """
     shell = Shell()
     shell._prompt = 'ZicBee'
     shell.cmdloop('Welcome to zicbee, press ENTER for help.')
@@ -306,7 +308,6 @@ def do_find_dups(wpt=None, ar=None):
 
 def do_fullhelp():
     """ The Hacker's help [read standard help before !!] (WIP functions included) """
-    import inspect
     g = globals()
     undoc = []
     command_functions = [g[name] for name in g.keys() if name[:3] == 'do_']
@@ -314,28 +315,14 @@ def do_fullhelp():
     commands_display = []
     remote_commands_display = []
     for cmd in command_functions:
-        if cmd.__doc__:
-            arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
-            if dflt_values is None:
-                dflt_values = []
-            else:
-                dflt_values = list(dflt_values)
+        cmd_help, cmd_is_remote = get_help_from_func(cmd)
 
-            # Ensure they have the same length
-            if len(dflt_values) < len(arg_names):
-                dflt_values = [None] * (len(dflt_values) - len(arg_names))
-                map(None, arg_names, dflt_values)
-
-            doc = '::'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
-
-            if any(h for h in arg_names if h.startswith('host') or h.endswith('host')):
-                out = remote_commands_display
-            else:
-                out = commands_display
-
-            out.append( "%s[::%s]"%(cmd.func_name[3:], doc) if len(doc) > 1 else cmd.func_name[3:] ) # title
-            out.append( "%s\n"%( ('\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip()))) ) # body
+        if cmd_is_remote:
+            remote_commands_display.append(cmd_help)
         else:
+            commands_display.append(cmd_help)
+
+        if not '\n' in cmd_help:
             undoc.append(cmd.func_name[3:])
 
     for cmd in itertools.chain( ['[REMOTE COMMANDS]\n'], remote_commands_display, ['[LOCAL COMMANDS]\n'], commands_display ):

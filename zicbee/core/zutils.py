@@ -1,7 +1,8 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'parse_line', 'duration_tidy', 'DEBUG']
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'parse_line', 'duration_tidy', 'get_help_from_func', 'DEBUG']
 
 import traceback
 import itertools
+import inspect
 import string
 import sys
 import os
@@ -96,6 +97,36 @@ def duration_tidy(orig):
             return '%d days, %d:%d.%ds.'%(days, hours, minutes, seconds)
         return '%d:%d.%ds.'%(hours, minutes, seconds)
     return '%d.%02ds.'%(minutes, seconds)
+
+################################################################################
+# documents a function automatically
+
+def get_help_from_func(cmd):
+    """
+    returns a tuple (str::tidy doc, bool::is_remote) from a function
+    """
+    arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
+    is_remote = any(h for h in arg_names if h.startswith('host') or h.endswith('host'))
+
+    if cmd.__doc__:
+        if dflt_values is None:
+            dflt_values = []
+        else:
+            dflt_values = list(dflt_values)
+
+        # Ensure they have the same length
+        if len(dflt_values) < len(arg_names):
+            dflt_values = [None] * (len(dflt_values) - len(arg_names))
+#            map(None, arg_names, dflt_values)
+
+        doc = '::'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
+
+        return ("%s\n%s\n"%(
+            ("%s[::%s]"%(cmd.func_name[3:], doc) if len(doc) > 1 else cmd.func_name[3:]), # title
+            '\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip()), # body
+        ), is_remote)
+    else:
+        return (cmd.func_name[3:], is_remote)
 
 ################################################################################
 # line parser

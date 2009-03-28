@@ -53,9 +53,9 @@ def do_pause(host=None):
     urllib.urlopen(play_uri).read()
 
 def do_shuffle(host=None):
+    """ Shuffles the playing list (results in a random playlist) """
     if host is None:
         host = config.player_host
-    """ Shuffles the playing list (results in a random playlist) """
     play_uri = 'http://%s/shuffle'%(host)
     urllib.urlopen(play_uri).read()
 
