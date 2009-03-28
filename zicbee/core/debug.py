@@ -32,7 +32,7 @@ debug_enabled = ('DEBUG' in os.environ) or config.debug
 
 if debug_enabled:
     try:
-        val = logging.ERROR - int(os.environ['DEBUG'])*10
+        val = logging.ERROR - int(os.environ.get('DEBUG', 1))*10
     except ValueError:
         val = logging.DEBUG
 
