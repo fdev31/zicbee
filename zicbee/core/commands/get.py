@@ -116,7 +116,7 @@ def do_get(host=None, out=None):
         host = config.db_host
 
     if ':' not in host:
-        host += ':9090'
+        host = "%s:%s"%(host, config.default_port)
 
     uri_list = []
     def _append_uri_filename(args):

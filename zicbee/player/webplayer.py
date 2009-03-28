@@ -210,7 +210,7 @@ class PlayerCtl(object):
             hostname = '127.0.0.1'
 
         if ':' not in hostname:
-            hostname += ':9090'
+            hostname = "%s:%s"%(hostname, config.default_port)
         new_song_pos = -1
 
         with self._lock:

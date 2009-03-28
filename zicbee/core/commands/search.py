@@ -14,7 +14,7 @@ def do_search(out=None, host=None, edit_mode=False):
         host = config.db_host
 
     if ':' not in host:
-        host += ':9090'
+        host = "%s:%s"%(host, config.default_port)
 
     duration = 0
     start_t = time()
