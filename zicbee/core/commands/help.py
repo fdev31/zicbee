@@ -18,6 +18,8 @@ def do_help():
                 if cmd:
                     cmd_help, cmd_is_remote = get_help_from_func(cmd)
                     print cmd_help
+            if not_found:
+                print "Not found: %s"%(', '.join(not_found))
             return
 
         print "Welcome to ZicDB!".center(80)
