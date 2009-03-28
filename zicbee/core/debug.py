@@ -14,6 +14,16 @@ for h in logging.FileHandler('/tmp/zicbee.log'), logging.StreamHandler():
     log.addHandler(h)
     h.setFormatter( default_formatter )
 
+def traced(fn):
+    def _get_decorator(decorated):
+        def _decorator(*args, **kw):
+            try:
+                return decorated(*args, **kw)
+            except:
+                import pdb; pdb.set_trace()
+        return _decorator
+    return _get_decorator(fn)
+
 def DEBUG():
     traceback.print_stack()
     traceback.print_exc()
