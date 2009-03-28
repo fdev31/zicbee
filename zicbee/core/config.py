@@ -17,6 +17,8 @@ defaults_dict = {
         'player_host' : 'localhost:9090',
         'debug' : '',
         'default_search' : '',
+        'history_size' : 50,
+        'default_port': '9090',
         'web_skin' : '',
         'fork': 'blank_me_to_stop_forking_on_serve_mode',
         'socket_timeout': '30',
