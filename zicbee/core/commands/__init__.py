@@ -211,7 +211,7 @@ def do_serve(pure=False):
                 DEBUG()
                 pure = True
 
-        sys.argv = ['zicdb', '0.0.0.0:'%(config.default_port)]
+        sys.argv = ['zicdb', '0.0.0.0:%s'%(config.default_port)]
         try:
             print "Running web%s from %s"%('db' if pure else 'player', __file__)
             if pure:
