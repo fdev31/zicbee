@@ -130,12 +130,22 @@ def do_set():
         if not_found:
             print "unavaible: %s"%(', '.join(not_found))
 
-    elif len(zshell.args) == 2 or (len(zshell.args) == 3 and zshell.args[1] == '='):
-        if zshell.args[1] == '=':
-            del zshell.args[1]
-        setattr(config, zshell.args[0], zshell.args[1])
+    elif zshell.args and len(zshell.args) < 4:
+        # (re)set a value
+
+        if len(zshell.args) == 2 or (len(zshell.args) == 3 and zshell.args[1] == '='):
+            # set a value
+            if zshell.args[1] == '=':
+                del zshell.args[1]
+            setattr(config, zshell.args[0], zshell.args[1])
+        elif len(zshell.args) == 1:
+            # reset (blank) a value
+            setattr(config, zshell.args[0], '')
+
     else:
-        print "Takes exactly 2 arguments: set <variable> <value>, takes no param to list variables."
+        print """Takes exactly 2 arguments: set <variable> <value>, takes no param to list variables.
+        giving no arguments will print every variable
+        a single parameter will be reset (blanked) """
 
 def do_kill(host=None):
     """ Kills the current db_host or any specified as argument """
