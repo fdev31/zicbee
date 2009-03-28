@@ -70,8 +70,14 @@ class Shell(Cmd):
         if cmd == '':
             return self.default(line)
         elif cmd in ('EOF', 'bye', 'exit', 'logout'):
+            # save history & exit
             try:
-                file(self.history['filename'], 'w').writelines("%s\n"%l for l in list(set(self.history['value'])))
+                hist_fd = file(self.history['filename'], 'w')
+                try:
+                    hist_size = int(config.history_size)
+                except ValueError:
+                    hist_size = 100 # default value
+                hist_fd.writelines("%s\n"%l for l in self.history['value'][-hist_size:])
             except Exception, e:
                 print "Cannot save history file: %s."%(e)
             raise SystemExit('bye bye')
@@ -95,7 +101,8 @@ class Shell(Cmd):
             except KeyboardInterrupt:
                 print "Interrupted!"
             else:
-                self.history['value'].append(line)
+                if not self.history['value'] or self.history['value'][-1] != line: # avoid consecutive clones
+                    self.history['value'].append(line)
 
             self._refresh_prompt()
 
