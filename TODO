@@ -65,7 +65,7 @@ Before *0.8*: (slight feature/stable)
  * add support for multiple DBs at once
    * (ie. have separate databases for your mp3 player & your local drive)
    * see "use" command for usage
- * complete admin commands (set to set a variable)
+ * complete admin commands (see "set" command)
 
 <--- *WE ARE HERE*
 
