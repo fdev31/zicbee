@@ -38,6 +38,8 @@ class ConfigObj(object):
             self._cfg.write(file(config_filename, 'w'))
 
     def __setattr__(self, name, val):
+        if name.endswith('_host') and ':' not in val:
+            val = '%s:%s'%( val, self.default_port )
         return self._cfg.set('DEFAULT', name, val)
 
     def __getattr__(self, name):
