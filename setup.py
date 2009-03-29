@@ -108,7 +108,7 @@ It can be adapted to handle video too, hacking some bit of code.
 #                'Intended Audience :: End Users/Desktop',
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
-                'Environment :: Console';
+                'Environment :: Console',
                 'Environment :: No Input/Output (Daemon)',
                 'Environment :: X11 Applications'
                 'Topic :: Internet',
