@@ -96,6 +96,7 @@ It can be adapted to handle video too, hacking some bit of code.
 
         dependency_links = [
             'eggs',
+            'http://box.gnux.info/zicbee/files/',
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
             'http://code.google.com/p/quodlibet/downloads/list',
