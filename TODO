@@ -35,41 +35,42 @@ IDEAS:
   * automatic (but clever...) autodetection of mountpoints
 
 
-For *1.1*: (architecture cleanup)
+For **1.1**: (architecture cleanup)
  * write some backends detection and loading
  * need to split zicdb executable ?
  * Much more doc
  
 
-Before *1.0*: (very useable, db schema freeze)
+Before **1.0**: (very useable, db schema freeze)
  * distribution cleanup
  * fill feature gap between www (poor) & text (rich) ui
  * add themes support for www player (and DB ?)
  * good duplicates detection
 
-Before *0.9*:
- * feature shell mode (don't respawn a python each time, commands completion, etc...)
+Before **0.9**:
  * cleaner javascript/cookies/sessions (prepare theme support)
+ * improve shell completion ?
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
  * stored playlists (including position)
     * inc. playlist resume
     * www and text interface
 
-Before *0.8*: (slight feature/stable)
+Before **0.8**: (slight feature/stable)
+<--- **WE ARE HERE**
  DONE:
  * add support for FLAC
- * interactive shell support
-   (experimental, see "zicdb shell" or "zicbee" commands and report problems)
+ * interactive shell support with completion and history
+   -> see "zicdb shell" or "zicbee" commands
  * integrate/complete tagging & scoring support
  * add support for multiple DBs at once
    * (ie. have separate databases for your mp3 player & your local drive)
    * see "use" command for usage
  * complete admin commands (see "set" command)
+ * better documentation
 
-<--- *WE ARE HERE*
 
-*0.7* (cleanup/refactor):
+**0.7** (cleanup/refactor):
 
  * add play, pause, next, prev, list
  * add cleaner configuration:: more unified (prepare themes handling)
@@ -78,11 +79,11 @@ Before *0.8*: (slight feature/stable)
  * add some docs on the website
  * add screenshots on website
 
-*0.7*-rc1 (first public release)
+**0.7**-rc1 (first public release)
  * site launch
  * fixes egg/root installation (temporary file created)
 
-*the underground* (unreleased mode, use mercurial to recover)
+**the underground** (unreleased mode, use mercurial to recover)
  RIP:
   * gtk player (many flavors tested)
   * broken gstreamer backend (player)
