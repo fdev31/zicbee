@@ -140,6 +140,9 @@ class PlayerCtl(object):
             self._paused = False
         return dl_it
 
+    def volume(self, val):
+        self.player.volume(val, 'abs')
+
     def tag(self, tag):
         ci = compact_int(self.selected['__id__'])
         uri = 'http://%s/db/tag/%s/%s'%(self.hostname, ci, tag)
@@ -422,6 +425,12 @@ class webplayer:
     def REQ_copy(self):
         self.player.playlist_change('copy', web.input()['name'])
         return web.redirect('/')
+
+    def REQ_volume(self):
+        i = web.input()
+        val = i.get('val')
+        if val is not None:
+            self.player.volume(val)
 
     def REQ_infos(self):
         i = web.input()
