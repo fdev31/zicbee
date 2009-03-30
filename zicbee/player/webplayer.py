@@ -26,6 +26,19 @@ SimpleSearchForm = web.form.Form(
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
+def dump_data_as_text(d, format):
+    if format == "json":
+        yield jdump(d)
+    else:
+        # text output
+        if isinstance(d, dict):
+            for k, v in d.iteritems():
+                yield '%s: %s\n'%(k, v)
+        else:
+            # assume iterable
+            for elt in d:
+                yield "%r\n"%line
+
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
     See self.player.* for the needed interface.
@@ -429,11 +442,7 @@ class webplayer:
         except KeyError:
             pass
 
-        if format == 'txt':
-            for k, v in _d.iteritems():
-                yield '%s: %s\n'%(k, v)
-        elif format == 'json':
-            yield jdump(_d)
+        yield dump_data_as_text(_d, format)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
@@ -453,11 +462,7 @@ class webplayer:
 
         window_iterator = (pls[i] + [i] for i in xrange(start, min(len(pls), end)))
 
-        if format == 'txt':
-            for e in window_iterator:
-                yield '%s\n'%(' , '.join(str(t) for t in e))
-        elif format == 'json':
-            yield jdump(list(window_iterator))
+        return dump_data_as_text(window_iterator, format)
 
     def REQ_guess(self, guess):
         try:
