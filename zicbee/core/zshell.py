@@ -4,6 +4,7 @@ import sys
 from zicbee.db import Database
 
 DEFAULT_NAME='songs'
+args = []
 
 def init(args=None, db_name=None):
     try:
