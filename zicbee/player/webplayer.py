@@ -37,7 +37,7 @@ def dump_data_as_text(d, format):
         else:
             # assume iterable
             for elt in d:
-                yield "%r\n"%line
+                yield "%r\n"%elt
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
