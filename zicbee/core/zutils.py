@@ -9,6 +9,7 @@ import os
 from os.path import expanduser, expandvars, abspath
 from zicbee.core.debug import log # forward some symbols
 import logging
+from copy import copy
 
 # Filename path cleaner
 def clean_path(path):
@@ -137,16 +138,36 @@ for name in 'score tags length artist title album filename'.split():
     properties.append(name.title())
 del name
 
-def _find_property(line):
+def _find_property(line, property_list=None):
     tab = line.rsplit(None, 1)
-    for prop in properties:
+    for prop in property_list or properties:
         if prop == tab[-1]:
             if len(tab) == 1:
                 return line
             else:
                 return tab[-1], tab[0].strip()
 
-def _conv_line(txt):
+def extract_props(line, property_list):
+    """ extract a set of properties in a search string
+    return: (new_search_string, [(prop1, value1), (prop2, value2), ...])
+    """
+    props = copy(properties)
+    props.extend(property_list)
+    conv_line = _conv_line(line, props)
+    ret_props = [conv for conv in conv_line if isinstance(conv, tuple) and conv[0] in property_list]
+    new_conv_line = [conv for conv in conv_line if not isinstance(conv, tuple) or conv[0] not in property_list]
+    try:
+        if not isinstance(new_conv_line[0], tuple):
+            new_conv_line.pop(0)
+        if not isinstance(new_conv_line[-1], tuple):
+            new_conv_line.pop(-1)
+    except IndexError:
+        pass
+
+    new_line = " ".join([conv if not isinstance(conv, tuple) else ": ".join(conv) for conv in new_conv_line])
+    return (new_line, ret_props)
+
+def _conv_line(txt, property_list=None):
     """ Converts a syntax string to an easy to parse array of datas
     data consists of str or (str, str) tuples
     str values are operators like: or, and, !or, (, ), etc...
@@ -167,7 +188,7 @@ def _conv_line(txt):
                 attr = elt
                 log.debug('attr: %s'%elt)
             else:
-                props = _find_property(elt)
+                props = _find_property(elt, property_list)
                 log.debug('props: %s'%repr(props))
                 if props:
                     # get init vars
