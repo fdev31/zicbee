@@ -451,7 +451,7 @@ class webplayer:
         except KeyError:
             pass
 
-        yield dump_data_as_text(_d, format)
+        return dump_data_as_text(_d, format)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
