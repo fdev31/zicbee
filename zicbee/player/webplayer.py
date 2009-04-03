@@ -10,7 +10,7 @@ from time import sleep
 from threading import RLock
 import itertools
 from time import time
-from zicbee.core.zutils import compact_int, jdump, jload, parse_line
+from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG
 from zicbee.core.config import config, media_config
@@ -37,7 +37,7 @@ def dump_data_as_text(d, format):
         else:
             # assume iterable
             for elt in d:
-                yield "%r\n"%line
+                yield "%r\n"%elt
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
@@ -140,6 +140,9 @@ class PlayerCtl(object):
             self._paused = False
         return dl_it
 
+    def volume(self, val):
+        self.player.volume(val, 'abs')
+
     def tag(self, tag):
         ci = compact_int(self.selected['__id__'])
         uri = 'http://%s/db/tag/%s/%s'%(self.hostname, ci, tag)
@@ -222,6 +225,21 @@ class PlayerCtl(object):
         if not hostname:
             hostname = '127.0.0.1'
 
+        pattern = kw.get('pattern', None)
+        playlist = pls = None
+        print '\n--> pattern=%s'%pattern
+        if pattern:
+            (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
+            if props:
+                props = dict(props)
+                playlist = props.get('playlist', None)
+                pls = props.get('pls', None)
+            if new_pattern:
+                kw['pattern'] = new_pattern
+            else:
+                del kw['pattern']
+        print '<-- pls=%s playlist=%s kw=%s'%(pls, playlist, kw)
+
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
         new_song_pos = -1
@@ -232,20 +250,30 @@ class PlayerCtl(object):
             uri = 'http://%s/db/?json=1&%s'%(hostname, urllib.urlencode(kw))
             site = urllib.urlopen(uri)
             web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
-            if temp:
-                # TODO: temporary playlist support
-                self._named_playlists[temp] = []
-                add = self._named_playlists[temp]
+            if pls:
+                if pls.startswith('+'):
+                    pls = pls[1:]
+                    append = True
+                else:
+                    append = False
+                if not append or pls not in self._named_playlists:
+                    self._named_playlists[pls] = []
+                add = self._named_playlists[pls].append
+                ext = self._named_playlists[pls].extend
+                print '~ store in %s (append=%s)'%(pls, append)
             else:
                 current = self.playlist[self._cur_song_pos] if self.selected else None
                 self.playlist[:] = []
                 add = self.playlist.append
+                ext = self.playlist.extend
                 if current:
                     new_song_pos = 0
                     add(current)
 
         total = 0
         done = False
+        if playlist and playlist in self._named_playlists:
+            ext(self._named_playlists[playlist])
 
         while True:
             for n in xrange(50):
@@ -258,7 +286,7 @@ class PlayerCtl(object):
                     web.debug("Can't load json description: %s"%line)
                     break
                 total += r[4]
-                web.debug('r=%s'%r)
+#                web.debug('r=%s'%r)
                 with self._lock:
                     add(r)
                 self.signal_view('update_total', total)
@@ -315,7 +343,7 @@ class PlayerCtl(object):
                 self._download_stream = None
 
     def signal_view(self, name, *args, **kw):
-        web.debug('signaling %s %s %s'%(name, args, kw))
+#        web.debug('signaling %s %s %s'%(name, args, kw))
         for view in self.views:
             web.debug(' -> to view %s'%view)
             try:
@@ -423,6 +451,12 @@ class webplayer:
         self.player.playlist_change('copy', web.input()['name'])
         return web.redirect('/')
 
+    def REQ_volume(self):
+        i = web.input()
+        val = i.get('val')
+        if val is not None:
+            self.player.volume(val)
+
     def REQ_infos(self):
         i = web.input()
         format = i.get('fmt', 'txt')
@@ -442,7 +476,7 @@ class webplayer:
         except KeyError:
             pass
 
-        yield dump_data_as_text(_d, format)
+        return dump_data_as_text(_d, format)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
