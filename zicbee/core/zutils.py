@@ -9,7 +9,6 @@ import os
 from os.path import expanduser, expandvars, abspath
 from zicbee.core.debug import log # forward some symbols
 import logging
-from copy import copy
 
 # Filename path cleaner
 def clean_path(path):
@@ -151,7 +150,7 @@ def extract_props(line, property_list):
     """ extract a set of properties in a search string
     return: (new_search_string, [(prop1, value1), (prop2, value2), ...])
     """
-    props = copy(properties)
+    props = properties[:]
     props.extend(property_list)
     conv_line = _conv_line(line, props)
     ret_props = [conv for conv in conv_line if isinstance(conv, tuple) and conv[0] in property_list]
