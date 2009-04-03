@@ -171,6 +171,8 @@ def _conv_line(txt, property_list=None):
     data consists of str or (str, str) tuples
     str values are operators like: or, and, !or, (, ), etc...
     tuples are: key: value
+
+    NOTE: if there is no operator involved, the passed value is returned unmodified!
     """
     # TODO: replace with a real parser ?
     split_line = txt.split(':')
