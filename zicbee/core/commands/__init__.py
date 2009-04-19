@@ -285,9 +285,12 @@ def do_find_dups(wpt=None, ar=None):
             hash_dict[footprint].append(num)
 
     if ar:
+        print '#!/bin/sh'
         for m in (matches for num, matches in hash_dict.iteritems() if 1 < len(matches) < wpt):
             h = []
+            cnt.next()
             for num in m:
+                total_cnt.next()
                 song = zshell.songs[num]
                 heapq.heappush(h,
                         (len(song.filename), song))
@@ -303,7 +306,7 @@ def do_find_dups(wpt=None, ar=None):
             for num in m:
                 total_cnt.next()
                 print "%d: %s"%(num, zshell.songs[num].filename)
-        print total_cnt.next()-cnt.next()-1, "# songs to be removed..."
+    print "# %d songs are duplicates."%(total_cnt.next()-cnt.next())
 
 
 def do_fullhelp():
