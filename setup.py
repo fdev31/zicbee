@@ -61,7 +61,7 @@ See features list, it's mostly handy for people with large databases,
 with optionally multiple computers.
 It can be adapted to handle video too, hacking some bit of code.
         ''',
-        url = 'http://code.google.com/p/zicdb/',
+        url = 'http://box.gnux.info/zicbee/',
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         zip_safe = False,
