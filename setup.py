@@ -111,7 +111,7 @@ It can be adapted to handle video too, hacking some bit of code.
                 'Environment :: Console',
                 'Environment :: No Input/Output (Daemon)',
                 'Environment :: X11 Applications'
-                'Topic :: Internet',
+#                'Topic :: Internet',
                 'Topic :: Utilities',
                 'Topic :: Multimedia :: Sound/Audio',
                 'Topic :: Multimedia :: Sound/Audio :: Players',
