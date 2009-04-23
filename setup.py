@@ -103,20 +103,22 @@ It can be adapted to handle video too, hacking some bit of code.
 #            'http://sourceforge.net/project/showfiles.php?group_id=167078&package_id=190037&release_id=664931',
 #            'http://code.google.com/p/pyglet/downloads/list',
             ],
-        classifiers = ['Development Status :: 4 - Beta',
+        classifiers = [
+                'Development Status :: 4 - Beta',
                 'Intended Audience :: Developers',
 #                'Intended Audience :: End Users/Desktop',
                 'Operating System :: OS Independent',
                 'Programming Language :: Python',
                 'Environment :: Console',
                 'Environment :: No Input/Output (Daemon)',
-                'Environment :: X11 Applications'
-#                'Topic :: Internet',
-                'Topic :: Utilities',
-                'Topic :: Multimedia :: Sound/Audio',
+                'Environment :: X11 Applications',
+                'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+                'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+                'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
                 'Topic :: Multimedia :: Sound/Audio :: Players',
                 'Topic :: Multimedia :: Sound/Audio :: Players :: MP3',
-                'Topic :: Software Development :: User Interfaces',
+                'Topic :: Text Processing :: Markup'
+                'Topic :: Utilities',
                 ],
 
         )
