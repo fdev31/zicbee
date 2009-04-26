@@ -90,7 +90,7 @@ class PlayerCtl(object):
                     except:
                         self.position = None
 
-                    web.debug('pos: %s, errors: %s'%(self.position, errors))
+#                    web.debug('pos: %s, errors: %s'%(self.position, errors))
 
                     if self.position is None:
                         if errors['count'] > 2:
@@ -227,7 +227,6 @@ class PlayerCtl(object):
 
         pattern = kw.get('pattern', None)
         playlist = pls = None
-        print '\n--> pattern=%s'%pattern
         if pattern:
             (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
             if props:
@@ -238,16 +237,14 @@ class PlayerCtl(object):
                 kw['pattern'] = new_pattern
             else:
                 del kw['pattern']
-        print '<-- pls=%s playlist=%s kw=%s'%(pls, playlist, kw)
 
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
-        new_song_pos = -1
 
         with self._lock:
             self.hostname = hostname
-
-            uri = 'http://%s/db/?json=1&%s'%(hostname, urllib.urlencode(kw))
+            params = '&%s'%urllib.urlencode(kw) if kw else ''
+            uri = 'http://%s/db/?json=1%s'%(hostname, params)
             site = urllib.urlopen(uri)
             web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
             if pls:
@@ -260,14 +257,12 @@ class PlayerCtl(object):
                     self._named_playlists[pls] = []
                 add = self._named_playlists[pls].append
                 ext = self._named_playlists[pls].extend
-                print '~ store in %s (append=%s)'%(pls, append)
             else:
                 current = self.playlist[self._cur_song_pos] if self.selected else None
                 self.playlist[:] = []
                 add = self.playlist.append
                 ext = self.playlist.extend
                 if current:
-                    new_song_pos = 0
                     add(current)
 
         total = 0
@@ -295,12 +290,11 @@ class PlayerCtl(object):
             if not line:
                 break
 
-        if temp:
-            self._total_length = total
-        else:
+        if not pls:
             # reset song position
             with self._lock:
-                self._cur_song_pos = new_song_pos
+                if self._cur_song_pos >= 0:
+                    self._cur_song_pos = 0
                 self._tmp_total_length = total
 
     def _download_zic(self, uri, fname):
