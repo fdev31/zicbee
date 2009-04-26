@@ -228,6 +228,7 @@ class PlayerCtl(object):
         pattern = kw.get('pattern', None)
         playlist = pls = None
         if pattern:
+            # try to find 'pls' (output) and 'playlist' (input) in pattern
             (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
             if props:
                 props = dict(props)
@@ -246,29 +247,36 @@ class PlayerCtl(object):
             params = '&%s'%urllib.urlencode(kw) if kw else ''
             uri = 'http://%s/db/?json=1%s'%(hostname, params)
             site = urllib.urlopen(uri)
-            web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
+            web.debug('fetch_pl: playlist=%s pls=%s kw=%s uri=%s'%(playlist, pls, kw, uri))
+
+            append = False
+            out_pls = self.playlist
             if pls:
+                # we have an 'output' playlist
                 if pls.startswith('+'):
                     pls = pls[1:]
                     append = True
-                else:
-                    append = False
-                if not append or pls not in self._named_playlists:
-                    self._named_playlists[pls] = []
-                add = self._named_playlists[pls].append
-                ext = self._named_playlists[pls].extend
-            else:
-                current = self.playlist[self._cur_song_pos] if self.selected else None
-                self.playlist[:] = []
-                add = self.playlist.append
-                ext = self.playlist.extend
-                if current:
-                    add(current)
+                if pls != '#':
+                    # output playlist is not 'current playlist' 
+                    if pls not in self._named_playlists:
+                        self._named_playlists[pls] = []
+                    out_pls = self._named_playlists[pls]
+            add = out_pls.append
+            ext = out_pls.extend
+            current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            if not append:
+                out_pls[:] = []
+            if current:
+                add(current)
 
         total = 0
         done = False
-        if playlist and playlist in self._named_playlists:
-            ext(self._named_playlists[playlist])
+        if playlist:
+            if playlist in self._named_playlists:
+                ext(self._named_playlists[playlist])
+            elif playlist == '#' and out_pls is not self.playlist:
+                ext(self.playlist)
+
 
         while True:
             for n in xrange(50):
@@ -290,10 +298,10 @@ class PlayerCtl(object):
             if not line:
                 break
 
-        if not pls:
+        if out_pls is self.playlist:
             # reset song position
             with self._lock:
-                if self._cur_song_pos >= 0:
+                if self._cur_song_pos > 0 and not append:
                     self._cur_song_pos = 0
                 self._tmp_total_length = total
 
