@@ -131,7 +131,7 @@ class PlayerCtl(object):
             web.debug('download: %s'%self.selected_uri)
             dl_it = self._download_zic(self.selected_uri, song_name)
             dl_it.next()
-            web.debug('select: %d'%self._cur_song_pos)
+            web.debug('select: %d (previous=%s)'%(self._cur_song_pos, pos))
             if pos != self._cur_song_pos:
                 web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
                 cache = media_config[self.selected_type]['player_cache']
@@ -178,6 +178,16 @@ class PlayerCtl(object):
         """
         with self._lock:
             self.player.seek(val)
+
+    def clear(self):
+        """ Clear the current playlist and stop the player
+        """
+        with self._lock:
+            self.playlist[:] = []
+            self._cur_song_pos = -1
+            self.position = None
+            self.player.respawn()
+            self._paused = False
 
     def pause(self):
         """ (Un)Pause the player
@@ -516,6 +526,9 @@ class webplayer:
 
     def REQ_shuffle(self):
         return self.player.shuffle()
+
+    def REQ_clear(self):
+        return self.player.clear()
 
     def REQ_pause(self):
         return self.player.pause()

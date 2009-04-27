@@ -45,6 +45,13 @@ def do_playlist(host=None):
             break
         print l,
 
+def do_clear(host=None):
+    """ Clear current playlist and stop the player """
+    if host is None:
+        host = config.player_host
+    play_uri = 'http://%s/clear'%(host)
+    urllib.urlopen(play_uri).read()
+
 def do_pause(host=None):
     """ Toggle pause on player """
     if host is None:
