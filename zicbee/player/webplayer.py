@@ -13,8 +13,12 @@ from time import time
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG
-from zicbee.core.config import config, media_config
+from zicbee.core.config import config, media_config, DB_DIR
 from zicbee.core.httpdb import WEB_FIELDS, render, web
+try:
+    from cPickle import Pickler, Unpickler
+except ImportError:
+    from Pickle import Pickler, Unpickler
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -59,7 +63,7 @@ class PlayerCtl(object):
         self._lock = RLock()
         self._paused = False
         thread.start_new_thread(self._main_loop, tuple())
-        self._named_playlists = dict()
+        self._load_playlists()
 
     def close(self):
         try:
@@ -184,6 +188,7 @@ class PlayerCtl(object):
         """
         with self._lock:
             self.playlist[:] = []
+            self._load_playlists()
             self._cur_song_pos = -1
             self.position = None
             self.player.respawn()
@@ -287,7 +292,6 @@ class PlayerCtl(object):
             elif playlist == '#' and out_pls is not self.playlist:
                 ext(self.playlist)
 
-
         while True:
             for n in xrange(50):
                 line = site.readline()
@@ -314,6 +318,8 @@ class PlayerCtl(object):
                 if self._cur_song_pos > 0 and not append:
                     self._cur_song_pos = 0
                 self._tmp_total_length = total
+        else:
+            self._save_playlists()
 
     def _download_zic(self, uri, fname):
         if getattr(self, '_download_stream', None):
@@ -353,6 +359,27 @@ class PlayerCtl(object):
         finally:
             if fd is self._download_stream:
                 self._download_stream = None
+
+    def _save_playlists(self):
+        try:
+            save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'w')
+            p = Pickler(save_file)
+            p.dump(self._named_playlists)
+        except Exception, e:
+            web.debug('ERROR: save_playlists: %s'%repr(e))
+        else:
+            web.debug('playlists saved: %s'%self._named_playlists.keys())
+
+    def _load_playlists(self):
+        try:
+            save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'r')
+            p = Unpickler(save_file)
+            self._named_playlists = p.load()
+        except Exception, e:
+            web.debug('ERROR: load_playlists: %s'%repr(e))
+            self._named_playlists = dict()
+        else:
+            web.debug('playlists loaded: %s'%self._named_playlists.keys())
 
     def signal_view(self, name, *args, **kw):
 #        web.debug('signaling %s %s %s'%(name, args, kw))
