@@ -13,8 +13,12 @@ from time import time
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG
-from zicbee.core.config import config, media_config
+from zicbee.core.config import config, media_config, DB_DIR
 from zicbee.core.httpdb import WEB_FIELDS, render, web
+try:
+    from cPickle import Pickler, Unpickler
+except ImportError:
+    from Pickle import Pickler, Unpickler
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -59,7 +63,7 @@ class PlayerCtl(object):
         self._lock = RLock()
         self._paused = False
         thread.start_new_thread(self._main_loop, tuple())
-        self._named_playlists = dict()
+        self._load_playlists()
 
     def close(self):
         try:
@@ -90,7 +94,7 @@ class PlayerCtl(object):
                     except:
                         self.position = None
 
-                    web.debug('pos: %s, errors: %s'%(self.position, errors))
+#                    web.debug('pos: %s, errors: %s'%(self.position, errors))
 
                     if self.position is None:
                         if errors['count'] > 2:
@@ -131,7 +135,7 @@ class PlayerCtl(object):
             web.debug('download: %s'%self.selected_uri)
             dl_it = self._download_zic(self.selected_uri, song_name)
             dl_it.next()
-            web.debug('select: %d'%self._cur_song_pos)
+            web.debug('select: %d (previous=%s)'%(self._cur_song_pos, pos))
             if pos != self._cur_song_pos:
                 web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
                 cache = media_config[self.selected_type]['player_cache']
@@ -178,6 +182,17 @@ class PlayerCtl(object):
         """
         with self._lock:
             self.player.seek(val)
+
+    def clear(self):
+        """ Clear the current playlist and stop the player
+        """
+        with self._lock:
+            self.playlist[:] = []
+            self._load_playlists()
+            self._cur_song_pos = -1
+            self.position = None
+            self.player.respawn()
+            self._paused = False
 
     def pause(self):
         """ (Un)Pause the player
@@ -227,8 +242,8 @@ class PlayerCtl(object):
 
         pattern = kw.get('pattern', None)
         playlist = pls = None
-        print '\n--> pattern=%s'%pattern
         if pattern:
+            # try to find 'pls' (output) and 'playlist' (input) in pattern
             (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
             if props:
                 props = dict(props)
@@ -238,42 +253,44 @@ class PlayerCtl(object):
                 kw['pattern'] = new_pattern
             else:
                 del kw['pattern']
-        print '<-- pls=%s playlist=%s kw=%s'%(pls, playlist, kw)
 
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
-        new_song_pos = -1
 
         with self._lock:
             self.hostname = hostname
-
-            uri = 'http://%s/db/?json=1&%s'%(hostname, urllib.urlencode(kw))
+            params = '&%s'%urllib.urlencode(kw) if kw else ''
+            uri = 'http://%s/db/?json=1%s'%(hostname, params)
             site = urllib.urlopen(uri)
-            web.debug('fetch_pl: kw=%s uri=%s'%(kw, uri))
+            web.debug('fetch_pl: playlist=%s pls=%s kw=%s uri=%s'%(playlist, pls, kw, uri))
+
+            append = False
+            out_pls = self.playlist
             if pls:
+                # we have an 'output' playlist
                 if pls.startswith('+'):
                     pls = pls[1:]
                     append = True
-                else:
-                    append = False
-                if not append or pls not in self._named_playlists:
-                    self._named_playlists[pls] = []
-                add = self._named_playlists[pls].append
-                ext = self._named_playlists[pls].extend
-                print '~ store in %s (append=%s)'%(pls, append)
-            else:
-                current = self.playlist[self._cur_song_pos] if self.selected else None
-                self.playlist[:] = []
-                add = self.playlist.append
-                ext = self.playlist.extend
-                if current:
-                    new_song_pos = 0
-                    add(current)
+                if pls != '#':
+                    # output playlist is not 'current playlist' 
+                    if pls not in self._named_playlists:
+                        self._named_playlists[pls] = []
+                    out_pls = self._named_playlists[pls]
+            add = out_pls.append
+            ext = out_pls.extend
+            current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            if not append:
+                out_pls[:] = []
+            if current:
+                add(current)
 
         total = 0
         done = False
-        if playlist and playlist in self._named_playlists:
-            ext(self._named_playlists[playlist])
+        if playlist:
+            if playlist in self._named_playlists:
+                ext(self._named_playlists[playlist])
+            elif playlist == '#' and out_pls is not self.playlist:
+                ext(self.playlist)
 
         while True:
             for n in xrange(50):
@@ -295,13 +312,14 @@ class PlayerCtl(object):
             if not line:
                 break
 
-        if temp:
-            self._total_length = total
-        else:
+        if out_pls is self.playlist:
             # reset song position
             with self._lock:
-                self._cur_song_pos = new_song_pos
+                if self._cur_song_pos > 0 and not append:
+                    self._cur_song_pos = 0
                 self._tmp_total_length = total
+        else:
+            self._save_playlists()
 
     def _download_zic(self, uri, fname):
         if getattr(self, '_download_stream', None):
@@ -341,6 +359,27 @@ class PlayerCtl(object):
         finally:
             if fd is self._download_stream:
                 self._download_stream = None
+
+    def _save_playlists(self):
+        try:
+            save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'w')
+            p = Pickler(save_file)
+            p.dump(self._named_playlists)
+        except Exception, e:
+            web.debug('ERROR: save_playlists: %s'%repr(e))
+        else:
+            web.debug('playlists saved: %s'%self._named_playlists.keys())
+
+    def _load_playlists(self):
+        try:
+            save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'r')
+            p = Unpickler(save_file)
+            self._named_playlists = p.load()
+        except Exception, e:
+            web.debug('ERROR: load_playlists: %s'%repr(e))
+            self._named_playlists = dict()
+        else:
+            web.debug('playlists loaded: %s'%self._named_playlists.keys())
 
     def signal_view(self, name, *args, **kw):
 #        web.debug('signaling %s %s %s'%(name, args, kw))
@@ -514,6 +553,9 @@ class webplayer:
 
     def REQ_shuffle(self):
         return self.player.shuffle()
+
+    def REQ_clear(self):
+        return self.player.clear()
 
     def REQ_pause(self):
         return self.player.pause()

@@ -61,7 +61,6 @@ scan <directory|archive> [directory|archive...]
 get[::host][::out] <match command>
   host:
     the host to connect to
-
   out:
     the output directory
 
@@ -76,6 +75,25 @@ play[::dbhost::phost] <match command>
       the computer owning the songs
     phost:
       the playback computer
+    match command:
+      same as 'search' command with 2 more fields:
+        pls: output playlist name
+        playlist: input playlist name
+
+        - # is the current playlist name
+        - names can be prefixed with '+' to append
+
+  Example:
+    %% %(prog)s play artist: doors
+      > play the doors
+    %% %(prog)s play artist: bouchers pls: boucherie
+      > store in playlist "boucherie" songs with "bouchers" in artist
+    %% %(prog)s play artist: pigalle pls: +boucherie
+      > append to playlist "boucherie" songs with "pigalle" in artist
+    %% %(prog)s play playlist: boucherie
+      > play songs stored in playlist "boucherie"
+    %% %(prog)s play pls: sogood playlist: #
+      > save the current playlist to playlist "sogood"
 
 search[::out::host] <match command>
 

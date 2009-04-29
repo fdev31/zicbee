@@ -21,7 +21,7 @@ from .search import do_search
 from .scan import do_scan
 from .help import do_help
 from .get import do_get
-from .player import (do_play, do_pause,
+from .player import (do_play, do_clear, do_pause,
         do_next, do_prev, do_shuffle,
         do_infos, do_playlist,
         do_tag, do_rate)
