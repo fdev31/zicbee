@@ -33,7 +33,7 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 def dump_data_as_text(d, format):
     if format == "json":
         yield jdump(d)
-    else:
+    else: # assume "txt"
         # text output
         if isinstance(d, dict):
             for k, v in d.iteritems():
