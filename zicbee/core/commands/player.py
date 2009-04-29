@@ -8,6 +8,7 @@ __all__ = [
 import urllib
 from zicbee.core.zshell import args
 from zicbee.core.config import config
+from itertools import count
 from .search import do_search
 
 def do_play(dbhost=None, phost=None):
@@ -33,17 +34,43 @@ def do_infos(host=None):
             break
         print l,
 
-def do_playlist(host=None):
-    """ Show current playing list """
+def do_playlist(now=False, host=None, res=10):
+    """ Show current playing list
+    params:
+       if "now" is set only tracks around the current one are shown
+       use "res" (as "results") to set how many songs around the current one are shown
+    """
+
     if host is None:
         host = config.player_host
-    play_uri = 'http://%s/playlist?fmt=txt'%(host)
+
+    if now:
+        play_uri = 'http://%s/infos?fmt=txt'%(host)
+        site = urllib.urlopen(play_uri)
+        # get current position
+        pos = int([l.split(':', 1)[1].strip() for l in site.readlines() if l.startswith('pls_position:')][0])
+        start = max(0, int(pos-(res/2)))
+        play_uri = 'http://%s/playlist?fmt=txt&start=%s&res=%s'%(host, start, res)
+    else:
+        start = 0
+        pos = None
+        play_uri = 'http://%s/playlist?fmt=txt'%(host)
+
     site = urllib.urlopen(play_uri)
+
+    cnt = count(start)
+
     while True:
         l = site.readline()
         if not l:
             break
-        print l,
+
+        if cnt.next() == pos:
+            indent = '*> '
+        else:
+            indent = '   '
+
+        print "%s%s"%(indent, ' '.join(l.split(' , ')[:4]))
 
 def do_clear(host=None):
     """ Clear current playlist and stop the player """
