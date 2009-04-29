@@ -145,7 +145,6 @@ if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'd
         print "* WARNING !! mplayer seems not accessible, please install properly."
         print dec
         print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
-        print '* FOR A PURE SERVER YOU WILL NEED TO RUN "zicdb serve::pure=1"'
         print ''
         print dec
         print dec
