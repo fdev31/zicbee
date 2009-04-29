@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.8-playlists'
+VERSION='0.8-wip'
 
 if 'install' in sys.argv:
     print """Warning:
@@ -42,8 +42,10 @@ setup (
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
+        url = 'http://box.gnux.info/zicbee/',
+        download_url='http://box.gnux.info/hg/index.cgi/zicbee/archive/wip.tar.bz2',
         license='BSD',
-        platform='All',
+        platform='all',
         description='A simple & powerful distributed Music database engine',
         long_description='''
 ZicBee is a project grouping multiple applications to manage play and handle music databases.
@@ -61,7 +63,6 @@ See features list, it's mostly handy for people with large databases,
 with optionally multiple computers.
 It can be adapted to handle video too, hacking some bit of code.
         ''',
-        url = 'http://box.gnux.info/zicbee/',
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         zip_safe = False,
@@ -108,13 +109,18 @@ It can be adapted to handle video too, hacking some bit of code.
                 'Intended Audience :: Developers',
 #                'Intended Audience :: End Users/Desktop',
                 'Operating System :: OS Independent',
+                'Operating System :: Microsoft :: Windows',
+                'Operating System :: POSIX',
                 'Programming Language :: Python',
                 'Environment :: Console',
                 'Environment :: No Input/Output (Daemon)',
                 'Environment :: X11 Applications',
+                'Natural Language :: English',
                 'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
                 'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
                 'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+                'Topic :: Software Development',
+                'Topic :: Software Development :: Libraries :: Python Modules',
                 'Topic :: Multimedia :: Sound/Audio :: Players',
                 'Topic :: Multimedia :: Sound/Audio :: Players :: MP3',
                 'Topic :: Text Processing :: Markup'
