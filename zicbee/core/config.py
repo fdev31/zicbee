@@ -48,7 +48,7 @@ class ConfigObj(object):
         return self._cfg.get('DEFAULT', name)
 
 # Ensure the file is written on drive
-atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
+#atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 
 config = ConfigObj()
 
