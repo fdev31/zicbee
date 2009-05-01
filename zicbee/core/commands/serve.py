@@ -35,7 +35,7 @@ def do_serve(pure=False):
         if not pure:
             # let's do webplayer
             try:
-                from zicbee.player.webplayer import webplayer
+                from zicbee_player.webplayer import webplayer
             except (ImportError, RuntimeError):
                 web.debug("Can't load webplayer, falling-back to pure db mode")
                 DEBUG()
