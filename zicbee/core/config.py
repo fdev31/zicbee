@@ -40,7 +40,9 @@ class ConfigObj(object):
     def __setattr__(self, name, val):
         if name.endswith('_host') and ':' not in val:
             val = '%s:%s'%( val, self.default_port )
-        return self._cfg.set('DEFAULT', name, val)
+        val = self._cfg.set('DEFAULT', name, val)
+        config._cfg.write(file(config_filename, 'w'))
+        return val
 
     def __getattr__(self, name):
         return self._cfg.get('DEFAULT', name)
