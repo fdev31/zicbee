@@ -124,12 +124,13 @@ class web_db_index:
             except Exception, e:
                 web.debug(e)
 
+        inp = web.input()
         if af['m3u'].value:
             web.header('Content-Type', 'audio/x-mpegurl')
             format = 'm3u'
-        elif web.input().get('plain'):
+        elif inp.get('plain'):
             format = 'plain'
-        elif web.input().get('json'):
+        elif inp.get('json'):
             format = 'json'
         else:
             web.header('Content-Type', 'text/html; charset=utf-8')
@@ -173,4 +174,5 @@ class web_db_index:
             except Exception, e:
                 web.debug("ERR:", e)
         else:
-            yield unicode(render.index(af, res))
+            yield unicode(render.index(af, res, config.web_skin or 'default'))
+

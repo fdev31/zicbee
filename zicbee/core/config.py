@@ -19,7 +19,7 @@ defaults_dict = {
         'default_search' : '',
         'history_size' : 50,
         'default_port': '9090',
-        'web_skin' : '',
+        'web_skin' : 'default',
         'fork': 'blank_me_to_stop_forking_on_serve_mode',
         'socket_timeout': '30',
         'enable_history': 'blank_to_disable',

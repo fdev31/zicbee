@@ -36,14 +36,14 @@ def do_serve(pure=False):
             # let's do webplayer
             try:
                 from zicbee.player.webplayer import webplayer
-            except RuntimeError:
+            except (ImportError, RuntimeError):
                 web.debug("Can't load webplayer, falling-back to pure db mode")
                 DEBUG()
                 pure = True
 
         sys.argv = ['zicdb', '0.0.0.0:%s'%(config.default_port)]
         try:
-            print "Running web%s from %s"%('db' if pure else 'player', __file__)
+            print "%s listening on:"%('Song browser' if pure else 'Song browser and player')
             if pure:
                 urls = ('/db/(.*)', 'web_db_index',
                         '/(.*)', 'web_db_index')
