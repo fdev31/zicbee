@@ -50,15 +50,15 @@ Before **1.0**: (very useable, db schema freeze)
 
 Before **0.9**:
  * cleaner javascript/cookies/sessions (prepare theme support)
- * improve shell completion ?
+ * improve shell completion [WIP]
+ * start to split projects to clarify parts [WIP]
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
- * stored playlists (including position)
+ * stored playlists (including position) [WIP]
     ** inc. playlist resume
     ** www and text interface
 
 Before **0.8**: (slight feature/stable)
-<--- **WE ARE HERE**
  DONE:
  * add support for FLAC
  * interactive shell support with completion and history
