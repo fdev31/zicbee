@@ -77,6 +77,11 @@ class Shell(Cmd):
 
             try:
                 t0 = get_time()
+                candidates = [cmd[3:] for cmd in self.commands if cmd.startswith('do_'+action)]
+
+                if len(candidates) == 1: # support abbreviated commands
+                    action = candidates[0]
+
                 execute_cmd(action, *p, **kw)
                 elapsed = get_time() - t0
                 if elapsed > 0.4:
