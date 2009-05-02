@@ -30,7 +30,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=1.5', 'mutagen>=1.14' ]
+requirements = [ 'buzhug>=1.5', 'mutagen>=1.14', "zicbee-mplayer>=0.9" ]
 
 if sys.version_info[:2] < (2, 6):
     # add cjson dependency
