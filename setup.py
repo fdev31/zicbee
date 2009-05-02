@@ -8,7 +8,9 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.9-wip'
+sys.path.insert(0, '.')
+import zicbee
+VERSION=zicbee.__version__
 
 if 'install' in sys.argv:
     print """Warning:

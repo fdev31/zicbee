@@ -4,12 +4,13 @@ from time import time as get_time
 from zicbee.core import execute_cmd, parse_cmd, setup_db, zshell
 from zicbee.core.config import config, DB_DIR
 from zicbee.db import DB_DIR
+import zicbee
 
 def do_shell():
     """ Starts a shell allowing you any command. """
     shell = Shell()
     shell._prompt = 'ZicBee'
-    shell.cmdloop('Welcome to zicbee, press ENTER for help.')
+    shell.cmdloop('Welcome to zicbee-%s, press ENTER for help.'%zicbee.__version__)
 
 class Shell(Cmd):
     def __init__(self, prompt='ZicBee'):
