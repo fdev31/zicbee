@@ -16,7 +16,6 @@ from .set import do_set
 from .list import do_list
 from .find_dups import do_find_dups
 from .serve import do_serve
-from .shell import do_shell
 from .search import do_search
 from .scan import do_scan
 from .help import do_help
@@ -25,6 +24,8 @@ from .player import (do_play, do_clear, do_pause,
         do_next, do_prev, do_shuffle,
         do_infos, do_playlist,
         do_tag, do_rate)
+
+from .shell import do_shell # import at the very end !!
 
 def do_fullhelp():
     """ The Hacker's help [read standard help before !!] (WIP functions included) """

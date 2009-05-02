@@ -31,7 +31,7 @@ class Shell(Cmd):
         else:
             self.history['value'] = []
 
-        self.commands = [name for name, obj in globals().iteritems() if name.startswith('do_') and callable(obj)]
+        self.commands = [name for name in dir(zicbee.core.commands) if name.startswith('do_') and callable(getattr(zicbee.core.commands, name))]
         self._prompt = prompt
         self._refresh_prompt()
 
