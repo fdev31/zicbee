@@ -8,7 +8,7 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.8-rc1'
+VERSION='0.8'
 
 if 'install' in sys.argv:
     print """Warning:
@@ -117,7 +117,7 @@ It can be adapted to handle video too, hacking some bit of code.
                 'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
                 'Topic :: Multimedia :: Sound/Audio :: Players',
                 'Topic :: Multimedia :: Sound/Audio :: Players :: MP3',
-                'Topic :: Text Processing :: Markup'
+                'Topic :: Text Processing :: Markup',
                 'Topic :: Utilities',
                 ],
 
