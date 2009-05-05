@@ -125,7 +125,7 @@ It can be adapted to handle video too, hacking some bit of code.
                 'Topic :: Software Development :: Libraries :: Python Modules',
                 'Topic :: Multimedia :: Sound/Audio :: Players',
                 'Topic :: Multimedia :: Sound/Audio :: Players :: MP3',
-                'Topic :: Text Processing :: Markup'
+                'Topic :: Text Processing :: Markup',
                 'Topic :: Utilities',
                 ],
 
