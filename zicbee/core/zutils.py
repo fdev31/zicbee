@@ -140,11 +140,11 @@ del name
 def _find_property(line, property_list=None):
     tab = line.rsplit(None, 1)
     for prop in property_list or properties:
-        if prop == tab[-1]:
+        if tab[-1] in (prop, prop[:2]):
             if len(tab) == 1:
-                return line
+                return prop
             else:
-                return tab[-1], tab[0].strip()
+                return prop, tab[0].strip()
 
 def extract_props(line, property_list):
     """ extract a set of properties in a search string
@@ -186,8 +186,8 @@ def _conv_line(txt, property_list=None):
                 if elt[0] == '(':
                     elt = elt[1:].strip()
                     ret.append('(')
-                attr = elt
-                log.debug('attr: %s'%elt)
+                attr = _find_property(elt, property_list)
+                log.debug('attr: %s'%attr)
             else:
                 props = _find_property(elt, property_list)
                 log.debug('props: %s'%repr(props))
