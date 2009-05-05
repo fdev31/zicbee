@@ -54,7 +54,7 @@ class PlayerCtl(object):
         self.views = []
         for player_plugin in pkg_resources.iter_entry_points('zicbee.player'):
             try:
-                self.player = player_plugin.load()
+                self.player = player_plugin.load()()
             except Exception, e:
                 web.debug('failed loading %s: %s'%(player_plugin.name, e))
             else:
