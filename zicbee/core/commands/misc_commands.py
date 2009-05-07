@@ -28,26 +28,28 @@ def do_hash():
     for i in zshell.songs.get_hash_iterator():
         print "%8d / %s"%i
 
+def _webget(uri):
+    if not uri.startswith('http://'):
+        uri = "http://" + uri.lstrip('/')
+    try:
+        urllib.urlopen(uri).read()
+    except IOError, e:
+        print "webget(%s): %s"%(uri, e)
+
 def do_stfu(host=None):
     """ Kills the current player_host
     (in case db_host and player_host are the same, this command
     is equivalent to "kill")
     """
     if host is None:
-        config.player_host
-    play_uri = 'http://%s/close'%(host)
-    try:
-        urllib.urlopen(play_uri).read()
-    except IOError:
-        print "Silence."
+        host = config.player_host
+    _webget('%s/close'%host)
+    _webget('%s/db/kill'%host)
 
 def do_kill(host=None):
     """ Kills the current db_host or any specified as argument """
     if host is None:
         host = config.db_host
-    play_uri = 'http://%s/db/kill'%(host)
-    try:
-        urllib.urlopen(play_uri).read()
-    except IOError:
-        print "RIP."
+    _webget('%s/close'%host)
+    _webget('%s/db/kill'%host)
 
