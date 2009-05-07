@@ -1,4 +1,5 @@
 # vim: et ts=4 sw=4
+import os
 from cmd import Cmd
 from time import time as get_time
 from zicbee.core import execute_cmd, parse_cmd, setup_db, zshell
@@ -15,10 +16,14 @@ def do_shell():
 class Shell(Cmd):
     def __init__(self, prompt='ZicBee'):
         Cmd.__init__(self)
+        self._db_host = None
+        self._player_host = None
+
+        self.webget = zicbee.core.commands.misc_commands._webget
+
         self.history = dict(filename=None, value=[])
         if config.enable_history:
             try:
-                import os
                 history_file = os.path.join(DB_DIR, 'shell_history.txt')
                 self.history['filename'] = history_file
                 self.history['value'] = [l.rstrip() for l in file(history_file).readlines()]
@@ -36,7 +41,36 @@ class Shell(Cmd):
         self._refresh_prompt()
 
     def _refresh_prompt(self):
-        self.prompt = "[%s > %s]\n%s> "%(config.db_host, config.player_host, self._prompt)
+        ph = self._player_host
+        dh = self._db_host
+
+        local_hostname = ('localhost:%s'%config.default_port)
+
+        if (ph is None and dh is None and config.db_host == config.player_host == local_hostname) or \
+                (ph == dh == local_hostname):
+            self.prompt = '[local]\n%s> '%self._prompt
+        else:
+            if ph != config.player_host:
+                try:
+                    if config.player_host.startswith('localhost:'):
+                        raise Exception()
+                    version = self.webget(config.player_host+'/db/version')
+                except Exception:
+                    self._player_host = config.player_host
+                else:
+                    self._player_host = "%s (%s)"%(config.player_host, version.strip())
+
+            if dh != config.db_host:
+                try:
+                    if config.db_host.startswith('localhost:'):
+                        raise Exception()
+                    version = self.webget(config.db_host+'/db/version')
+                except Exception:
+                    self._db_host = config.db_host
+                else:
+                    self._db_host = "%s (%s)"%(config.db_host, version.strip())
+
+            self.prompt = "[%s > %s]\n%s> "%(self._db_host, self._player_host, self._prompt)
 
     def get_names(self):
         return self.commands

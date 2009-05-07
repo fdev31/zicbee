@@ -32,7 +32,7 @@ def _webget(uri):
     if not uri.startswith('http://'):
         uri = "http://" + uri.lstrip('/')
     try:
-        urllib.urlopen(uri).read()
+        return urllib.urlopen(uri).read()
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
 
