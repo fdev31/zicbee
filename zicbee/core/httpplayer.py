@@ -70,12 +70,7 @@ class PlayerCtl(object):
         self._load_playlists()
 
     def close(self):
-        try:
-            self.player.quit()
-        except Exception, e:
-            print "E: %s"%e
-        finally:
-            self.player.wait()
+        self.player.quit()
 
     def __repr__(self):
         return '<Player[%d] playing %s (views=%d)>'%(len(self.playlist), self.selected, len(self.views))
@@ -149,7 +144,7 @@ class PlayerCtl(object):
         return dl_it
 
     def volume(self, val):
-        self.player.volume(val, 'abs')
+        self.player.volume(val)
 
     def tag(self, tag):
         ci = compact_int(self.selected['__id__'])
