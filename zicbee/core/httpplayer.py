@@ -83,12 +83,12 @@ class PlayerCtl(object):
                 try:
                     try:
                         with self._lock:
-                            self.position = int(self.player.prop_stream_pos/10000)
+                            self.position = int(self.player.position)
                     except IOError, e:
                         web.debug('E: %s'%e)
                         self.position = None
                         # restart player
-                        self.player.wait()
+                        self.close()
                         self.player = mp.MPlayer()
                     except:
                         self.position = None
@@ -139,7 +139,7 @@ class PlayerCtl(object):
                 web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
                 cache = media_config[self.selected_type]['player_cache']
                 self.player.set_cache(cache)
-                self.player.loadfile(song_name)
+                self.player.load(song_name)
             self._paused = False
         return dl_it
 
