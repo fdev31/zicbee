@@ -52,6 +52,8 @@ def do_serve(pure=False):
                         '/(.*)', 'webplayer')
             app = web.application(urls, locals())
             app.run()
+        except SystemExit:
+            print "ciao!"
         except:
             DEBUG()
             print os.kill(os.getpid(), 9)
