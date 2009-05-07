@@ -10,6 +10,7 @@ from time import time
 from zicbee.core import zshell
 from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int
 from zicbee.core.config import config
+from zicbee import __version__ as VERSION
 
 WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
 
@@ -85,6 +86,9 @@ class web_db_index:
             return
         if name.startswith('multirate/'):
             self.multirate(name.split('/', 2)[1])
+            return
+        elif name.startswith('version'):
+            yield VERSION
             return
         elif name.startswith('kill'):
             zshell.songs.close()
