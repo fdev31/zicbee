@@ -1,33 +1,32 @@
 import os
 import sys
+import zicbee.db
 
 class TestBuzhug(object):
-    def setUp(self):
-        sys.path.append( os.path.pardir )
-        import run
-        run.scan_eggs()
+    TMP_DB_NAME = 'tmpdatabase'
 
-        import zicbee.db
+    def setUp(self):
+        import buzhug
         self._renew_db()
         assert len(self.db.db) == 0
 
     def _renew_db(self):
-        TMP_DB_NAME = 'tmpdatabase'
 
         try:
-            self.db.db.close()
+            self.db.close()
         except AttributeError:
             pass
 
-        import zicbee.db
-        db = zicbee.db.Database(TMP_DB_NAME)
+        db = zicbee.db.Database(self.TMP_DB_NAME)
         db.destroy()
-        self.db = zicbee.db.Database(TMP_DB_NAME)
+        self.db = zicbee.db.Database(self.TMP_DB_NAME)
+        print dir(self.db)
 
     def _populate(self):
         import random
         size = 3
-        db = self.db.db
+        db = self.db.databases[self.TMP_DB_NAME]['handle']
+
         for n_art in xrange(size):
             for n_alb in xrange(size):
                 for n_title in xrange(size):
