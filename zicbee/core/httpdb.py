@@ -130,7 +130,7 @@ class web_db_index:
         inp = web.input()
         t0 = time()
 
-        # move this to special commands, using dedicated Form()s
+        # XXX: move this to special commands, using dedicated Form()s
         # m3u flag has to move to "fmt"
         song_id = None
         handler = None # special action handler executed before listing
@@ -162,6 +162,7 @@ class web_db_index:
                     args = []
 
         if handler:
+            # XXX: replace that with autodelegate as in httpplayer
             try:
                 # execute the handler
                 ret = handler(*args)
@@ -175,7 +176,8 @@ class web_db_index:
             except Exception, e:
                 web.debug(e)
 
-        else: # move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
+        else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
+            # or use "index" ... (sounds good too !)
             if af['m3u'].value:
                 web.header('Content-Type', 'audio/x-mpegurl')
                 format = 'm3u'
