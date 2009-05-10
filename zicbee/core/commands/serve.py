@@ -43,7 +43,7 @@ def do_serve(pure=False):
 
         sys.argv = ['zicdb', '0.0.0.0:%s'%(config.default_port)]
         try:
-            print "%s listening on:"%('Song browser' if pure else 'Song browser and player')
+            print "%s listening on:"%('Song browser' if pure else 'Song browser and player'),
             if pure:
                 urls = ('/db/(.*)', 'web_db_index',
                         '/(.*)', 'web_db_index')
