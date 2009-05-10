@@ -58,7 +58,7 @@ class Shell(Cmd):
                 except Exception:
                     self._player_host = config.player_host
                 else:
-                    self._player_host = "%s (%s)"%(config.player_host, version.strip())
+                    self._player_host = "%s (%s)"%(config.player_host, version.strip() if version else '??')
 
             if dh != config.db_host:
                 try:
@@ -68,7 +68,7 @@ class Shell(Cmd):
                 except Exception:
                     self._db_host = config.db_host
                 else:
-                    self._db_host = "%s (%s)"%(config.db_host, version.strip())
+                    self._db_host = "%s (%s)"%(config.db_host, version.strip() if version else '??')
 
             self.prompt = "[%s > %s]\n%s> "%(self._db_host, self._player_host, self._prompt)
 
