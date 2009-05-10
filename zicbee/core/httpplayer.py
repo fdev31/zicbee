@@ -445,13 +445,19 @@ class webplayer:
     lastlog = []
 
     def REQ_main(self):
+        return self.render_main(render.player)
+
+    def REQ_basic(self):
+        return self.render_main(render.basicplayer)
+
+    def render_main(self, rend):
         cook_jar = web.cookies(host='localhost', pattern='')
         cook_jar['pattern'] = urllib.unquote(cook_jar['pattern'])
         af = SimpleSearchForm(True)
         sf = ScoreForm(True)
         tf = TagForm(True)
         af.fill(cook_jar)
-        yield unicode(render.player(af, sf, tf, config.web_skin or 'default'))
+        yield unicode(rend(af, sf, tf, config.web_skin or 'default'))
 
     REQ_ = REQ_main # default page
 
@@ -516,7 +522,11 @@ class webplayer:
         except KeyError:
             pass
 
-        return dump_data_as_text(_d, format)
+        if format.startswith('htm'):
+            web.header('Content-Type', 'text/html; charset=utf-8')
+            return '<html><body>'+ ('<br/>'.join("<b>%s</b>: %s"%(k, v) for k, v in _d.iteritems())) + '</body></html>'
+        else:
+            return dump_data_as_text(_d, format)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)

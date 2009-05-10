@@ -1,0 +1,21 @@
+$def with (form, score_form, tag_form, plugin)
+<html>
+    <head>
+        <title>Zicbee Player</title>
+    </head>
+    <body>
+        <h1>Play:</h1>
+        <a href="/infos?fmt=html">Currently playing...</a><br/>
+        <a href="/next">Next</a>
+        <a href="/prev">Prev</a>
+        <a href="/pause">Pause</a>
+        <a href="/shuffle">Shuffle</a>
+        <form id="fill_form" action="/search">
+            $:form.render()
+            <input type="submit" value="Search" />
+        </form>
+        <h1>Browse:</h1>
+        <a href="/db/">Database</a>
+    </body>
+</html>
+
