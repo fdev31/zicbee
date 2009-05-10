@@ -13,7 +13,7 @@ import pkg_resources
 from time import time
 from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props
 from zicbee.core.zutils import uncompact_int
-from zicbee.core.debug import DEBUG
+from zicbee.core.debug import DEBUG, log, debug_enabled
 from zicbee.core.config import config, media_config, DB_DIR
 from zicbee.core.httpdb import WEB_FIELDS, render, web
 try:
@@ -374,6 +374,8 @@ class PlayerCtl(object):
             save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'r')
             p = Unpickler(save_file)
             self._named_playlists = p.load()
+        except IOError, e:
+            log.debug("Not loading playlists: %s"%e.args[0])
         except Exception, e:
             web.debug('ERROR: load_playlists: %s'%repr(e))
             self._named_playlists = dict()

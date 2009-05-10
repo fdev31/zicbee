@@ -10,12 +10,18 @@ from time import time
 from zicbee.core import zshell
 from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int
 from zicbee.core.config import config
+from zicbee.core import debug
 from zicbee import __version__ as VERSION
 
 WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
 
-web.config.debug = True if config.debug and str(config.debug).lower() in ('on', 'yes') else False
-web.internalerror = web.debugerror
+web.internalerror = web.debugerror = web.debug = debug.log.debug
+
+if debug.debug_enabled:
+    web.config.debug = True
+else:
+    web.config.debug = None
+
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
