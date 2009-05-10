@@ -45,7 +45,7 @@ class web_db_index:
 
     _db_lock = RLock()
 
-    def tag(self, song, tag):
+    def REQ_tag(self, song, tag):
 
         song_id = uncompact_int(song)
         try:
@@ -63,7 +63,7 @@ class web_db_index:
         finally:
             refresh_db()
 
-    def rate(self, song, rating):
+    def REQ_rate(self, song, rating):
         web.debug('rate: song=%s rating=%s'%(song,rating))
         try:
             with self._db_lock:
@@ -72,7 +72,7 @@ class web_db_index:
         finally:
             refresh_db()
 
-    def multirate(self, ratings_list):
+    def REQ_multirate(self, ratings_list):
         web.debug('rate: ratings_list=%s'%ratings_list)
         try:
             ratings = [rating.split('=') for rating in ratings_list.split(',')]
@@ -83,118 +83,147 @@ class web_db_index:
         finally:
             refresh_db()
 
+    def REQ_version(self):
+        yield VERSION
+
+    def REQ_artists(self):
+        for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_albums(self):
+        for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_genre(self):
+        for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_kill(self):
+        shell.songs.close()
+        raise SystemExit()
+
+    def REQ_infos(self, song_id):
+        song_id = uncompact_int(song_id)
+        song = zshell.songs[song_id]
+        return dump_data_as_text( "<b>%s</b>: %s<br/>"%(f, getattr(song, f)) for f in song.fields)
+
+    def REQ_get(self, song_id):
+        song_id = uncompact_int(song_id)
+        filename = zshell.songs[song_id].filename
+        web.header('Content-Type', 'application/x-audio')
+        web.header('Content-Disposition',
+                'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+
+        CHUNK=1024
+        in_fd = file(filename)
+        web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+        yield
+
+        while True:
+            data = in_fd.read(CHUNK)
+            if not data: break
+            y = (yield data)
+        return
+
     def GET(self, name):
         hd = web.webapi.ctx.homedomain
         inp = web.input()
         t0 = time()
+
+        # move this to special commands, using dedicated Form()s
+        # m3u flag has to move to "fmt"
+        song_id = None
+        handler = None # special action handler executed before listing
         af = DbSimpleSearchForm()
-        if name.startswith('rate/'):
-            self.rate(*name.split('/', 3)[1:])
-            return
-        if name.startswith('multirate/'):
-            self.multirate(name.split('/', 2)[1])
-            return
-        elif name.startswith('version'):
-            yield VERSION
-            return
-        elif name.startswith('artist'):
-            for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
-                yield d
-            return
-        elif name.startswith('album'):
-            for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
-                yield d
-            return
-        elif name.startswith('genre'):
-            for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
-                yield d
-            return
-        elif name.startswith('kill'):
-            zshell.songs.close()
-            raise SystemExit()
-        elif name.startswith('tag'):
-            self.tag(*name.split('/', 3)[1:])
-            return
-        elif af.validates():
+        if af.validates():
+            af.fill()
+            song_id = af['id'].value
+
+        if song_id:
+            args = [song_id]
+
+        if name:
+            # Special actions (1rs level path)
             try:
-                af.fill()
-                song_id = af['id'].value
-                if song_id:
-                    song_id = uncompact_int(song_id)
-                    if name.startswith("get"):
-                        filename = zshell.songs[song_id].filename
-                        web.header('Content-Type', 'application/x-audio')
-                        web.header('Content-Disposition',
-                                'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+                name, path = name.split('/', 1)
+            except ValueError:
+                name = name
+                path = None
+            try:
+                handler = getattr(self, 'REQ_' + name)
+            except AttributeError:
+                handler = None
+                args = None
 
-                        CHUNK=1024
-                        in_fd = file(filename)
-                        web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
-                        yield
+            if not args:
+                if path:
+                    args = path.split('/')
+                else:
+                    args = []
 
-                        while True:
-                            data = in_fd.read(CHUNK)
-                            if not data: break
-                            y = (yield data)
-                        return
-                    else:
-                        song = zshell.songs[song_id]
-                        for f in song.fields:
-                            yield "<b>%s</b>: %s<br/>"%(f, getattr(song, f))
-                        return
+        if handler:
+            try:
+                # execute the handler
+                ret = handler(*args)
+                if hasattr(ret, 'next'):
+                    for chunk in ret:
+                        yield chunk
+                else:
+                    yield ret
             except GeneratorExit:
                 raise
             except Exception, e:
                 web.debug(e)
 
-        if af['m3u'].value:
-            web.header('Content-Type', 'audio/x-mpegurl')
-            format = 'm3u'
-        elif inp.get('plain'):
-            format = 'plain'
-        elif inp.get('json'):
-            format = 'json'
-        else:
-            web.header('Content-Type', 'text/html; charset=utf-8')
-            format = 'html'
+        else: # move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
+            if af['m3u'].value:
+                web.header('Content-Type', 'audio/x-mpegurl')
+                format = 'm3u'
+            elif inp.get('plain'):
+                format = 'plain'
+            elif inp.get('json'):
+                format = 'json'
+            else:
+                web.header('Content-Type', 'text/html; charset=utf-8')
+                format = 'html'
 
-        pattern = af['pattern'].value
+            pattern = af['pattern'].value
 
-        if pattern is None:
-            res = None
-        else:
-            pat, vars = parse_line(pattern)
-            urlencode = web.http.urlencode
-            ci = compact_int
-            web.debug('searching %s %s...'%(pat, vars))
+            if pattern is None:
+                res = None
+            else:
+                pat, vars = parse_line(pattern)
+                urlencode = web.http.urlencode
+                ci = compact_int
+                web.debug('searching %s %s...'%(pat, vars))
 
-            res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
-                    for r in zshell.songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
-                    )
-        t_sel = time()
+                res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
+                        for r in zshell.songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
+                        )
+            t_sel = time()
 
-        if format == 'm3u':
-            yield unicode(render.m3u(web.http.url, res))
-        elif format == 'plain':
-            yield unicode(render.plain(af, web.http.url, res))
-        elif format == 'json':
-            some_db = zshell.songs.databases.itervalues().next()['handle']
-            # try to pre-compute useful things
-            field_decoder = zip( WEB_FIELDS,
-                    (some_db.f_decode[some_db.fields[fname]] for fname in WEB_FIELDS)
-                    )
-            yield
+            if format == 'm3u':
+                yield unicode(render.m3u(web.http.url, res))
+            elif format == 'plain':
+                yield unicode(render.plain(af, web.http.url, res))
+            elif format == 'json':
+                some_db = zshell.songs.databases.itervalues().next()['handle']
+                # try to pre-compute useful things
+                field_decoder = zip( WEB_FIELDS,
+                        (some_db.f_decode[some_db.fields[fname]] for fname in WEB_FIELDS)
+                        )
+                yield
 
-            infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
-                    for r in res )
-            try:
-                # TODO: optimise this (jdump by 100 size blocks)
-                for r in infos_iterator:
-                    yield jdump(r)
-                    yield '\n'
-                web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
-            except Exception, e:
-                web.debug("ERR:", e)
-        else:
-            yield unicode(render.index(af, res, config.web_skin or 'default'))
+                infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
+                        for r in res )
+                try:
+                    # TODO: optimise this (jdump by 100 size blocks)
+                    for r in infos_iterator:
+                        yield jdump(r)
+                        yield '\n'
+                    web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
+                except Exception, e:
+                    web.debug("ERR:", e)
+            else:
+                yield unicode(render.index(af, res, config.web_skin or 'default'))
 
