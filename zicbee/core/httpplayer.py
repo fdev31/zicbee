@@ -11,7 +11,7 @@ from threading import RLock
 import itertools
 import pkg_resources
 from time import time
-from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props
+from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props, dump_data_as_text
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG, log, debug_enabled
 from zicbee.core.config import config, media_config, DB_DIR
@@ -31,18 +31,6 @@ SimpleSearchForm = web.form.Form(
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
-def dump_data_as_text(d, format):
-    if format == "json":
-        yield jdump(d)
-    else: # assume "txt"
-        # text output
-        if isinstance(d, dict):
-            for k, v in d.iteritems():
-                yield '%s: %s\n'%(k, v)
-        else:
-            # assume iterable
-            for elt in d:
-                yield "%r\n"%elt
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend

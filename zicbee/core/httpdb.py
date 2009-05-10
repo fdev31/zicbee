@@ -8,7 +8,7 @@ import web
 from threading import RLock
 from time import time
 from zicbee.core import zshell
-from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int
+from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, dump_data_as_text
 from zicbee.core.config import config
 from zicbee.core import debug
 from zicbee import __version__ as VERSION
@@ -85,6 +85,7 @@ class web_db_index:
 
     def GET(self, name):
         hd = web.webapi.ctx.homedomain
+        inp = web.input()
         t0 = time()
         af = DbSimpleSearchForm()
         if name.startswith('rate/'):
@@ -95,6 +96,18 @@ class web_db_index:
             return
         elif name.startswith('version'):
             yield VERSION
+            return
+        elif name.startswith('artist'):
+            for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
+                yield d
+            return
+        elif name.startswith('album'):
+            for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
+                yield d
+            return
+        elif name.startswith('genre'):
+            for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
+                yield d
             return
         elif name.startswith('kill'):
             zshell.songs.close()
@@ -134,7 +147,6 @@ class web_db_index:
             except Exception, e:
                 web.debug(e)
 
-        inp = web.input()
         if af['m3u'].value:
             web.header('Content-Type', 'audio/x-mpegurl')
             format = 'm3u'

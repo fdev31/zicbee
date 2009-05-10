@@ -1,4 +1,4 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'parse_line', 'duration_tidy', 'get_help_from_func', 'DEBUG']
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'parse_line', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'DEBUG']
 
 import traceback
 import itertools
@@ -73,6 +73,21 @@ except ImportError:
             json_engine = 'demjson'
 
 sys.stderr.write("using %s engine.\n"%json_engine)
+################################################################################
+
+def dump_data_as_text(d, format):
+    if format == "json":
+        yield jdump(d)
+    else: # assume "txt"
+        # text output
+        if isinstance(d, dict):
+            for k, v in d.iteritems():
+                yield '%s: %s\n'%(k, v)
+        else:
+            # assume iterable
+            for elt in d:
+                yield "%r\n"%elt
+
 ################################################################################
 
 _plur = lambda val: 's' if val > 1 else ''
