@@ -4,10 +4,21 @@ import sys
 from zicbee.db import Database
 
 DEFAULT_NAME='songs'
+args = []
 
-def init(args=None):
-    clean_args = args or sys.argv[2:]
-    globals().update(
-            dict(songs=Database(os.environ.get('ZDB', DEFAULT_NAME)),
-                args=clean_args)
-            )
+def init(args=None, db_name=None):
+    try:
+        db
+    except NameError:
+        pass
+    else:
+        print "db cleanup"
+        db.cleanup() # XXX: Ugly !
+        db.close()
+
+    db_name = db_name or os.environ.get('ZDB', DEFAULT_NAME)
+    print "opening %s..."%db_name
+    db = Database(db_name)
+    globals().update( dict(songs=db, args=args) )
+    db.cleanup() # XXX: Ugly !
+

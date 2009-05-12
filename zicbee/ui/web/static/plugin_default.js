@@ -1,4 +1,5 @@
 var song_id = null;
+var song_uri = null;
 var song_position = 0;
 var time_elapsed = 0;
 var refresh_interval=5000;
@@ -22,7 +23,7 @@ function print_playlist(pls) {
     var ico3=null;
     for (var i=0; i<pls.length; i++) {
         s = pls[i];
-        idx = s[6];
+        idx = s[8];
         ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'", refresh_playlist);');
         ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'", refresh_playlist);');
         ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'", refresh_playlist);');
@@ -69,6 +70,16 @@ function fill_cmdgroup() {
     }
 };
 
+function validateTag(tag) {
+    wget('/tag/'+tag);
+    hideableForm.toggle();
+}
+
+function validateScore(score) {
+    wget('/rate/'+score);
+    hideableForm.toggle();
+}
+
 function validateForm() {
     Cookie.write('host', $('fill_form').host.value);
     Cookie.write('pattern', $('fill_form').pattern.value);
@@ -86,7 +97,7 @@ function render_song(infos, font_class) {
                   ];
         }
         return "<a href='"+infos[0]+"'><font class='"+font_class+"''>"+infos[1] + " - " + infos[3] + " ("+infos[2]+")</font></a>";
-};
+}
 
 function refresh_playlist() {
     return new Request.JSON({url: 'playlist?fmt=json&res=10&start='+(song_position+1), method: "get", onSuccess: print_playlist}).send();
@@ -103,36 +114,67 @@ function length_to_str(l) {
     return (l/60).toInt() + ':' + seconds;
 }
 
+function handleBlindGuess(data) {
+    alert(''+data);
+    if (data) {
+        blind_mode.active = false;
+        blind_mode.old_value = true;
+        blind_mode.winner = true;
+    }
+}
+
+function tryGuess() {
+    wget('guess/'+$('artist_v').value, handleBlindGuess);
+}
+
 function refresh_infos(infos) {
-    if (!infos && !paused) {
-        time_elapsed += 1;
-        $('progressbase').innerHTML = length_to_str(time_elapsed); 
-    } else if (song_id != infos['id']) {
-        paused = false;
-        song_id = infos['id'];
-        if (song_id) {
-            song_position = infos['pls_position']; 
-            refresh_playlist();
-            txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos, 'songFont');
-            $('progressbase').innerHTML = ''; 
-            if (animatedBee.song != song_id) {
-                animatedBee.song = song_id;
-                animatedBee.start();
-                animatedBee.stop.delay(10000);
+    if (blind_mode.active && !blind_mode.winner) {
+        //
+        // Blind test mode initialization
+        //
+        if (!blind_mode.old_value) {
+            hideableForm.toggle(); // auto hide the form
+            blind_mode.reset();
+        };
+    } else {
+        if (!infos && !paused) {
+            time_elapsed += 1;
+            $('progressbase').innerHTML = length_to_str(time_elapsed);
+        } else if (song_id != infos['id'] || blind_mode.winner) {
+            if(song_id != infos['id'] && blind_mode.old_value) {
+                blind_mode.reset();
+                return;
             }
-        } else {
-            animatedBee.stop();
-            txt = "<h2>No song played</h2>";
-            $('progressbase').tween('width', 0);
+            paused = false;
+            song_id = infos['id'];
+            song_uri = infos['uri']
+            if (song_id) {
+                song_position = infos['pls_position'];
+                if(!blind_mode.winner) {
+                    refresh_playlist();
+                }
+                txt = "Song "+song_position+'/'+infos['pls_size']+" : "+render_song(infos, 'songFont');
+                $('progressbase').innerHTML = '';
+                if (animatedBee.song != song_id) {
+                    animatedBee.song = song_id;
+                    animatedBee.start();
+                    animatedBee.stop.delay(10000);
+                }
+            } else {
+                animatedBee.stop();
+                txt = "<h2>No song played</h2>";
+                $('progressbase').tween('width', 0);
+            }
+            $('descr').innerHTML = txt;
         }
-        $('descr').innerHTML = txt;
-    } else if(infos) {
+    }
+    if(infos) {
         var old_val = time_elapsed;
         time_elapsed = infos['song_position'].toInt();
         if(old_val+6 < time_elapsed) { // XXX: This is a very strange fix for a buggy backend!!
             time_elapsed = (time_elapsed/2).toInt();
         }
-        $('progressbase').innerHTML = length_to_str(time_elapsed); 
+        $('progressbase').innerHTML = length_to_str(time_elapsed);
     }
 };
 
@@ -150,40 +192,65 @@ var animatedBee = {
     in_progress : false,
 
     setup : function() {
-       },
+    },
     start : function() {
-            animatedBee.stop();
-            animatedBee.in_progress = animatedBee.step.periodical(80);
-        },
+        animatedBee.stop();
+        animatedBee.in_progress = animatedBee.step.periodical(80);
+    },
     step : function() {
-           $('bee').set('tween', {'duration':80});
-           $('bee').tween('margin-left', $random(-30, 0));
-       },
+        $('bee').set('tween', {'duration':80});
+        $('bee').tween('margin-left', $random(-30, 0));
+    },
     stop : function () {
-           if(animatedBee.in_progress) {
-               $clear(animatedBee.in_progress);
-               animatedBee.in_progress = false;
-               $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
-           };
-       },
+        if(animatedBee.in_progress) {
+            $clear(animatedBee.in_progress);
+            animatedBee.in_progress = false;
+            $('bee').tween.delay(80, $('bee'), new Array(['margin-left', 0]));
+        };
+    },
 };
 
 var hideableForm = {
-    Create : function(e) {
-        this.elt = e;
+    Create : function(elts) {
+        this.elts = elts;
         this.hidden = false;
         return this;
     },
     toggle: function() {
         if (this.hidden) {
-            this.elt.tween('left', -1);
+            this.elts.each( function(item, index, tab) {
+                $(item).tween('left', -1);
+            } )
             this.hidden = false;
         } else {
-            this.elt.tween('left', -400);
+            this.elts.each( function(item, index, tab) {
+                $(item).tween('left', -400);
+            } )
             this.hidden = true;
         };
     },
 };
+
+var blind_mode = {
+    active: false,
+    old_value: false,
+    winner: false,
+    toggle: function() {
+        this.old_value = this.active;
+        this.active = !this.active;
+        if (this.active) {
+            this.reset();
+        }
+    },
+    reset: function() {
+        this.active = true;
+        this.old_value = true;
+        this.winner = false;
+        $('progressbase').innerHTML = '';
+        $('descr').innerHTML = '<h1>Blind Test</h1>';
+        $('playlist').innerHTML = '<form id="blind_test_form" action="javascript:tryGuess()" class="formBlock"><input type="text" name="pattern" id="artist_v"/><input type="submit" value="Try!" /></form>';
+    }
+}
 
 window.addEvent('domready', function() {
         fill_cmdgroup();
@@ -196,9 +263,8 @@ window.addEvent('domready', function() {
             Cookie.write('host', 'localhost', {duration: 30});
             Cookie.write('pattern', '', {duration: 30});
         };
-        hideableForm.Create($('fill_form'));
+        hideableForm.Create(['form_panel']);
         hideableForm.toggle(); // auto hide the form
         $('bee').addEvent('click', function() {hideableForm.toggle()});
 //        $('progressbar').tween('opacity', 0);
     });
-

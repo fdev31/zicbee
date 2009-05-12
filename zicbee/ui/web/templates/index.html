@@ -1,7 +1,7 @@
-$def with (form, results)
+$def with (form, results, plugin)
 <html>
 <head>
-<link rel="stylesheet" href="/static/main.css" media="screen">
+    <link rel="stylesheet" href="/static/${plugin}.css" media="screen">
 <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
 <script type="text/javascript" src="/static/playMp3.js"></script>
 </head>
@@ -16,3 +16,4 @@ $def with (form, results)
             <a href="$uri">$res.artist - $res.album - $res.title</a>
             </div>
 </body></html>
+

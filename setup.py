@@ -8,14 +8,13 @@ except ImportError:
 	use_setuptools()
 from setuptools import setup, find_packages
 
-VERSION='0.6-alpha'
+sys.path.insert(0, '.')
+import zicbee
+VERSION=zicbee.__version__
 
 if 'install' in sys.argv:
     print """Warning:
 You will need to install some parts manually:
-
-pyglet      http://pyglet.org/
-            (with avbin support: http://code.google.com/p/avbin/)
 
 If it can't build, try to comment the line:
             'python-cjson>=1.0.5',
@@ -31,29 +30,60 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=1.2', 'mutagen>=1.14' ]
+requirements = [ 'buzhug>=1.5', 'mutagen>=1.14' ]
 
-if os.name in ('nt', 'ce'):
-    requirements.append( 'demjson>=1.1' )
-else:
-    requirements.append( 'python-cjson>=1.0.5' )
+if sys.version_info[:2] < (2, 6):
+    # add cjson dependency
+    if os.name in ('nt', 'ce'):
+        requirements.append( 'demjson>=1.1' )
+    else:
+        requirements.append( 'python-cjson>=1.0.5' )
 
 setup (
         name='zicbee',
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
-        long_description='A simple Music database engine',
-        keywords='database music tags metadata management',
+        url = 'http://box.gnux.info/zicbee/',
+        download_url='http://box.gnux.info/hg/index.cgi/zicbee/archive/wip.tar.bz2',
+        license='BSD',
+        platform='all',
+        description='A simple & powerful distributed Music database engine',
+        long_description='''
+ZicBee is a project grouping multiple applications to manage play and handle music databases.
+It takes ideas from Quodlibet and Mpd, both very good music mplayers with their own strengths.
+
+For now there is a Swiss-army knife tool: zicdb
+
+Some plugins for quodlibet has also be developed. ZicBee is fast,
+portable (but not very ported...) and flexible.
+
+While the project is stable and usable (there are online docs and a nice www gui),
+it's mostly interesting for hackers and developers from now, I didn't confront to real users yet :P
+
+See features list, it's mostly handy for people with large databases,
+with optionally multiple computers.
+It can be adapted to handle video too, hacking some bit of code.
+        ''',
+        keywords = 'database music tags metadata management',
         packages = find_packages(),
+        zip_safe = False,
         package_data = {
-            'zicbee': ['ui/web/web_templates/*.html', 'ui/web/static/*.css', 'ui/web/static/*.css', 'ui/web/static/MochoKit/*.js', 'ui/gtk/*.glade'],
+            'zicbee': [
+                'ui/web/templates/*.html',
+                'ui/web/static/*.css',
+                'ui/web/static/*.js',
+                'ui/web/static/pics/*.*',
+                'ui/web/static/pics/cmd/*.*',
+                'ui/gtk/*.glade'],
             },
 
         entry_points = {
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
-                'zicgui = zicbee.ui.gtk.player:main [player]'
+                'zicbee = zicbee.core:shell',
+                'zicserve = zicbee.core:serve [server]',
+#                'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicbee.core:startup'
@@ -63,13 +93,61 @@ setup (
         install_requires = requirements,
 
         extras_require = dict(
-            player='pyglet>=1.1beta1',
-            server='web.py>=0.22',
+            player='zicbee-mplayer>=0.9',
+            server='web.py>=0.31',
             ),
 
         dependency_links = [
             'eggs',
-            'http://code.google.com/p/pyglet/downloads/list',
+            'http://box.gnux.info/zicbee/files/',
+            'http://webpy.org/',
+            'http://buzhug.sourceforge.net/',
+            'http://code.google.com/p/quodlibet/downloads/list',
+#            'http://sourceforge.net/project/showfiles.php?group_id=167078&package_id=190037&release_id=664931',
+#            'http://code.google.com/p/pyglet/downloads/list',
             ],
+        classifiers = [
+                'Development Status :: 4 - Beta',
+                'Intended Audience :: Developers',
+#                'Intended Audience :: End Users/Desktop',
+                'Operating System :: OS Independent',
+                'Operating System :: Microsoft :: Windows',
+                'Operating System :: POSIX',
+                'Programming Language :: Python',
+                'Environment :: Console',
+                'Environment :: No Input/Output (Daemon)',
+                'Environment :: X11 Applications',
+                'Natural Language :: English',
+                'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+                'Topic :: Internet :: WWW/HTTP :: Indexing/Search',
+                'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+                'Topic :: Software Development',
+                'Topic :: Software Development :: Libraries :: Python Modules',
+                'Topic :: Multimedia :: Sound/Audio :: Players',
+                'Topic :: Multimedia :: Sound/Audio :: Players :: MP3',
+                'Topic :: Text Processing :: Markup',
+                'Topic :: Utilities',
+                ],
+
         )
+
+if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'dist' in a):
+    # test copied from zicbee/player/_mpgen.py [and mp.py]:
+    exe_name = 'mplayer' if os.sep == '/' else 'mplayer.exe'
+    import subprocess
+    try:
+        ret = subprocess.Popen([exe_name, '-really-quiet']).wait()
+    except OSError:
+        ret = 255
+    if ret:
+        dec = "*"*80
+        print dec
+        print dec
+        print ''
+        print "* WARNING !! mplayer seems not accessible, please install properly."
+        print dec
+        print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
+        print ''
+        print dec
+        print dec
 

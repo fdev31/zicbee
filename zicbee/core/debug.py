@@ -1,14 +1,51 @@
+__all__ = ['DEBUG', 'debug_enabled', 'log']
 import os
 import logging
-from logging import getLogger as get_log
-log = get_log()
+import traceback
+from logging import getLogger
+from zicbee.core.config import config
 
-default_handler = logging.StreamHandler()
-log.addHandler(default_handler)
+log = getLogger('zicbee')
 
-if int(os.environ.get('DEBUG', 0)):
-    log.setLevel(logging.NOTSET)
+try:
+    debug_enabled = (str(config.debug).lower()[:1] not in 'fn') if config.debug else False
+    # disable if "false" or "no"
+except:
+    debug_enabled = False
 
-default_formatter = logging.Formatter('[%(threadName)s %(relativeCreated)d] %(module)s %(funcName)s:%(lineno)s %(message)s')
-default_handler.setFormatter( default_formatter )
+# environment overrides
+if not debug_enabled and os.environ.get('DEBUG'):
+    debug_enabled = os.environ['DEBUG'] != '0'
+
+def traced(fn):
+    def _get_decorator(decorated):
+        def _decorator(*args, **kw):
+            try:
+                return decorated(*args, **kw)
+            except:
+                import pdb; pdb.set_trace()
+        return _decorator
+    return _get_decorator(fn)
+
+def DEBUG():
+    traceback.print_stack()
+    traceback.print_exc()
+
+
+if debug_enabled:
+    default_formatter = logging.Formatter('[%(threadName)s %(relativeCreated)d] %(module)s %(funcName)s:%(lineno)s %(message)s')
+
+    # add two handlers
+    for h in logging.FileHandler('/tmp/zicbee.log'), logging.StreamHandler():
+        log.addHandler(h)
+        h.setFormatter( default_formatter )
+        try:
+            val = logging.ERROR - int(os.environ.get('DEBUG', 1))*10
+        except ValueError:
+            val = logging.DEBUG
+
+    log.setLevel(val)
+else:
+    globals()['DEBUG'] = lambda: None # NO-OP if not debugging
+    log.setLevel(logging.FATAL)
 

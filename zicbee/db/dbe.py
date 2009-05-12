@@ -3,10 +3,20 @@ __all__ = ['Database', 'valid_tags']
 
 import os
 import buzhug
+from itertools import chain
 from zicbee.core.config import DB_DIR
+from zicbee.core.config import media_config
 
-valid_ext = ('.ogg','.mp3', '.mp4',
-    '.aac', '.vqf', '.wmv', '.wma', '.m4a', 'asf')
+try:
+    required_buzhug = [1, 5]
+    assert [int(d) for d in buzhug.version.split('.')] >= required_buzhug
+except AssertionError:
+    raise SystemExit('Wrong buzhug installed, please install at least version %s'%('.'.join(required_buzhug)))
+
+#valid_ext = ('.ogg','.mp3', '.mp4',
+#    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
+
+valid_ext = ['.%s'%ext for ext in media_config.keys()]
 
 valid_tags = (
         'genre',
@@ -15,6 +25,8 @@ valid_tags = (
         'title',
         'track',
         'filename',
+        'score',
+        'tags',
         'length')
 
 filters_dict = dict(
@@ -28,25 +40,21 @@ filters_dict = dict(
         )
 
 
+def checkdb(base_fn):
+    return base_fn
+    def _mkdec(somefn):
+        def _auto_db_check(self, *args, **kw):
+            if self.databases is not None:
+                self._create()
+            return somefn(self, *args, **kw)
+        return _auto_db_check
+
+    return _mkdec(base_fn)
+
+
 class Database(object):
-    def __init__(self, name):
-        """ Open/Create a database """
-        self._db_dir = os.path.join(DB_DIR, name)
-        self._init()
-        self._open()
 
-    def _init(self):
-        self.db = buzhug.Base(self._db_dir)
-        self.search = self.db.select
-        self.destroy = self.db.destroy
-
-    __getitem__ = property(lambda self: self.db.__getitem__)
-    __len__ = property(lambda self: len(self.db))
-
-    def _open(self, db=None):
-        if db is None:
-            db = self.db
-        db.create(
+    DB_SCHEME = (
                 ('filename', str),
                 ('genre', unicode),
                 ('artist', unicode),
@@ -54,26 +62,107 @@ class Database(object):
                 ('title', unicode),
                 ('track', int),
                 ('length', int),
-                mode='open'
+                ('score', int),
+                ('tags', unicode),
                 )
 
-    def __len__(self):
-        return len(self.db)
+    def __init__(self, name):
+        """ Open/Create a database """
+        self.databases = dict()
+        artists = set()
+        albums = set()
+        genres = set()
+        for name in name.split(','):
+            p = os.path.join(DB_DIR, name)
+            h = self._create(p)
+            self.databases[name] = dict(
+                    path = p,
+                    handle = h,
+                    )
+            artists.update(i.artist for i in h.select(['artist']))
+            albums.update(i.album for i in h.select(['album']))
+            genres.update(i.genre for i in h.select(['genre']))
 
+        self.artists = list(artists)
+        self.albums = list(albums)
+        self.genres = list(genres)
+
+    def _create(self, db_name=None):
+        if isinstance(db_name, basestring):
+            databases = [ buzhug.Base(db_name) ]
+        elif isinstance(db_name, buzhug.Base):
+            databases = [ db_name ]
+        else:
+            for name, db in self._dbs_iter():
+                self.databases[name] = buzhug.Base(db_name)
+            databases = self.databases.values()
+
+        kw = dict(mode='open')
+
+        for db in databases:
+            db.create(*self.DB_SCHEME, **kw)
+        if databases is not self.databases and len(databases) == 1:
+            return databases[0]
+        return databases
+
+    def _dbs_iter(self):
+        return self.databases.iteritems()
+
+    def close(self):
+        for name, db in self._dbs_iter():
+            db['handle'].close()
+
+    def destroy(self):
+        for name, db in self._dbs_iter():
+            db['handle'].destroy()
+
+    def commit(self):
+        for name, db in self._dbs_iter():
+            db['handle'].commit()
+
+    def cleanup(self):
+        for name, db in self._dbs_iter():
+            db['handle'].cleanup()
+
+    @checkdb
+    def __getitem__(self, item):
+        for name, db in self._dbs_iter():
+            db = db['handle']
+            try:
+                return db[item]
+            except:
+                continue
+
+    @checkdb
+    def __len__(self):
+        return sum(len(db['handle']) for name, db in self._dbs_iter())
+
+    @checkdb
+    def search(self, *args, **kw):
+        return chain( *(db['handle'].select(*args, **kw) for name, db in self._dbs_iter()) )
+
+    @checkdb
+    def u_search(self, *args, **kw):
+        return chain( db['handle'].select_for_update(*args, **kw) for name, db in self._dbs_iter() )
+
+    @checkdb
     def dump_archive(self, filename):
         """ dump a bz2 archive from this database """
-        self.db.cleanup()
+        use_suffixes = len(self.databases) > 1
+        self.cleanup()
         from tarfile import TarFile
-        tar = TarFile.open(filename, 'w:bz2')
-        prefix_sz = len(self._db_dir)
 
-        for root, dirs, files in os.walk(self._db_dir):
-            short_root = root[prefix_sz:]
-            for fname in files:
-                fd = file(os.path.join(root, fname))
-                ti = tar.gettarinfo(arcname=os.path.join(short_root, fname), fileobj=fd)
-                tar.addfile(ti, fileobj=fd)
-        tar.close()
+        for name, db in self._dbs_iter():
+            tar = TarFile.open('%s%s'%(filename, '_%s'%name if use_suffixes else ''), 'w:bz2')
+            prefix_sz = len(db['path'])
+
+            for root, dirs, files in os.walk(db['path']):
+                short_root = root[prefix_sz:]
+                for fname in files:
+                    fd = file(os.path.join(root, fname))
+                    ti = tar.gettarinfo(arcname=os.path.join(short_root, fname), fileobj=fd)
+                    tar.addfile(ti, fileobj=fd)
+            tar.close()
 
     def get_hash_iterator(self):
         """ Returns an (id, hash) tuple generator """
@@ -84,9 +173,11 @@ class Database(object):
                     else (k, getattr(item, k))
                     for k in item.fields)
 
-    def merge(self, directory=None, archive=None, no_dups=True):
+    @checkdb
+    def merge(self, db_name, directory=None, archive=None, no_dups=True):
         """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
+
 
         try:
             EasyID3
@@ -98,12 +189,12 @@ class Database(object):
         us_prefix = None
 
         # Avoid duplicates
-        if no_dups and len(self.db):
+        if no_dups and len(self):
 
             # user specified prefix
             if directory is None:
                 try:
-                    print "Example filename %s"%(self.db[0].filename)
+                    print "Example filename %s"%(self.databases.itervalues().next()['handle'][0].filename)
                 except IndexError:
                     pass
                 finally:
@@ -112,22 +203,37 @@ class Database(object):
                         directory = us_prefix
 
             # Remove every file starting with that directory
-            old_len = len(self.db)
-            for it in (i for i in self.db if i.filename.startswith(directory)):
-                self.db.delete(it)
-            print "Removed %d items"%( old_len - len(self.db) )
-            self.db.cleanup()
+            old_len = len(self)
+            deltas = []
+            for name, db in self._dbs_iter():
+                db = db['handle']
+                for it in (i for i in db if i.filename.startswith(directory)):
+                    db.delete(it)
+                    if deltas:
+                        deltas.append( old_len-len(self)-sum(deltas) )
+                    else:
+                        deltas.append( old_len-len(self) )
+
+            if db_name is None:
+                db_name = self.databases.keys()[ deltas.index( max(deltas) ) ]
+                print "Auto-detecting best candidate: %s"%db_name
+            print "Removed %d items"%( sum(deltas) )
+
+            self.cleanup()
+
+        db = self.databases[db_name]['handle']
 
         # Directory handling
         if directory is not None and not us_prefix:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
-                    if fname[-4:].lower() in valid_ext:
+                    if '.' + fname.rsplit('.', 1)[-1].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
 
                         try:
                             tags = File(fullpath)
-                        except Exception:
+                        except Exception, e:
+                            print 'Error reading %s: %s'%(fullpath, e)
                             tags = None
 
                         if not tags:
@@ -145,7 +251,7 @@ class Database(object):
                         else:
                             yield '0'
                         try:
-                            self.db.insert(**data)
+                            db.insert(**data)
                         except:
                             import pdb; pdb.set_trace()
 
@@ -172,11 +278,10 @@ class Database(object):
                     out_fd.close()
 
                 # Do the buzhug part
-                tmp_db = buzhug.Base(tmp)
-                self._open(tmp_db)
+                tmp_db = self._create(tmp)
 
                 for alien_entry in tmp_db:
-                    if alien_entry not in self.db:
+                    if alien_entry not in db:
                         entry_dict = dict()
                         for f in alien_entry.fields:
                             if f[0] == '_':
@@ -185,12 +290,12 @@ class Database(object):
                             if isinstance(val, str) and f != 'filename':
                                 val = unicode(val)
                             entry_dict[f] = val
-                        self.db.insert(**entry_dict)
+                        db.insert(**entry_dict)
                         yield '.'
             finally:
                 rmtree(tmp, ignore_errors=True)
 
-        self.db.commit()
+        db.commit()
 
 def filter_dict(data):
     """ Returns a filtered given data dict """

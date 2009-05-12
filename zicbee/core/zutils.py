@@ -1,18 +1,21 @@
-__all__ = ['jdump', 'jload', 'clean_path', 'parse_line', 'duration_tidy', 'DEBUG']
+__all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'parse_line', 'duration_tidy', 'get_help_from_func', 'dump_data_as_text', 'DEBUG']
 
 import traceback
 import itertools
+import inspect
 import string
 import sys
+import os
 from os.path import expanduser, expandvars, abspath
-
-def DEBUG():
-    traceback.print_stack()
-    traceback.print_exc()
+from zicbee.core.debug import log # forward some symbols
+import logging
 
 # Filename path cleaner
 def clean_path(path):
     return expanduser(abspath(expandvars(path)))
+
+def safe_path(path):
+    return path.replace(os.path.sep, ' ')
 
 # int (de)compacter [int <> small str convertors]
 # convert to base62...
@@ -55,17 +58,36 @@ def uncompact_int(str_val):
 
 json_engine = None
 try:
-    from cjson import encode as jdump, decode as jload
-    json_engine = 'cjson'
+    from json import dumps as jdump, loads as jload
+    json_engine = "python's built-in"
 except ImportError:
     try:
-        from simplejson import dumps as jdump, loads as jload
-        json_engine = 'simplejson'
+        from cjson import encode as jdump, decode as jload
+        json_engine = 'cjson'
     except ImportError:
-        from demjson import encode as jdump, decode as jload
-        json_engine = 'demjson'
+        try:
+            from simplejson import dumps as jdump, loads as jload
+            json_engine = 'simplejson'
+        except ImportError:
+            from demjson import encode as jdump, decode as jload
+            json_engine = 'demjson'
 
-sys.stderr.write("using %s.\n"%json_engine)
+sys.stderr.write("using %s engine.\n"%json_engine)
+################################################################################
+
+def dump_data_as_text(d, format):
+    if format == "json":
+        yield jdump(d)
+    else: # assume "txt"
+        # text output
+        if isinstance(d, dict):
+            for k, v in d.iteritems():
+                yield '%s: %s\n'%(k, v)
+        else:
+            # assume iterable
+            for elt in d:
+                yield "%r\n"%elt
+
 ################################################################################
 
 _plur = lambda val: 's' if val > 1 else ''
@@ -92,26 +114,84 @@ def duration_tidy(orig):
     return '%d.%02ds.'%(minutes, seconds)
 
 ################################################################################
+# documents a function automatically
+
+def get_help_from_func(cmd):
+    """
+    returns a tuple (str::tidy doc, bool::is_remote) from a function
+    """
+    arg_names, not_used, neither, dflt_values = inspect.getargspec(cmd)
+    is_remote = any(h for h in arg_names if h.startswith('host') or h.endswith('host'))
+
+    if cmd.__doc__:
+        if dflt_values is None:
+            dflt_values = []
+        else:
+            dflt_values = list(dflt_values)
+
+        # Ensure they have the same length
+        if len(dflt_values) < len(arg_names):
+            dflt_values = [None] * (len(dflt_values) - len(arg_names))
+#            map(None, arg_names, dflt_values)
+
+        doc = '::'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
+
+        return ("%s\n%s\n"%(
+            ("%s[::%s]"%(cmd.func_name[3:], doc) if len(doc) > 1 else cmd.func_name[3:]), # title
+            '\n'.join('   %s'%l for l in cmd.__doc__.split('\n') if l.strip()), # body
+        ), is_remote)
+    else:
+        return (cmd.func_name[3:], is_remote)
+
+################################################################################
 # line parser
 
 properties = []
-for name in 'length artist title album filename'.split():
+for name in 'score tags length artist title album filename'.split():
     properties.append(name)
     properties.append(name.title())
 del name
 
-def _find_property(line):
+def _find_property(line, property_list=None):
     tab = line.rsplit(None, 1)
-    for prop in properties:
-        if prop == tab[-1]:
+    for prop in property_list or properties:
+        if tab[-1] in (prop, prop[:2]):
             if len(tab) == 1:
-                return line
+                return prop
             else:
-                return tab[-1], tab[0].strip()
+                return prop, tab[0].strip()
 
-def _conv_line(txt):
+def extract_props(line, property_list):
+    """ extract a set of properties in a search string
+    return: (new_search_string, [(prop1, value1), (prop2, value2), ...])
+    """
+    props = properties[:]
+    props.extend(property_list)
+    conv_line = _conv_line(line, props)
+    ret_props = [conv for conv in conv_line if isinstance(conv, tuple) and conv[0] in property_list]
+    new_conv_line = [conv for conv in conv_line if not isinstance(conv, tuple) or conv[0] not in property_list]
+    try:
+        if not isinstance(new_conv_line[0], tuple):
+            new_conv_line.pop(0)
+        if not isinstance(new_conv_line[-1], tuple):
+            new_conv_line.pop(-1)
+    except IndexError:
+        pass
+
+    new_line = " ".join([conv if not isinstance(conv, tuple) else ": ".join(conv) for conv in new_conv_line])
+    return (new_line, ret_props)
+
+def _conv_line(txt, property_list=None):
+    """ Converts a syntax string to an easy to parse array of datas
+    data consists of str or (str, str) tuples
+    str values are operators like: or, and, !or, (, ), etc...
+    tuples are: key: value
+
+    NOTE: if there is no operator involved, the passed value is returned unmodified!
+    """
+    # TODO: replace with a real parser ?
     split_line = txt.split(':')
-#    web.debug('split line: %s'% split_line)
+    log.debug('split line: %s'% split_line)
 
     if len(split_line) > 1:
         ret = []
@@ -121,11 +201,11 @@ def _conv_line(txt):
                 if elt[0] == '(':
                     elt = elt[1:].strip()
                     ret.append('(')
-                attr = elt
-#                web.debug('attr: %s'%elt)
+                attr = _find_property(elt, property_list)
+                log.debug('attr: %s'%attr)
             else:
-                props = _find_property(elt)
-#                web.debug('props: %s'%repr(props))
+                props = _find_property(elt, property_list)
+                log.debug('props: %s'%repr(props))
                 if props:
                     # get init vars
                     name, val = props
@@ -146,9 +226,11 @@ def _conv_line(txt):
                             bin_operator = vals[1]
                             if bin_operator[-1] == '!':
                                 bin_operator = bin_operator[:-1] + ' not'
+                    log.debug('ret.append(%r, %r)', attr, val)
                     ret.append( (attr, val) )
                     if end_of_group:
                         ret.append(')')
+                    log.debug('ret.append(%r)', bin_operator)
                     ret.append( bin_operator )
                     attr = name
                     if next_is_grouped:
@@ -159,18 +241,23 @@ def _conv_line(txt):
                     if elt[-1] == ')':
                         elt = elt[:-1].strip()
                         end_of_group = True
-#                    web.debug('noprops: %s'%repr((attr, elt)))
+                    log.debug('noprops: %r / %r', attr, repr(elt))
                     ret.append( (attr, elt.strip()) )
                     if end_of_group:
                         ret.append(')')
+        log.debug('ret: %s'%txt)
         return ret
     else:
-#        web.debug('txt: %s'%txt)
+        log.debug('txt: %s'%txt)
         return txt
 
+RAW_ATTRS = ('filename',)
+
 def parse_line(line):
+    """ Gets a line in the form "<name>: value <other name>: value"
+   Returns an evaluable python string """
     ret = _conv_line(line)
-#    web.debug('RET: %s'%repr(ret))
+    log.debug('RET: %s'%repr(ret))
     # string (simple) handling
     if isinstance(ret, basestring):
         if ret:
@@ -181,28 +268,50 @@ def parse_line(line):
     varnames = list(string.ascii_letters)
     args = {}
     str_list = []
+
+    def try_dec(txt):
+        try:
+            return txt.decode('utf-8')
+        except UnicodeDecodeError:
+            return txt.decode('latin1')
+
     for pattern in ret:
         if isinstance(pattern, basestring):
+            log.debug('str_list.append("%s")', pattern)
             str_list.append(pattern)
         else:
             attr_name, value = pattern
             var_name = varnames.pop(0)
-            if attr_name in ('length',):
+            if attr_name in ('length', 'score', 'id'):
+                is_id = attr_name == 'id'
+                if is_id:
+                    attr_name = '__id__'
                 # numeric
                 modifier = ''
                 while value[0] in '>=<':
                     modifier += value[0]
                     value = value[1:]
 
+                if is_id:
+                    try:
+                        value = str(uncompact_int(value))
+                    except Exception, e:
+                        log.error("uncompact_int: %s"%e)
+
+                log.debug('str_list.append("%r %r %r")', attr_name, modifier or '==', var_name)
                 str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
                 args[var_name] = eval(value)
             else:
+                if attr_name in RAW_ATTRS:
+                    value = str(value)
+
                 # If attr name is capitalized, no case-unsensitive search
                 if attr_name[0].islower():
                     value = value.lower()
                     attr_name += '.lower()'
                 else:
                     attr_name = attr_name.lower()
-                str_list.append('"%s" in %s'%(value.replace('"', r'\"'), attr_name))
+                str_list.append('%s in %s'%(try_dec(repr(value)), attr_name))
+                log.debug('str_list.append(%s)'%str_list[-1])
     return ' '.join(str_list), args
 

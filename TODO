@@ -1,0 +1,97 @@
+=== IDEAS
+  * video support
+  * picture support
+      ** (merge with imgplayer.js ?)
+  * add update support from syntax
+    ** playlist: store a playlist (TODO: without other argument it GETS a playlist...)
+    ** +score: change the score of the given pattern
+    ** +tags: add the given keyword(s) to tags
+    ** example: `artist: Rolling album: stone +tags: rock`
+  * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
+  * re-write zicbee in C (the executable, not the project !)
+    ** have python fallback (use code generation from cmd/requests description?)
+  * database operations (difference, merge, substract, etc...)
+  * allow alternative databases synchronization (SQL, XML, ...)
+  * unify output format (re-architecture output operations)
+    ** add support for rss/rdf/atom formats as output
+  * add file transcoder functions (on a given database)
+    ** could be available via text and www
+  * add more formats to the player on www "live" (flash ? :( )
+  * add "size" lookup option, limiting the size of the answer (in s)
+    ** add advanced "skip" option, to skip a number of entries
+    ** add advanced "limit" option, to limit the number of entries answered
+  * add views support (aka "dynamic playlists", stored also...)
+    ** example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
+  * pluggable audio backend/minimal plugin support:
+      ** upnp/dlna support
+      ** audioscrobbler
+        *** syntax proposition: just "audioscrobbler:" ?
+      ** podcasts (atom/rss/etc...)
+        *** example: ```feed: http://blah title: something```
+        *** add named feeds support (use "myradio" instead of http://....)
+      ** specific hardware support (ipod...)  <-- give me one if you want it ;P
+      ** more...
+  * automatic (but clever...) autodetection of mountpoints
+
+----
+
+For **1.1**: (architecture cleanup)
+ * write some backends detection and loading
+ * need to split zicdb executable ?
+ * Much more doc
+ 
+
+Before **1.0**: (very useable, db schema freeze)
+ * distribution cleanup
+ * fill feature gap between www (poor) & text (rich) ui
+ * add themes support for www player (and DB ?)
+ * good duplicates detection
+
+Before **0.9**:
+ * let choice of multiple players [WIP: packages splitting via entry-points]
+ * cleaner javascript/cookies/sessions (prepare theme support)
+ * improve shell completion [WIP]
+ * start to split projects to clarify parts [WIP]
+ * satisfying duplicates detection
+ * rating/tag fully working (intensive tests on distributed configurations)
+ * stored playlists (including position) [WIP]
+    ** inc. playlist resume
+    ** www and text interface
+
+Before **0.8**: (slight feature/stable)
+ DONE:
+ * add support for FLAC
+ * interactive shell support with completion and history
+   ** see "zicdb shell" or "zicbee" commands
+ * integrate/complete tagging & scoring support
+ * add support for multiple DBs at once
+   ** (ie. have separate databases for your mp3 player & your local drive)
+   ** see "use" command for usage
+ * complete admin commands (see "set" command)
+ * better documentation
+
+
+**0.7** (cleanup/refactor):
+
+ * add play, pause, next, prev, list
+ * add cleaner configuration:: more unified (prepare themes handling)
+   ** ensure default host is well given
+ * public repositories (Hg) setup
+ * add some docs on the website
+ * add screenshots on website
+
+**0.7**-rc1 (first public release)
+ * site launch
+ * fixes egg/root installation (temporary file created)
+
+----
+
+**the underground** (unreleased mode, use mercurial to recover)
+ RIP:
+  * gtk player (many flavors tested)
+  * broken gstreamer backend (player)
+  * avbin (with pyglet) backend (player)
+  * different mplayer wrapper
+  * other flavors of www interface
+  * architectural mistakes ;)
+

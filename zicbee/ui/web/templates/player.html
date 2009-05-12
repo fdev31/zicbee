@@ -1,0 +1,32 @@
+$def with (form, score_form, tag_form, plugin)
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/${plugin}.css" media="screen">
+        <script type="text/javascript" src="/static/mootools-1.2-core.js"></script>
+        <script type="text/javascript" src="/static/plugin_${plugin}.js"></script>
+        <script type="text/javascript" src="/static/playMp3.js"></script>
+    </head>
+    <body><img id="bee" src="/static/pics/bee.png" style="margin: 0 auto auto 0; padding: 0; float: left;" />
+        <div id="descrBlock">
+            <div id="descr"></div>
+            <div id="progressbase"><div id="progressbar"></div></div>
+        </div>
+        <div id="cmdgroup">
+        </div>
+        <div id="playlist"></div>
+        <div id="form_panel" class="formBlock" >
+            <form id="fill_form" action="javascript:validateForm()">
+                $:form.render()
+                <input type="submit" value="Search" />
+            </form>
+            <form id="tag_form" action="javascript:validateTag($('tag_form').tag.value)">
+                $:tag_form.render()
+                <input type="submit" value="Tag this song!" />
+            </form>
+            <form id="score_form" action="javascript:validateScore($('score_form').score.value)">
+                $:score_form.render()
+                <input type="submit" value="Rate this song!" />
+            </form>
+        </div>
+    </body>
+</html>

@@ -8,7 +8,8 @@ from itertools import chain
 from weakref import WeakKeyDictionary
 
 from .search import do_search
-from zicbee.core.zutils import duration_tidy
+from zicbee.core.zutils import duration_tidy, safe_path
+from zicbee.core.config import config
 
 def DownloadGenerator(uri):
     uri, filename = uri
@@ -19,7 +20,10 @@ def DownloadGenerator(uri):
     site = urllib.urlopen(uri)
     out_file = file(filename, 'w')
     BUF_SZ = 2**16
-    total_size = int(site.info().getheader('Content-Length'))
+    try:
+        total_size = int(site.info().getheader('Content-Length'))
+    except TypeError:
+        total_size = None
     actual_size = 0
     progress_p = 0
 
@@ -30,7 +34,12 @@ def DownloadGenerator(uri):
             break
         out_file.write(data)
         actual_size += len(data)
-        percent = total_size/actual_size
+
+        if total_size:
+            percent = total_size/actual_size
+        else:
+            percent = actual_size
+
         if percent != progress_p:
             yield percent
 
@@ -96,16 +105,26 @@ class Downloader(object):
                 _download_infos['count'], duration_tidy(t)))
 
 
-def do_get(host='localhost', out='/tmp'):
+def do_get(host=None, out=None):
+    """ Get songs (same syntax as search)
+    See "help" for a more complete documentation
+    """
+    if out is None:
+        out = config.download_dir
+
+    if host is None:
+        host = config.db_host
+
     if ':' not in host:
-        host += ':9090'
+        host = "%s:%s"%(host, config.default_port)
 
     uri_list = []
     def _append_uri_filename(args):
         uri = args[0]
         filename = os.path.join(out,
-                ' - '.join(a for a in args[1:4] if a)
+                safe_path( ' - '.join(a for a in args[1:4] if a)
                 + args[0].split('?', 1)[0][-4:])
+                )
         uri_list.append((uri, filename))
 
     do_search(out=_append_uri_filename, host=host)

@@ -1,0 +1,231 @@
+# vim: et ts=4 sw=4
+from __future__ import with_statement
+
+__all__ = ['web_db_index', 'WEB_FIELDS', 'render']
+
+import os
+import web
+from threading import RLock
+from time import time
+from zicbee.core import zshell
+from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, dump_data_as_text
+from zicbee.core.config import config
+from zicbee.core import debug
+from zicbee import __version__ as VERSION
+
+WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
+
+web.internalerror = web.debugerror = web.debug = debug.log.debug
+
+if debug.debug_enabled:
+    web.config.debug = True
+else:
+    web.config.debug = None
+
+
+# Set default headers & go to templates directory
+web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
+from pkg_resources import resource_filename
+render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
+
+# DB part
+
+DbSimpleSearchForm = web.form.Form(
+        web.form.Hidden('id'),
+        web.form.Textbox('pattern'),
+        web.form.Checkbox('m3u'),
+        )
+
+def refresh_db():
+    zshell.songs.commit()
+    zshell.songs._create()
+    zshell.songs.cleanup()
+
+class web_db_index:
+
+    _db_lock = RLock()
+
+    def REQ_tag(self, song, tag):
+
+        song_id = uncompact_int(song)
+        try:
+            tag = unicode(tag)
+            with self._db_lock:
+                SEP=u','
+                _t = zshell.songs[song_id].tags
+                tag_set = set( _t.strip(SEP).split(SEP) ) if _t else set()
+                for single_tag in tag.split(','):
+                    tag_set.add(single_tag.strip())
+                new_tag = ''.join((SEP,SEP.join(tag_set),SEP))
+                zshell.songs[song_id].update(tags=new_tag)
+        except Exception, e:
+            web.debug('E!%s'%e)
+        finally:
+            refresh_db()
+
+    def REQ_rate(self, song, rating):
+        web.debug('rate: song=%s rating=%s'%(song,rating))
+        try:
+            with self._db_lock:
+                song_id = uncompact_int(song)
+                zshell.songs[song_id].update(score=int(rating))
+        finally:
+            refresh_db()
+
+    def REQ_multirate(self, ratings_list):
+        web.debug('rate: ratings_list=%s'%ratings_list)
+        try:
+            ratings = [rating.split('=') for rating in ratings_list.split(',')]
+            with self._db_lock:
+                for song, rating in ratings:
+                        song_id = uncompact_int(song)
+                        zshell.songs[song_id].update(score=int(rating))
+        finally:
+            refresh_db()
+
+    def REQ_version(self):
+        yield VERSION
+
+    def REQ_artists(self):
+        for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_albums(self):
+        for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_genre(self):
+        for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
+            yield d
+
+    def REQ_kill(self):
+        shell.songs.close()
+        raise SystemExit()
+
+    def REQ_infos(self, song_id):
+        song_id = uncompact_int(song_id)
+        song = zshell.songs[song_id]
+        return dump_data_as_text( "<b>%s</b>: %s<br/>"%(f, getattr(song, f)) for f in song.fields)
+
+    def REQ_get(self, song_id):
+        song_id = uncompact_int(song_id)
+        filename = zshell.songs[song_id].filename
+        web.header('Content-Type', 'application/x-audio')
+        web.header('Content-Disposition',
+                'attachment; filename:%s'%filename.rsplit('/', 1)[-1], unique=True)
+
+        CHUNK=1024
+        in_fd = file(filename)
+        web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
+        yield
+
+        while True:
+            data = in_fd.read(CHUNK)
+            if not data: break
+            y = (yield data)
+        return
+
+    def GET(self, name):
+        hd = web.webapi.ctx.homedomain
+        inp = web.input()
+        t0 = time()
+
+        # XXX: move this to special commands, using dedicated Form()s
+        # m3u flag has to move to "fmt"
+        song_id = None
+        handler = None # special action handler executed before listing
+        af = DbSimpleSearchForm()
+        if af.validates():
+            af.fill()
+            song_id = af['id'].value
+
+        if song_id:
+            args = [song_id]
+
+        if name:
+            # Special actions (1rs level path)
+            try:
+                name, path = name.split('/', 1)
+            except ValueError:
+                name = name
+                path = None
+            try:
+                handler = getattr(self, 'REQ_' + name)
+            except AttributeError:
+                handler = None
+                args = None
+
+            if not args:
+                if path:
+                    args = path.split('/')
+                else:
+                    args = []
+
+        if handler:
+            # XXX: replace that with autodelegate as in httpplayer
+            try:
+                # execute the handler
+                ret = handler(*args)
+                if hasattr(ret, 'next'):
+                    for chunk in ret:
+                        yield chunk
+                else:
+                    yield ret
+            except GeneratorExit:
+                raise
+            except Exception, e:
+                web.debug(e)
+
+        else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
+            # or use "index" ... (sounds good too !)
+            if af['m3u'].value:
+                web.header('Content-Type', 'audio/x-mpegurl')
+                format = 'm3u'
+            elif inp.get('plain'):
+                format = 'plain'
+            elif inp.get('json'):
+                format = 'json'
+            else:
+                web.header('Content-Type', 'text/html; charset=utf-8')
+                format = 'html'
+
+            pattern = af['pattern'].value
+
+            if pattern is None:
+                res = None
+            else:
+                pat, vars = parse_line(pattern)
+                urlencode = web.http.urlencode
+                ci = compact_int
+                web.debug('searching %s %s...'%(pat, vars))
+
+                res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
+                        for r in zshell.songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
+                        )
+            t_sel = time()
+
+            if format == 'm3u':
+                yield unicode(render.m3u(web.http.url, res))
+            elif format == 'plain':
+                yield unicode(render.plain(af, web.http.url, res))
+            elif format == 'json':
+                some_db = zshell.songs.databases.itervalues().next()['handle']
+                # try to pre-compute useful things
+                field_decoder = zip( WEB_FIELDS,
+                        (some_db.f_decode[some_db.fields[fname]] for fname in WEB_FIELDS)
+                        )
+                yield
+
+                infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
+                        for r in res )
+                try:
+                    # TODO: optimise this (jdump by 100 size blocks)
+                    for r in infos_iterator:
+                        yield jdump(r)
+                        yield '\n'
+                    web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
+                except Exception, e:
+                    web.debug("ERR:", e)
+            else:
+                yield unicode(render.index(af, res, config.web_skin or 'default'))
+

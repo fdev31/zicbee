@@ -2,6 +2,8 @@ import os
 import atexit
 import ConfigParser
 
+__all__ = ['DB_DIR', 'defaults_dict', 'config']
+
 DB_DIR = os.path.expanduser(os.getenv('ZICDB_PATH') or '~/.zicdb')
 try: # Ensure personal dir exists
     os.mkdir(DB_DIR)
@@ -13,7 +15,14 @@ defaults_dict = {
         'download_dir' : '/tmp',
         'db_host' : 'localhost:9090',
         'player_host' : 'localhost:9090',
+        'debug' : '',
         'default_search' : '',
+        'history_size' : 50,
+        'default_port': '9090',
+        'web_skin' : 'default',
+        'fork': 'blank_me_to_stop_forking_on_serve_mode',
+        'socket_timeout': '30',
+        'enable_history': 'blank_to_disable',
         }
 
 config_filename = os.path.join(DB_DIR, 'config.ini')
@@ -29,11 +38,32 @@ class ConfigObj(object):
             self._cfg.write(file(config_filename, 'w'))
 
     def __setattr__(self, name, val):
-        return self._cfg.set('DEFAULT', name, val)
+        if name.endswith('_host') and ':' not in val:
+            val = '%s:%s'%( val, self.default_port )
+        val = self._cfg.set('DEFAULT', name, val)
+        config._cfg.write(file(config_filename, 'w'))
+        return val
 
     def __getattr__(self, name):
         return self._cfg.get('DEFAULT', name)
 
-atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
+# Ensure the file is written on drive
+#atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
+
 config = ConfigObj()
+
+
+media_config = {
+        'mp3' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'ogg' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'mp4' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'aac' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'vqf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'wmv' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'wma' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'm4a' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'asf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'oga' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
+        }
 
