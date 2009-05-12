@@ -39,6 +39,10 @@ For **1.1**: (architecture cleanup)
  * write some backends detection and loading
  * need to split zicdb executable ?
  * Much more doc
+ * Integrate automatic playlists with *AUTO* keyword
+  ** minimal last.fm support (no account needed)
+  ** reuse code from my artistslike and artisttracks scripts
+  ** " artist: wax tailor *AUTO*" would automatically generate a playlist from artists similar to the one given (only best N tracks ?)
  
 
 Before **1.0**: (very useable, db schema freeze)

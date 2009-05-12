@@ -256,6 +256,22 @@ RAW_ATTRS = ('filename',)
 def parse_line(line):
     """ Gets a line in the form "<name>: value <other name>: value"
    Returns an evaluable python string """
+
+   automatic_playlist = False
+
+   if "*AUTO" in line: # special keyword
+       if "*AUTO*" in line: # Just *AUTO*
+           line = line.replace('*AUTO*', '')
+           automatic_playlist_results = 10
+       else: # *AUTO <size factor>* syntax
+           idx = s.index('*AUTO')+5 # 5 = len(*AUTO)
+           subidx = idx+line[idx:].index('*')
+           automatic_playlist_results = int(line[idx:subidx])
+           banned_characters = range(idx-5, subidx+1) # 5 = len(*AUTO) ; 1 = len(*)
+           line = ''.join(c for i, c in enumerate(line) if i not in banned_characters)
+
+       automatic_playlist = True
+
     ret = _conv_line(line)
     log.debug('RET: %s'%repr(ret))
     # string (simple) handling
@@ -298,9 +314,12 @@ def parse_line(line):
                     except Exception, e:
                         log.error("uncompact_int: %s"%e)
 
-                log.debug('str_list.append("%r %r %r")', attr_name, modifier or '==', var_name)
-                str_list.append('%s %s %s'%(attr_name, modifier or '==', var_name))
-                args[var_name] = eval(value)
+                var_value = eval(value)
+                modif = modifier or '=='
+                log.debug('str_list.append("%r %r %r")', attr_name, modif, var_name)
+                str_list.append('%s %s %s'%(attr_name, modif, var_name))
+                args[var_name] = var_value
+
             else:
                 if attr_name in RAW_ATTRS:
                     value = str(value)
@@ -311,7 +330,19 @@ def parse_line(line):
                     attr_name += '.lower()'
                 else:
                     attr_name = attr_name.lower()
-                str_list.append('%s in %s'%(try_dec(repr(value)), attr_name))
+
+                attr_value = try_dec(repr(value))
+                str_list.append('%s in %s'%(attr_value, attr_name))
                 log.debug('str_list.append(%s)'%str_list[-1])
+
+                if automatic_playlist and attr_name == 'artist':
+                    count_answers = itertools.count(0)
+                    for artist in search_artists(attr_value): # FIXME: import search_artists function !!
+                        if count_answers.next() > automatic_playlist_results:
+                            break
+                        str_list.append('%s in artist'%(attr_value))
+                        # TODO: return the magic artists list so we can start doing some black magic in dbe module
+                        # the goal is to use the autotracks too (heuristic: 50% best songs + 50% random)
+
     return ' '.join(str_list), args
 
