@@ -257,20 +257,20 @@ def parse_line(line):
     """ Gets a line in the form "<name>: value <other name>: value"
    Returns an evaluable python string """
 
-   automatic_playlist = False
+    automatic_playlist = False
 
-   if "*AUTO" in line: # special keyword
-       if "*AUTO*" in line: # Just *AUTO*
-           line = line.replace('*AUTO*', '')
-           automatic_playlist_results = 10
-       else: # *AUTO <size factor>* syntax
-           idx = s.index('*AUTO')+5 # 5 = len(*AUTO)
-           subidx = idx+line[idx:].index('*')
-           automatic_playlist_results = int(line[idx:subidx])
-           banned_characters = range(idx-5, subidx+1) # 5 = len(*AUTO) ; 1 = len(*)
-           line = ''.join(c for i, c in enumerate(line) if i not in banned_characters)
+    if "*AUTO" in line: # special keyword
+        if "*AUTO*" in line: # Just *AUTO*
+            line = line.replace('*AUTO*', '')
+            automatic_playlist_results = 10
+        else: # *AUTO <size factor>* syntax
+            idx = s.index('*AUTO')+5 # 5 = len(*AUTO)
+            subidx = idx+line[idx:].index('*')
+            automatic_playlist_results = int(line[idx:subidx])
+            banned_characters = range(idx-5, subidx+1) # 5 = len(*AUTO) ; 1 = len(*)
+            line = ''.join(c for i, c in enumerate(line) if i not in banned_characters)
 
-       automatic_playlist = True
+        automatic_playlist = True
 
     ret = _conv_line(line)
     log.debug('RET: %s'%repr(ret))
