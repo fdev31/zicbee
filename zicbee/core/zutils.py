@@ -3,10 +3,8 @@ __all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_he
 import inspect
 import itertools
 import os
-from os.path import expanduser, expandvars, abspath
-from zicbee.core.debug import log # forward some symbols
-from zicbee.remote_apis import ASArtist
-import logging
+from os.path import abspath, expanduser, expandvars
+from zicbee.core.debug import log
 
 # Filename path cleaner
 def clean_path(path):
@@ -30,7 +28,9 @@ def compact_int(ival):
         if not int_part:
             break
         rest = int_part
-    return "".join(reversed(result))
+    result = "".join(reversed(result))
+    log.info('compact(%s) = %s', ival, result)
+    return result
 
 def uncompact_int(str_val):
     # int(x, base) not used because it's limited to base 36
@@ -39,6 +39,7 @@ def uncompact_int(str_val):
     for char in reversed(str_val):
         result += chars.index(char) * unit
         unit *= base
+    log.info('uncompact(%s) = %s', ival, result)
     return result
 
 ################################################################################
@@ -70,10 +71,14 @@ except ImportError:
             from demjson import encode as jdump, decode as jload
             json_engine = 'demjson'
 
-sys.stderr.write("using %s engine.\n"%json_engine)
+log.info("using %s engine."%json_engine)
 ################################################################################
 
 def dump_data_as_text(d, format):
+    """ Dumps simple types (dict, iterable, float, int, unicode)
+    as: json or plain text (compromise between human readable and parsable form)
+    Returns an iterator returning text
+    """
     if format == "json":
         yield jdump(d)
     else: # assume "txt"
@@ -130,7 +135,6 @@ def get_help_from_func(cmd):
         # Ensure they have the same length
         if len(dflt_values) < len(arg_names):
             dflt_values = [None] * (len(dflt_values) - len(arg_names))
-#            map(None, arg_names, dflt_values)
 
         doc = '::'.join('%s%s'%(arg_name, '%s'%('='+str(arg_val) if arg_val is not None else '')) for arg_name, arg_val in itertools.imap(None, arg_names, dflt_values))
 
