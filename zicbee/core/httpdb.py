@@ -8,7 +8,8 @@ import web
 from threading import RLock
 from time import time
 from zicbee.core import zshell
-from zicbee.core.zutils import compact_int, jdump, parse_line, uncompact_int, dump_data_as_text
+from zicbee.core.zutils import compact_int, jdump, uncompact_int, dump_data_as_text
+from zicbee.core.parser import parse_line
 from zicbee.core.config import config
 from zicbee.core import debug
 from zicbee import __version__ as VERSION

@@ -2,7 +2,8 @@ from time import time
 import sys
 from zicbee.db import valid_tags
 from zicbee.core import zshell
-from zicbee.core.zutils import duration_tidy, parse_line, jload
+from zicbee.core.zutils import duration_tidy, jload
+from zicbee.core.parser import parse_line
 from zicbee.core.config import config
 from zicbee.core.debug import log, DEBUG
 

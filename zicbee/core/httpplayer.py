@@ -11,7 +11,8 @@ from threading import RLock
 import itertools
 import pkg_resources
 from time import time
-from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props, dump_data_as_text
+from zicbee.core.zutils import compact_int, jdump, jload, dump_data_as_text
+from zicbee.core.parser import extract_props
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG, log, debug_enabled
 from zicbee.core.config import config, media_config, DB_DIR
