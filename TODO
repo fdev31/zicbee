@@ -51,6 +51,7 @@ Before **1.0**: (very useable, db schema freeze)
 Before **0.9**:
  * let choice of multiple players [DONE: packages splitting via entry-points]
   ** there is a single backend so far (mplayer)
+  ** see http://box.gnux.info/zicbee/index.cgi/Developers
  * minimal www interface (for low power machines, don't expect too much) [DONE]
  * cleaner javascript/cookies/sessions (prepare theme support) [WIP]
  * improve shell completion [WIP: abbreviations]
@@ -61,9 +62,9 @@ Before **0.9**:
     ** inc. playlist resume
     ** www and text interface
  * Integrate automatic playlists with *AUTO* keyword [DONE]
-  ** minimal last.fm support (no account needed)
+  ** minimalistic last.fm support (no account needed, only works with "artist" keyword)
   ** modulable tolerence giving a digit (ex: *AUTO 15*)
-  ** "artist: wax tailor *AUTO*" automatically generates a playlist from artists similar to "wax tailor"
+  ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
 
 Before **0.8**: (slight feature/stable)
  DONE:
