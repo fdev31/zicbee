@@ -8,6 +8,7 @@ import sys
 import os
 from os.path import expanduser, expandvars, abspath
 from zicbee.core.debug import log # forward some symbols
+from zicbee.remote_apis import ASArtist
 import logging
 
 # Filename path cleaner
@@ -255,7 +256,7 @@ RAW_ATTRS = ('filename',)
 
 def parse_line(line):
     """ Gets a line in the form "<name>: value <other name>: value"
-   Returns an evaluable python string """
+    Returns an evaluable python string """
 
     automatic_playlist = False
 
@@ -333,14 +334,17 @@ def parse_line(line):
 
                 attr_value = try_dec(repr(value))
                 str_list.append('%s in %s'%(attr_value, attr_name))
-                log.debug('str_list.append(%s)'%str_list[-1])
+                log.debug('str_list.append(%r)'%str_list[-1])
 
-                if automatic_playlist and attr_name == 'artist':
+                if automatic_playlist and attr_name.startswith('artist'):
                     count_answers = itertools.count(0)
-                    for artist in search_artists(attr_value): # FIXME: import search_artists function !!
+                    artist_infos = ASArtist(value)
+                    for artist in artist_infos.getSimilar():
+                        artist = artist[1].lower()
                         if count_answers.next() > automatic_playlist_results:
                             break
-                        str_list.append('%s in artist'%(attr_value))
+                        str_list.append('or %r in artist.lower()'%(artist))
+                        log.debug('str_list.append(%s)'%str_list[-1])
                         # TODO: return the magic artists list so we can start doing some black magic in dbe module
                         # the goal is to use the autotracks too (heuristic: 50% best songs + 50% random)
 
