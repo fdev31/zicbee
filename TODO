@@ -35,39 +35,42 @@
 
 ----
 
-For **1.1**: (architecture cleanup)
+For **1.1** (architecture cleanup)
  * write some backends detection and loading
  * need to split zicdb executable ?
  * Much more doc
  * auto-playlists: handle track sorting during decimation
  
 
-Before **1.0**: (very useable, db schema freeze)
+Before **1.0** (very useable, db schema freeze)
  * distribution cleanup
  * fill feature gap between www (poor) & text (rich) ui
  * add themes support for www player (and DB ?)
  * good duplicates detection
 
-Before **0.9**:
- * let choice of multiple players [DONE: packages splitting via entry-points]
+Before **0.9**
+ [DONE]
+ * allow easy player backends integration (packages splitting via entry-points)
   ** there is a single backend so far (mplayer)
-  ** see http://box.gnux.info/zicbee/index.cgi/Developers
- * minimal www interface (for low power machines, don't expect too much) [DONE]
- * cleaner javascript/cookies/sessions (prepare theme support) [WIP]
- * improve shell completion [WIP: abbreviations]
- * start to split projects to clarify parts [WIP]
- * satisfying duplicates detection
- * rating/tag fully working (intensive tests on distributed configurations)
- * stored playlists (including position) [WIP]
-    ** inc. playlist resume
-    ** www and text interface
- * Integrate automatic playlists with *AUTO* keyword [DONE]
+  ** see [[Developers]] section
+ * minimal www interface (for low power machines, don't expect too much)
+ ** use /basic on any server with a player, it's quite rought now
+ * Integrate automatic playlists with *AUTO* keyword
   ** minimalistic last.fm support (no account needed, only works with "artist" keyword)
   ** modulable tolerence giving a digit (ex: *AUTO 15*)
   ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
+ * Split code into 3 projects to clarify parts
+ [WIP]
+ * cleaner javascript/cookies/sessions (prepare theme support)
+ * improve shell completion (abbreviations done, maybe "set" command to come)
+ * stored playlists (including position)
+    ** inc. playlist resume
+    ** www and text interface
+ [TODO]
+ * satisfying duplicates detection
+ * rating/tag fully working (intensive tests on distributed configurations)
 
-Before **0.8**: (slight feature/stable)
- DONE:
+**0.8** (slight feature/stable)
  * add support for FLAC
  * interactive shell support with completion and history
    ** see "zicdb shell" or "zicbee" commands
