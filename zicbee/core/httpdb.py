@@ -132,6 +132,7 @@ class web_db_index:
 
         # XXX: move this to special commands, using dedicated Form()s
         # m3u flag has to move to "fmt"
+        args = None
         song_id = None
         handler = None # special action handler executed before listing
         af = DbSimpleSearchForm()
@@ -153,7 +154,6 @@ class web_db_index:
                 handler = getattr(self, 'REQ_' + name)
             except AttributeError:
                 handler = None
-                args = None
 
             if not args:
                 if path:
