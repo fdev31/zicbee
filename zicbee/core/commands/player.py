@@ -7,6 +7,7 @@ __all__ = [
 
 import urllib
 from zicbee.core.zshell import args
+from zicbee.core.zutils import jload
 from zicbee.core.config import config
 from itertools import count
 from .search import do_search
@@ -45,26 +46,24 @@ def do_playlist(now=False, host=None, res=10):
         host = config.player_host
 
     if now:
-        play_uri = 'http://%s/infos?fmt=txt'%(host)
+        play_uri = 'http://%s/infos?fmt=json'%(host)
         site = urllib.urlopen(play_uri)
+        infos = jload(site.read())
         # get current position
-        pos = int([l.split(':', 1)[1].strip() for l in site.readlines() if l.startswith('pls_position:')][0])
+        pos = int(infos['pls_position'])
         start = max(0, int(pos-(res/2)))
-        play_uri = 'http://%s/playlist?fmt=txt&start=%s&res=%s'%(host, start, res)
+        play_uri = 'http://%s/playlist?fmt=json&start=%s&res=%s'%(host, start, res)
     else:
         start = 0
         pos = None
-        play_uri = 'http://%s/playlist?fmt=txt'%(host)
+        play_uri = 'http://%s/playlist?fmt=json'%(host)
 
     site = urllib.urlopen(play_uri)
 
     cnt = count(start)
+    playlist = jload(site.read())
 
-    while True:
-        l = site.readline()
-        if not l:
-            break
-
+    for l in playlist:
         if cnt.next() == pos:
             indent = '*> '
         else:

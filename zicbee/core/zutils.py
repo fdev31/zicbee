@@ -2,6 +2,7 @@ __all__ = ['jdump', 'jload', 'clean_path', 'safe_path', 'duration_tidy', 'get_he
 
 import inspect
 import itertools
+from types import GeneratorType
 import os
 from os.path import abspath, expanduser, expandvars
 from zicbee.core.debug import log
@@ -80,6 +81,8 @@ def dump_data_as_text(d, format):
     Returns an iterator returning text
     """
     if format == "json":
+        if isinstance(d, GeneratorType):
+            d = list(d)
         yield jdump(d)
     elif format == "html":
         if isinstance(d, dict):
