@@ -81,8 +81,15 @@ def dump_data_as_text(d, format):
     """
     if format == "json":
         yield jdump(d)
+    elif format == "html":
+        if isinstance(d, dict):
+            for k, v in d.iteritems():
+                yield '<b>%s</b>: %s<br/>\n'%(k, v)
+        else:
+            # assume iterable
+            for elt in d:
+                yield "%r\n"%elt
     else: # assume "txt"
-        # text output
         if isinstance(d, dict):
             for k, v in d.iteritems():
                 yield '%s: %s\n'%(k, v)
