@@ -39,7 +39,7 @@ def uncompact_int(str_val):
     for char in reversed(str_val):
         result += chars.index(char) * unit
         unit *= base
-    log.info('uncompact(%s) = %s', ival, result)
+    log.info('uncompact(%s) = %s', str_val, result)
     return result
 
 ################################################################################
