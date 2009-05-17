@@ -104,12 +104,18 @@ class web_db_index:
         raise SystemExit()
 
     def REQ_infos(self, song_id):
-        song_id = uncompact_int(song_id)
+        af = DbSimpleSearchForm()
+        if af.validates():
+            af.fill()
+            song_id = uncompact_int(af['id'].value)
         song = zshell.songs[song_id]
         return dump_data_as_text( "<b>%s</b>: %s<br/>"%(f, getattr(song, f)) for f in song.fields)
 
-    def REQ_get(self, song_id):
-        song_id = uncompact_int(song_id)
+    def REQ_get(self, *args):
+        af = DbSimpleSearchForm()
+        if af.validates():
+            af.fill()
+            song_id = uncompact_int(af['id'].value)
         filename = zshell.songs[song_id].filename
         web.header('Content-Type', 'application/x-audio')
         web.header('Content-Disposition',
