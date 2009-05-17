@@ -69,7 +69,7 @@ def do_playlist(now=False, host=None, res=10):
         else:
             indent = '   '
 
-        print "%s%s"%(indent, ' '.join(l.split(' , ')[:4]))
+        print "%s%s"%(indent, ' - '.join(l[:4]))
 
 def do_clear(host=None):
     """ Clear current playlist and stop the player """

@@ -90,8 +90,10 @@ def dump_data_as_text(d, format):
                 yield '<b>%s</b>: %s<br/>\n'%(k, v)
         else:
             # assume iterable
+            yield "<ul>"
             for elt in d:
-                yield "%r\n"%elt
+                yield "<li>%r</li>\n"%elt
+            yield "</ul>"
     else: # assume "txt"
         if isinstance(d, dict):
             for k, v in d.iteritems():
