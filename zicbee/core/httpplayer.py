@@ -35,7 +35,7 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
-    See self.player.* for the needed interface.
+    See documentation for the zicbee.player hook for the needed interface.
     """
     def __init__(self):
         self._cur_song_pos = -1
