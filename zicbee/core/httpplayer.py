@@ -501,11 +501,7 @@ class webplayer:
         return web.redirect('/')
 
     def REQ_inject(self):
-        i = web.input()
-        if i.get('id'):
-            self.player.playlist_change('inject', int(i['id']))
-        else:
-            self.player.playlist_change('inject', i['uri'])
+        self.player.playlist_change('inject', web.input()['uri'])
         return web.redirect('/')
 
     def REQ_copy(self):
