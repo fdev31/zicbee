@@ -211,12 +211,15 @@ class PlayerCtl(object):
         elif operation == 'append':
             self.playlist.extend(self._named_playlists[pls_name])
         elif operation == 'inject':
-            pos = self._cur_song_pos
-            if pos:
-                # TODO: convert it to normal query
-                # parse id value from uri and then redirect to
-                # id: [id value] pls: ># 
-                self.playlist[pos+1:pos+1] = [uri, u'injected uri', 1000, None, None, 1000]
+            hostname = uri.split("/", 3)[2]
+            song_id = uri.rsplit('=', 1)[1]
+            return self.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id)
+#            pos = self._cur_song_pos
+#            if pos:
+#                # TODO: convert it to normal query
+#                # parse id value from uri and then redirect to
+#                # id: [id value] pls: ># 
+#                self.playlist[pos+1:pos+1] = [uri, u'injected uri', 1000, None, None, 1000]
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
