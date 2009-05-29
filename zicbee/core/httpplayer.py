@@ -283,12 +283,14 @@ class PlayerCtl(object):
             add = out_pls.append
             ext = out_pls.extend
             current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            if isinstance(append, int):
+                add = to_be_inserted.append
+                ext = to_be_inserted.extend
+
             if not append:
                 out_pls[:] = []
-            elif isinstance(append, int):
-                add = to_be_inserted.append
-            if current:
-                add(current)
+                if current:
+                    add(current)
 
         total = 0
         done = False
@@ -481,7 +483,7 @@ class webplayer:
             if i.get('pattern'):
                 it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=i.get('tempname', '').strip() or False)
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), i.get('tempname', '').strip() or False)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=i.get('tempname', '').strip() or False)
             it.next()
 
         except (IndexError, KeyError):
