@@ -188,6 +188,7 @@ class web_db_index:
 
         else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
             # or use "index" ... (sounds good too !)
+            # TODO: convert "m3u" to "fmt"
             if af['m3u'].value:
                 web.header('Content-Type', 'audio/x-mpegurl')
                 format = 'm3u'
