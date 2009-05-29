@@ -95,7 +95,7 @@ class web_db_index:
         for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
             yield d
 
-    def REQ_genre(self):
+    def REQ_genres(self):
         for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
             yield d
 
