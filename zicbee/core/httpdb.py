@@ -95,7 +95,7 @@ class web_db_index:
         for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
             yield d
 
-    def REQ_genre(self):
+    def REQ_genres(self):
         for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
             yield d
 
@@ -188,6 +188,7 @@ class web_db_index:
 
         else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
             # or use "index" ... (sounds good too !)
+            # TODO: convert "m3u" to "fmt"
             if af['m3u'].value:
                 web.header('Content-Type', 'audio/x-mpegurl')
                 format = 'm3u'

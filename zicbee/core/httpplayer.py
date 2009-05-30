@@ -35,7 +35,7 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
-    See self.player.* for the needed interface.
+    See documentation for the zicbee.player hook for the needed interface.
     """
     def __init__(self):
         self._cur_song_pos = -1
@@ -208,8 +208,18 @@ class PlayerCtl(object):
         if operation == 'copy':
             self.playlist = self._named_playlists[pls_name]
             self._cur_song_pos = 0
-        if operation == 'append':
+        elif operation == 'append':
             self.playlist.extend(self._named_playlists[pls_name])
+        elif operation == 'inject':
+            hostname = uri.split("/", 3)[2]
+            song_id = uri.rsplit('=', 1)[1]
+            return self.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id)
+#            pos = self._cur_song_pos
+#            if pos:
+#                # TODO: convert it to normal query
+#                # parse id value from uri and then redirect to
+#                # id: [id value] pls: ># 
+#                self.playlist[pos+1:pos+1] = [uri, u'injected uri', 1000, None, None, 1000]
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
@@ -245,6 +255,8 @@ class PlayerCtl(object):
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
 
+        to_be_inserted = []
+
         with self._lock:
             self.hostname = hostname
             params = '&%s'%urllib.urlencode(kw) if kw else ''
@@ -259,6 +271,10 @@ class PlayerCtl(object):
                 if pls.startswith('+'):
                     pls = pls[1:]
                     append = True
+                elif pls.startswith('>'):
+                    pls = pls[1:]
+                    if self._cur_song_pos:
+                        append = self._cur_song_pos + 1 # insert at desired position
                 if pls != '#':
                     # output playlist is not 'current playlist' 
                     if pls not in self._named_playlists:
@@ -267,10 +283,14 @@ class PlayerCtl(object):
             add = out_pls.append
             ext = out_pls.extend
             current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            if isinstance(append, int):
+                add = to_be_inserted.append
+                ext = to_be_inserted.extend
+
             if not append:
                 out_pls[:] = []
-            if current:
-                add(current)
+                if current:
+                    add(current)
 
         total = 0
         done = False
@@ -303,6 +323,9 @@ class PlayerCtl(object):
         if out_pls is self.playlist:
             # reset song position
             with self._lock:
+                if to_be_inserted:
+                    self.playlist[append:append] = to_be_inserted
+
                 if self._cur_song_pos > 0 and not append:
                     self._cur_song_pos = 0
                 self._tmp_total_length = total
@@ -460,7 +483,7 @@ class webplayer:
             if i.get('pattern'):
                 it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=i.get('tempname', '').strip() or False)
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), i.get('tempname', '').strip() or False)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=i.get('tempname', '').strip() or False)
             it.next()
 
         except (IndexError, KeyError):
@@ -480,6 +503,10 @@ class webplayer:
 
     def REQ_append(self):
         self.player.playlist_change('append', web.input()['name'])
+        return web.redirect('/')
+
+    def REQ_inject(self):
+        self.player.playlist_change('inject', web.input()['uri'])
         return web.redirect('/')
 
     def REQ_copy(self):
