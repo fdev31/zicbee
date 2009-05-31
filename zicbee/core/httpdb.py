@@ -34,7 +34,7 @@ render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 DbSimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
         web.form.Textbox('pattern'),
-        web.form.Checkbox('m3u'),
+        web.form.Textbox('fmt'),
         )
 
 def refresh_db():
@@ -188,17 +188,11 @@ class web_db_index:
 
         else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
             # or use "index" ... (sounds good too !)
-            # TODO: convert "m3u" to "fmt"
-            if af['m3u'].value:
+            format = af['fmt'].value or 'html'
+            if format == 'm3u':
                 web.header('Content-Type', 'audio/x-mpegurl')
-                format = 'm3u'
-            elif inp.get('plain'):
-                format = 'plain'
-            elif inp.get('json'):
-                format = 'json'
-            else:
+            elif format == 'html':
                 web.header('Content-Type', 'text/html; charset=utf-8')
-                format = 'html'
 
             pattern = af['pattern'].value
 
@@ -217,8 +211,8 @@ class web_db_index:
 
             if format == 'm3u':
                 yield unicode(render.m3u(web.http.url, res))
-            elif format == 'plain':
-                yield unicode(render.plain(af, web.http.url, res))
+            elif not format or format == 'html':
+                yield unicode(render.index(af, res, config.web_skin or 'default'))
             elif format == 'json':
                 some_db = zshell.songs.databases.itervalues().next()['handle']
                 # try to pre-compute useful things
@@ -238,5 +232,7 @@ class web_db_index:
                 except Exception, e:
                     web.debug("ERR:", e)
             else:
-                yield unicode(render.index(af, res, config.web_skin or 'default'))
+                # TODO: add support for zip output (returns a zip stream with all the songs)
+                for res in dump_data_as_text(res, format):
+                    yield res
 
