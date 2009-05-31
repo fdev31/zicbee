@@ -37,7 +37,7 @@ def do_serve(pure=False):
             try:
                 from zicbee.core.httpplayer import webplayer
             except (ImportError, RuntimeError):
-                web.debug("Can't load webplayer, falling-back to pure db mode")
+                print "Can't load webplayer, falling-back to pure db mode"
                 DEBUG()
                 pure = True
 
