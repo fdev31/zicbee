@@ -260,7 +260,7 @@ class PlayerCtl(object):
         with self._lock:
             self.hostname = hostname
             params = '&%s'%urllib.urlencode(kw) if kw else ''
-            uri = 'http://%s/db/?json=1%s'%(hostname, params)
+            uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)
             web.debug('fetch_pl: playlist=%s pls=%s kw=%s uri=%s'%(playlist, pls, kw, uri))
 

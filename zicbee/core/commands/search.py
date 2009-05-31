@@ -43,7 +43,7 @@ def do_search(out=None, host=None, edit_mode=False):
     if host is not None:
         import urllib
         params = {'pattern':' '.join(zshell.args)}
-        uri = 'http://%s/db/?json=1&%s'%(host, urllib.urlencode(params))
+        uri = 'http://%s/db/?fmt=json&%s'%(host, urllib.urlencode(params))
         site = urllib.urlopen(uri)
         while True:
             line = site.readline()
