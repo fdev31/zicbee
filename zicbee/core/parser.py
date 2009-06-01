@@ -4,13 +4,14 @@ import itertools
 import os
 import string
 from zicbee.core.debug import log
+from zicbee.core.zutils import uncompact_int
 from zicbee.remote_apis import ASArtist
 
 ################################################################################
 # line parser
 
 properties = []
-for name in 'score tags length artist title album filename'.split():
+for name in 'id score tags length artist title album filename'.split():
     properties.append(name)
     properties.append(name.title())
 del name
