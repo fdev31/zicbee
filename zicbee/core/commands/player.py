@@ -20,6 +20,7 @@ def do_play(dbhost=None, phost=None):
 
     if dbhost is None:
         dbhost = config.db_host
+
     play_uri = 'http://%s/search?id=&host=%s&pattern=%s'%(phost, dbhost, urllib.quote(u' '.join(args)))
     urllib.urlopen(play_uri).read()
 

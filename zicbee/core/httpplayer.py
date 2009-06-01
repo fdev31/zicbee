@@ -210,16 +210,6 @@ class PlayerCtl(object):
             self._cur_song_pos = 0
         elif operation == 'append':
             self.playlist.extend(self._named_playlists[pls_name])
-        elif operation == 'inject':
-            hostname = uri.split("/", 3)[2]
-            song_id = uri.rsplit('=', 1)[1]
-            return self.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id)
-#            pos = self._cur_song_pos
-#            if pos:
-#                # TODO: convert it to normal query
-#                # parse id value from uri and then redirect to
-#                # id: [id value] pls: ># 
-#                self.playlist[pos+1:pos+1] = [uri, u'injected uri', 1000, None, None, 1000]
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
@@ -233,7 +223,7 @@ class PlayerCtl(object):
         (the main one is not affected)
         returns an iterator
         """
-        web.debug('fetch_pl: h=%s tmp=%s'%(hostname, temp))
+        web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, temp, kw))
         hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
@@ -480,14 +470,21 @@ class webplayer:
         it = None
         try:
             i = web.input()
+            tempname = i.get('tempname', '').strip() or False
             if i.get('pattern'):
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=i.get('tempname', '').strip() or False)
+                if i.pattern.startswith('http'):
+                    uri = i.pattern
+                    hostname = uri.split("/", 3)[2]
+                    song_id = uri.rsplit('=', 1)[1]
+                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
+                else:
+                    it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=i.get('tempname', '').strip() or False)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=tempname)
             it.next()
 
         except (IndexError, KeyError):
-            it = None
+            it = []
         finally:
             return itertools.chain(it, [web.redirect('/')])
 
@@ -503,10 +500,6 @@ class webplayer:
 
     def REQ_append(self):
         self.player.playlist_change('append', web.input()['name'])
-        return web.redirect('/')
-
-    def REQ_inject(self):
-        self.player.playlist_change('inject', web.input()['uri'])
         return web.redirect('/')
 
     def REQ_copy(self):
