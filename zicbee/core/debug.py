@@ -34,15 +34,25 @@ def DEBUG():
 
 if debug_enabled:
     default_formatter = logging.Formatter('[%(threadName)s %(relativeCreated)d] %(module)s %(funcName)s:%(lineno)s %(message)s')
+    try:
+        LOGFILENAME='zicbee.log'
+        file(LOGFILENAME, 'a').close()
+    except Exception:
+        LOGFILENAME=None
 
-    # add two handlers
-    for h in logging.FileHandler('/tmp/zicbee.log'), logging.StreamHandler():
+    handlers = [ logging.StreamHandler() ] # first is stderr
+    if LOGFILENAME:
+        handlers.append( logging.FileHandler(LOGFILENAME) )
+
+    # add handlers
+    for h in handlers:
         log.addHandler(h)
         h.setFormatter( default_formatter )
-        try:
-            val = logging.ERROR - int(os.environ.get('DEBUG', 1))*10
-        except ValueError:
-            val = logging.DEBUG
+
+    try:
+        val = int(os.environ.get('DEBUG', 1))*10
+    except ValueError:
+        val = logging.DEBUG
 
     log.setLevel(val)
 else:

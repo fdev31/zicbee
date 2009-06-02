@@ -11,7 +11,8 @@ from threading import RLock
 import itertools
 import pkg_resources
 from time import time
-from zicbee.core.zutils import compact_int, jdump, jload, parse_line, _conv_line, _find_property, extract_props, dump_data_as_text
+from zicbee.core.zutils import compact_int, jdump, jload, dump_data_as_text
+from zicbee.core.parser import extract_props
 from zicbee.core.zutils import uncompact_int
 from zicbee.core.debug import DEBUG, log, debug_enabled
 from zicbee.core.config import config, media_config, DB_DIR
@@ -34,7 +35,7 @@ ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
-    See self.player.* for the needed interface.
+    See documentation for the zicbee.player hook for the needed interface.
     """
     def __init__(self):
         self._cur_song_pos = -1
@@ -207,7 +208,7 @@ class PlayerCtl(object):
         if operation == 'copy':
             self.playlist = self._named_playlists[pls_name]
             self._cur_song_pos = 0
-        if operation == 'append':
+        elif operation == 'append':
             self.playlist.extend(self._named_playlists[pls_name])
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
@@ -222,7 +223,7 @@ class PlayerCtl(object):
         (the main one is not affected)
         returns an iterator
         """
-        web.debug('fetch_pl: h=%s tmp=%s'%(hostname, temp))
+        web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, temp, kw))
         hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
@@ -244,10 +245,12 @@ class PlayerCtl(object):
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
 
+        to_be_inserted = []
+
         with self._lock:
             self.hostname = hostname
             params = '&%s'%urllib.urlencode(kw) if kw else ''
-            uri = 'http://%s/db/?json=1%s'%(hostname, params)
+            uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)
             web.debug('fetch_pl: playlist=%s pls=%s kw=%s uri=%s'%(playlist, pls, kw, uri))
 
@@ -258,6 +261,10 @@ class PlayerCtl(object):
                 if pls.startswith('+'):
                     pls = pls[1:]
                     append = True
+                elif pls.startswith('>'):
+                    pls = pls[1:]
+                    if self._cur_song_pos:
+                        append = self._cur_song_pos + 1 # insert at desired position
                 if pls != '#':
                     # output playlist is not 'current playlist' 
                     if pls not in self._named_playlists:
@@ -266,10 +273,14 @@ class PlayerCtl(object):
             add = out_pls.append
             ext = out_pls.extend
             current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            if isinstance(append, int):
+                add = to_be_inserted.append
+                ext = to_be_inserted.extend
+
             if not append:
                 out_pls[:] = []
-            if current:
-                add(current)
+                if current:
+                    add(current)
 
         total = 0
         done = False
@@ -302,6 +313,9 @@ class PlayerCtl(object):
         if out_pls is self.playlist:
             # reset song position
             with self._lock:
+                if to_be_inserted:
+                    self.playlist[append:append] = to_be_inserted
+
                 if self._cur_song_pos > 0 and not append:
                     self._cur_song_pos = 0
                 self._tmp_total_length = total
@@ -456,14 +470,21 @@ class webplayer:
         it = None
         try:
             i = web.input()
+            tempname = i.get('tempname', '').strip() or False
             if i.get('pattern'):
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=i.get('tempname', '').strip() or False)
+                if i.pattern.startswith('http'):
+                    uri = i.pattern
+                    hostname = uri.split("/", 3)[2]
+                    song_id = uri.rsplit('=', 1)[1]
+                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
+                else:
+                    it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), i.get('tempname', '').strip() or False)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=tempname)
             it.next()
 
         except (IndexError, KeyError):
-            it = None
+            it = []
         finally:
             return itertools.chain(it, [web.redirect('/')])
 

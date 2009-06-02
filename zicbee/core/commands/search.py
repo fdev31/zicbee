@@ -2,7 +2,8 @@ from time import time
 import sys
 from zicbee.db import valid_tags
 from zicbee.core import zshell
-from zicbee.core.zutils import duration_tidy, parse_line, jload
+from zicbee.core.zutils import duration_tidy, jload
+from zicbee.core.parser import parse_line
 from zicbee.core.config import config
 from zicbee.core.debug import log, DEBUG
 
@@ -42,7 +43,7 @@ def do_search(out=None, host=None, edit_mode=False):
     if host is not None:
         import urllib
         params = {'pattern':' '.join(zshell.args)}
-        uri = 'http://%s/db/?json=1&%s'%(host, urllib.urlencode(params))
+        uri = 'http://%s/db/?fmt=json&%s'%(host, urllib.urlencode(params))
         site = urllib.urlopen(uri)
         while True:
             line = site.readline()
