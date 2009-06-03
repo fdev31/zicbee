@@ -33,8 +33,8 @@ render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 
 DbSimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
-        web.form.Textbox('pattern'),
-        web.form.Textbox('fmt'),
+        web.form.Textbox('pattern', description="Play pattern"),
+        web.form.Dropdown('fmt', [ ('html', 'WWW Browser'), ('txt', 'Text'), ('json', 'JSON') ], value="html", description="Output"),
         )
 
 def refresh_db():
