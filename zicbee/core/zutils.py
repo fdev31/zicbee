@@ -85,6 +85,7 @@ def dump_data_as_text(d, format):
             d = list(d)
         yield jdump(d)
     elif format == "html":
+        yield "<html><body>"
         if isinstance(d, dict):
             for k, v in d.iteritems():
                 yield '<b>%s</b>: %s<br/>\n'%(k, v)
@@ -94,6 +95,7 @@ def dump_data_as_text(d, format):
             for elt in d:
                 yield "<li>%r</li>\n"%elt
             yield "</ul>"
+        yield "</body></html>"
     else: # assume "txt"
         if isinstance(d, dict):
             for k, v in d.iteritems():
