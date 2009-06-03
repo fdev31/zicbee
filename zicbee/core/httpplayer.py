@@ -533,9 +533,7 @@ class webplayer:
 
         if format.startswith('htm'):
             web.header('Content-Type', 'text/html; charset=utf-8')
-            return '<html><body>'+ ('<br/>'.join("<b>%s</b>: %s"%(k, v) for k, v in _d.iteritems())) + '</body></html>'
-        else:
-            return dump_data_as_text(_d, format)
+        return dump_data_as_text(_d, format)
 
     def REQ_lastlog(self):
         return '\n'.join(self.lastlog)
