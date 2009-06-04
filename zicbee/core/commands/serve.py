@@ -16,6 +16,7 @@ def do_serve(pure=False):
 
     import web
     from zicbee.core.httpdb import web_db_index
+    import socket
 
     pid = 0 # if not forking, still execute children commands
     do_detach = False # do not try to detach by default
@@ -54,6 +55,8 @@ def do_serve(pure=False):
             app.run()
         except SystemExit:
             print "ciao!"
+        except socket.error:
+            print "Already running!"
         except:
             DEBUG()
             print os.kill(os.getpid(), 9)
