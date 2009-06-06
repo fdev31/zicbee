@@ -51,6 +51,8 @@ Before **1.0** (very useable, db schema freeze)
  * add themes support for www player (and DB ?)
  * good duplicates detection
  * API/db cleanup & documentation
+ * playcount
+ * lastplayed (date)
  * add hostname when scanning (ask for one, store in .ini file)
 
 Before **0.9**
@@ -65,12 +67,17 @@ Before **0.9**
   ** modulable tolerence giving a digit (ex: *AUTO 15*)
   ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
  * Split code into 3 projects to clarify parts
+ * stored playlists (including position)
+    ** use "#" to act on current playlist
+    ** use "pls: <playlist name>" to WRITE a playlist
+    ** use "playlist: <playlist name>" to LOAD a playlist
+    ** prefix playlist name with "+" to append results to playlist
+    ** prefix playlist name with ">" to insert results into playlist just after the current song
+    ** inc. playlist resume
  [WIP]
  * cleaner javascript/cookies/sessions (prepare theme support)
  * improve shell completion (abbreviations done, maybe "set" command to come)
- * stored playlists (including position)
-    ** inc. playlist resume
-    ** www and text interface
+    ** www (TBD) and text interface
  [TODO]
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
