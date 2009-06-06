@@ -32,14 +32,45 @@ SimpleSearchForm = web.form.Form(
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
+class Playlist(list):
+    def __init__(self, *args, position=-1):
+        list.__init__(self, *args)
+        self.pos = position
+
+    def shuffle(self):
+        if len(self) == 0:
+            return
+        current = self.selected
+        random.shuffle(self)
+        if current:
+            self.insert(0, current)
+            self.pos = 0
+        else:
+            self.pos = -1
+
+    def clear(self):
+        self[:] = []
+        self.pos = -1
+
+    @property
+    def selected(self):
+        if self.pos == -1 or len(self) == 0:
+            return None
+        return self[self.pos]
+
+    def move(self, steps):
+        self.pos += steps
+        if self.pos > len(self):
+            self.pos = -1
+        elif self.pos < -1:
+            self.pos = -1
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
     See documentation for the zicbee.player hook for the needed interface.
     """
     def __init__(self):
-        self._cur_song_pos = -1
-        self.playlist = []
+        self.playlist = Playlist()
         self.views = []
         for player_plugin in pkg_resources.iter_entry_points('zicbee.player'):
             try:
@@ -110,22 +141,18 @@ class PlayerCtl(object):
         """
 
         with self._lock:
-            pos = self._cur_song_pos
-            self._cur_song_pos += sense
-            web.debug(self.infos, self.selected)
+            pos = self.playlist.pos
 
-            if self._cur_song_pos > len(self.playlist):
-                self._cur_song_pos = -1
-            elif self._cur_song_pos < -1:
-                self._cur_song_pos = -1
+            web.debug(self.infos, self.selected)
+            self.playlist.move(sense)
 
             song_name = config.streaming_file
             web.debug('download: %s'%self.selected_uri)
             dl_it = self._download_zic(self.selected_uri, song_name)
             dl_it.next()
-            web.debug('select: %d (previous=%s)'%(self._cur_song_pos, pos))
-            if pos != self._cur_song_pos:
-                web.debug("Loadfile %d/%s : %s !!"%(self._cur_song_pos, len(self.playlist), song_name))
+            web.debug('select: %d (previous=%s)'%(self.playlist.pos, pos))
+            if pos != self.playlist.pos:
+                web.debug("Loadfile %d/%s : %s !!"%(self.playlist.pos, len(self.playlist), song_name))
                 cache = media_config[self.selected_type]['player_cache']
                 self.player.set_cache(cache)
                 self.player.load(song_name)
@@ -151,19 +178,9 @@ class PlayerCtl(object):
         """ Shuffle the playlist, and selects the first track
         if the playlist is empty, do nothing
         """
-        if len(self.playlist) == 0:
-            return
+
         with self._lock:
-            pos = self._cur_song_pos
-            current = None
-            if (0 <= pos < len(self.playlist)):
-                current = self.playlist.pop(pos)
-            random.shuffle(self.playlist)
-            if current:
-                self.playlist.insert(0, current)
-                self._cur_song_pos = 0
-            else:
-                self._cur_song_pos = -1
+            self.playlist.shuffle()
 
     def seek(self, val):
         """ Seek according to given value
@@ -175,9 +192,8 @@ class PlayerCtl(object):
         """ Clear the current playlist and stop the player
         """
         with self._lock:
-            self.playlist[:] = []
+            self.playlist.clear()
             self._load_playlists()
-            self._cur_song_pos = -1
             self.position = None
             self.player.respawn()
             self._paused = False
@@ -207,7 +223,6 @@ class PlayerCtl(object):
         """
         if operation == 'copy':
             self.playlist = self._named_playlists[pls_name]
-            self._cur_song_pos = 0
         elif operation == 'append':
             self.playlist.extend(self._named_playlists[pls_name])
 
@@ -263,16 +278,16 @@ class PlayerCtl(object):
                     append = True
                 elif pls.startswith('>'):
                     pls = pls[1:]
-                    if self._cur_song_pos:
-                        append = self._cur_song_pos + 1 # insert at desired position
+                    if self.playlist.pos >= 0:
+                        append = self.playlist.pos + 1 # insert just next
                 if pls != '#':
                     # output playlist is not 'current playlist' 
                     if pls not in self._named_playlists:
-                        self._named_playlists[pls] = []
+                        self._named_playlists[pls] = Playlist()
                     out_pls = self._named_playlists[pls]
             add = out_pls.append
             ext = out_pls.extend
-            current = self.playlist[self._cur_song_pos] if out_pls is self.playlist and self.selected else None
+            current = self.selected if out_pls is self.playlist and selfselected else None
             if isinstance(append, int):
                 add = to_be_inserted.append
                 ext = to_be_inserted.extend
@@ -316,8 +331,8 @@ class PlayerCtl(object):
                 if to_be_inserted:
                     self.playlist[append:append] = to_be_inserted
 
-                if self._cur_song_pos > 0 and not append:
-                    self._cur_song_pos = 0
+                if self.playlist.pos > 0 and not append:
+                    self.playlist.pos = 0
                 self._tmp_total_length = total
         else:
             self._save_playlists()
@@ -406,11 +421,10 @@ class PlayerCtl(object):
 
     @property
     def selected(self):
-        pos = self._cur_song_pos
-        if not (0 <= pos < len(self.playlist)):
+        sel = self.playlist.selected
+        if not sel:
             return None
-        else:
-            return self._get_infos(self.playlist[pos])
+        return self._get_infos(sel)
 
     @property
     def selected_type(self):
@@ -424,20 +438,18 @@ class PlayerCtl(object):
     def selected_uri(self):
         try:
             with self._lock:
-                if self._cur_song_pos < 0:
-                    raise Exception()
-                txt =  self.playlist[self._cur_song_pos][0]
-            return txt
+                return self.playlist.selected[0]
         except Exception, e:
             web.debug("selected_uri ERR: %s"%e)
             return None
 
     @property
     def infos(self):
+        p = self.playlist.pos
         return dict(
-                current = self._cur_song_pos,
+                current = p,
                 total = len(self.playlist),
-                running = self._cur_song_pos >= 0,
+                running = p >= 0,
                 )
 
 class webplayer:
