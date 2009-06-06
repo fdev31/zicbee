@@ -127,7 +127,7 @@ class web_db_index:
         CHUNK=1024
         in_fd = file(filename)
         web.header('Content-Length', str( os.fstat(in_fd.fileno()).st_size ) )
-        yield
+        yield ''
 
         while True:
             data = in_fd.read(CHUNK)
@@ -175,6 +175,7 @@ class web_db_index:
             # XXX: replace that with autodelegate as in httpplayer
             try:
                 # execute the handler
+                web.debug('%s: %r'%(handler, args))
                 ret = handler(*args)
                 if hasattr(ret, 'next'):
                     for chunk in ret:
@@ -219,7 +220,7 @@ class web_db_index:
                 field_decoder = zip( WEB_FIELDS,
                         (some_db.f_decode[some_db.fields[fname]] for fname in WEB_FIELDS)
                         )
-                yield
+                yield ''
 
                 infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
                         for r in res )
