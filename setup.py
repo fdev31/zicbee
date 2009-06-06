@@ -94,7 +94,7 @@ It can be adapted to handle video too, hacking some bit of code.
 
         extras_require = dict(
             player='zicbee-mplayer>=0.9',
-            server='web.py>=0.31',
+            server='web.py>=0.32',
             ),
 
         dependency_links = [
