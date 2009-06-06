@@ -445,7 +445,6 @@ class webplayer:
     player = PlayerCtl()
 
     GET = web.autodelegate('REQ_')
-    lastlog = []
 
     def REQ_main(self):
         return self.render_main(render.player)
@@ -525,9 +524,6 @@ class webplayer:
         if format.startswith('htm'):
             web.header('Content-Type', 'text/html; charset=utf-8')
         return dump_data_as_text(_d, format)
-
-    def REQ_lastlog(self):
-        return '\n'.join(self.lastlog)
 
     def REQ_playlist(self):
         i = web.input()
