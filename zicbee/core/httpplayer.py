@@ -150,9 +150,7 @@ class PlayerCtl(object):
                         else:
                             errors['count'] += 1
                 except Exception, e:
-                    web.debug('E: %s'%e)
-                except:
-                    web.debug('E: ???')
+                    DEBUG()
             sleep(1)
 
     def select(self, sense):
