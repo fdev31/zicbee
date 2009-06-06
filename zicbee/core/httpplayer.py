@@ -131,8 +131,7 @@ class PlayerCtl(object):
                         web.debug('E: %s'%e)
                         self.position = None
                         # restart player
-                        self.close()
-                        self.player = mp.MPlayer()
+                        self.player.respawn()
                     except:
                         self.position = None
 
