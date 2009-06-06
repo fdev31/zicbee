@@ -30,6 +30,7 @@ def traced(fn):
 def DEBUG():
     traceback.print_stack()
     traceback.print_exc()
+    import pdb; pdb.set_trace()
 
 
 if debug_enabled:
