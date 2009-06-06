@@ -65,7 +65,12 @@ class Playlist(list):
     def selected(self):
         if self.pos == -1 or len(self) == 0:
             return None
-        return self[self.pos]
+        try:
+            return self[self.pos]
+        except IndexError:
+            DEBUG()
+            self.pos = -1
+            return None
 
     @property
     def selected_dict(self):
@@ -91,7 +96,7 @@ class Playlist(list):
 
     def move(self, steps):
         self.pos += steps
-        if self.pos > len(self):
+        if self.pos >= len(self):
             self.pos = -1
         elif self.pos < -1:
             self.pos = -1
@@ -189,13 +194,13 @@ class PlayerCtl(object):
         self.player.volume(val)
 
     def tag(self, tag):
-        ci = compact_int(self.selected['__id__'])
+        ci = self.selected['id']
         uri = 'http://%s/db/tag/%s/%s'%(self.hostname, ci, tag)
         urllib.urlopen(uri)
 
     def rate(self, score):
         web.debug('DEBUG: %s'%self.selected)
-        ci = compact_int(self.selected['__id__'])
+        ci = self.selected['id']
         uri = 'http://%s/db/rate/%s/%s'%(self.hostname, ci, score)
         web.debug('URI: %s'%uri)
         urllib.urlopen(uri)
@@ -347,7 +352,7 @@ class PlayerCtl(object):
                     add(r)
                 self.signal_view('update_total', total)
 
-            yield
+            yield ''
             if not line:
                 break
 
@@ -396,7 +401,7 @@ class PlayerCtl(object):
                 achieved += len(data)
 #                web.debug('downloading %s from %s (%.1f%%)'%(uri, self, progress))
                 fd.write(data)
-                yield
+                yield ''
             fd.close()
         except Exception, e:
             web.debug('ERROR %s %s'%(repr(e), dir(e)))
@@ -503,20 +508,20 @@ class webplayer:
     def REQ_delete(self):
         i = web.input()
         self.player.delete_entry(int(i['idx']))
-        return web.redirect('/')
+        return ''
 
     def REQ_move(self):
         i = web.input()
         self.player.move_entry(int(i['i1']), int(i['i2']))
-        return web.redirect('/')
+        return ''
 
     def REQ_append(self):
         self.player.playlist_change('append', web.input()['name'])
-        return web.redirect('/')
+        return ''
 
     def REQ_copy(self):
         self.player.playlist_change('copy', web.input()['name'])
-        return web.redirect('/')
+        return ''
 
     def REQ_volume(self):
         i = web.input()

@@ -103,7 +103,10 @@ def dump_data_as_text(d, format):
         else:
             # assume iterable
             for elt in d:
-                yield "%r\n"%elt
+                if isinstance(elt, (list, tuple)):
+                    yield " | ".join(str(e) for e in elt) + "\n"
+                else:
+                    yield "%s\n"%elt
 
 ################################################################################
 

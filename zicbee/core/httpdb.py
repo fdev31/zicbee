@@ -11,6 +11,7 @@ from zicbee.core import zshell
 from zicbee.core.zutils import compact_int, jdump, uncompact_int, dump_data_as_text
 from zicbee.core.parser import parse_line
 from zicbee.core.config import config
+from zicbee.core.debug import DEBUG
 from zicbee.core import debug
 from zicbee import __version__ as VERSION
 
@@ -88,19 +89,22 @@ class web_db_index:
         yield VERSION
 
     def REQ_artists(self):
+        inp = web.input()
         for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_albums(self):
+        inp = web.input()
         for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_genres(self):
+        inp = web.input()
         for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_kill(self):
-        shell.songs.close()
+        zshell.songs.close()
         raise SystemExit()
 
     def REQ_infos(self, song_id):
@@ -185,7 +189,7 @@ class web_db_index:
             except GeneratorExit:
                 raise
             except Exception, e:
-                web.debug(e)
+                DEBUG()
 
         else: # XXX: move that to a dedicated command ? (ex: .../db/q?pattern=... looks nice)
             # or use "index" ... (sounds good too !)
