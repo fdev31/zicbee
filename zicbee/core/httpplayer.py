@@ -480,13 +480,13 @@ class webplayer:
                 else:
                     it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=unicode(repr(True)), temp=tempname)
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=u'', temp=tempname)
             it.next()
 
         except (IndexError, KeyError):
-            it = []
+            pass
         finally:
-            return itertools.chain(it, [web.redirect('/')])
+            return it
 
     def REQ_delete(self):
         i = web.input()
