@@ -38,6 +38,14 @@ class Playlist(list):
         list.__init__(self, *args)
         self.pos = -1
 
+    def inject(self, data, position=None):
+        """ inject a song """
+        if hasattr(data, '__getitem__') and isinstance(data[0], basestring):
+            data = [data]
+        p = self.pos+1 if position is None else position
+
+        self[p:p] = data
+
     def shuffle(self):
         if len(self) == 0:
             return
@@ -349,7 +357,7 @@ class PlayerCtl(object):
                 if not self.playlist:
                     self.playlist.pos = out_pls.pos
                 if to_be_inserted:
-                    self.playlist[append:append] = to_be_inserted
+                    self.playlist.inject(to_be_inserted, position=append)
 
                 if self.playlist.pos > 0 and not append:
                     self.playlist.pos = 0
@@ -473,10 +481,14 @@ class webplayer:
             tempname = i.get('tempname', '').strip() or False
             if i.get('pattern'):
                 if i.pattern.startswith('http'):
-                    uri = i.pattern
-                    hostname = uri.split("/", 3)[2]
-                    song_id = uri.rsplit('=', 1)[1]
-                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
+                    try:
+                        uri = i.pattern
+                        hostname = uri.split("/", 3)[2]
+                        song_id = uri.rsplit('=', 1)[1]
+                        it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
+                    except:
+                        pls = self.player.playlist
+                        pls.inject( [uri, u'injected uri', 1000, None, None, 1000] )
                 else:
                     it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
