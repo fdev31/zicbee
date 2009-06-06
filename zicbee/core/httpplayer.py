@@ -33,9 +33,10 @@ TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
 class Playlist(list):
-    def __init__(self, *args, position=-1):
+
+    def __init__(self, *args):
         list.__init__(self, *args)
-        self.pos = position
+        self.pos = -1
 
     def shuffle(self):
         if len(self) == 0:
@@ -57,6 +58,28 @@ class Playlist(list):
         if self.pos == -1 or len(self) == 0:
             return None
         return self[self.pos]
+
+    @property
+    def selected_dict(self):
+        sel = self.selected
+        if not sel:
+            return dict()
+
+        d = dict(zip(['uri']+WEB_FIELDS, sel))
+
+        try:
+            d['length'] = int(d.get('length') or 0)
+            d['score'] = int(d.get('score') or 0)
+            d['tags'] = d.get('tags') or u''
+            d['pls_position'] = self.pos
+            d['pls_size'] = len(self)
+        except Exception:
+            DEBUG()
+        try:
+            d['id'] = compact_int(d.pop('__id__'))
+        except KeyError:
+            pass
+        return d
 
     def move(self, steps):
         self.pos += steps
@@ -141,18 +164,16 @@ class PlayerCtl(object):
         """
 
         with self._lock:
-            pos = self.playlist.pos
-
-            web.debug(self.infos, self.selected)
+            old_pos = self.playlist.pos
             self.playlist.move(sense)
-
             song_name = config.streaming_file
-            web.debug('download: %s'%self.selected_uri)
-            dl_it = self._download_zic(self.selected_uri, song_name)
+            sel = self.selected
+            web.debug('download: %s'%sel['uri'])
+            dl_it = self._download_zic(sel['uri'], song_name)
             dl_it.next()
-            web.debug('select: %d (previous=%s)'%(self.playlist.pos, pos))
-            if pos != self.playlist.pos:
-                web.debug("Loadfile %d/%s : %s !!"%(self.playlist.pos, len(self.playlist), song_name))
+            web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
+            if old_pos != sel['pls_position']:
+                web.debug("Loadfile %d/%s : %s !!"%(sel['pls_position'], sel['pls_size'], song_name))
                 cache = media_config[self.selected_type]['player_cache']
                 self.player.set_cache(cache)
                 self.player.load(song_name)
@@ -287,7 +308,7 @@ class PlayerCtl(object):
                     out_pls = self._named_playlists[pls]
             add = out_pls.append
             ext = out_pls.extend
-            current = self.selected if out_pls is self.playlist and selfselected else None
+            current = self.selected if out_pls is self.playlist and self.selected else None
             if isinstance(append, int):
                 add = to_be_inserted.append
                 ext = to_be_inserted.extend
@@ -328,6 +349,8 @@ class PlayerCtl(object):
         if out_pls is self.playlist:
             # reset song position
             with self._lock:
+                if not self.playlist:
+                    self.playlist.pos = out_pls.pos
                 if to_be_inserted:
                     self.playlist[append:append] = to_be_inserted
 
@@ -387,15 +410,15 @@ class PlayerCtl(object):
             web.debug('playlists saved: %s'%self._named_playlists.keys())
 
     def _load_playlists(self):
+        self._named_playlists = dict()
         try:
             save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'r')
             p = Unpickler(save_file)
             self._named_playlists = p.load()
         except IOError, e:
-            log.debug("Not loading playlists: %s"%e.args[0])
+            log.debug("Not loading playlists: %s"%e.args[1])
         except Exception, e:
             web.debug('ERROR: load_playlists: %s'%repr(e))
-            self._named_playlists = dict()
         else:
             web.debug('playlists loaded: %s'%self._named_playlists.keys())
 
@@ -408,49 +431,18 @@ class PlayerCtl(object):
             except:
                 DEBUG()
 
-    def _get_infos(self, l):
-        try:
-            d = dict(zip(['uri']+WEB_FIELDS, l))
-            d['length'] = int(d['length'])
-            d['score'] = d['score'] or 0.0
-            d['tags'] = d['tags'] or u''
-            return d
-        except Exception, e:
-            web.debug('_get_infos ERR: %s'%e)
-            return None
-
     @property
     def selected(self):
-        sel = self.playlist.selected
-        if not sel:
-            return None
-        return self._get_infos(sel)
+        return self.playlist.selected_dict or None
 
     @property
     def selected_type(self):
         # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
-        try:
-            return self.selected_uri.rsplit('song.', 1)[1].split('?', 1)[0]
-        except:
-            return 'mp3'
+        uri = self.selected.get('uri')
+        if uri:
+            return uri.rsplit('song.', 1)[1].split('?', 1)[0]
+        return 'mp3'
 
-    @property
-    def selected_uri(self):
-        try:
-            with self._lock:
-                return self.playlist.selected[0]
-        except Exception, e:
-            web.debug("selected_uri ERR: %s"%e)
-            return None
-
-    @property
-    def infos(self):
-        p = self.playlist.pos
-        return dict(
-                current = p,
-                total = len(self.playlist),
-                running = p >= 0,
-                )
 
 class webplayer:
     player = PlayerCtl()
@@ -528,20 +520,10 @@ class webplayer:
         i = web.input()
         format = i.get('fmt', 'txt')
 
-        try:
-            _d = self.player.selected.copy()
-            _d['uri'] = self.player.playlist[self.player._cur_song_pos][0]
-        except AttributeError:
-            _d = dict()
-        _d['pls_position'] = self.player._cur_song_pos
+        _d = self.player.selected or dict()
+        # add player infos
         _d['song_position'] = self.player.position
-        _d['pls_size'] = len(self.player.playlist)
         _d['paused'] = self.player._paused
-
-        try:
-            _d['id'] = compact_int(_d.pop('__id__'))
-        except KeyError:
-            pass
 
         if format.startswith('htm'):
             web.header('Content-Type', 'text/html; charset=utf-8')
