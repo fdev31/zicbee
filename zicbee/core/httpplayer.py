@@ -513,8 +513,7 @@ class webplayer:
             self.player.volume(val)
 
     def REQ_infos(self):
-        i = web.input()
-        format = i.get('fmt', 'txt')
+        format = web.input().get('fmt', 'txt')
 
         _d = self.player.selected or dict()
         # add player infos
