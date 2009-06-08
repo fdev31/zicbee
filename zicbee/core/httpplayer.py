@@ -318,7 +318,7 @@ class PlayerCtl(object):
                     out_pls = self._named_playlists[pls]
             add = out_pls.append
             ext = out_pls.extend
-            current = self.selected if out_pls is self.playlist and self.selected else None
+            current = self.playlist.selected
             if isinstance(append, int):
                 add = to_be_inserted.append
                 ext = to_be_inserted.extend
