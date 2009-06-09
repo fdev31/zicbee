@@ -27,14 +27,26 @@ def do_inc_scan():
         NOTE: if you add a file in an already existing directory containing songs, it won't be detected!
     """
     directories = zshell.args + []
+    print "Incremental scan asked for %s"%(', '.join(directories))
     db_dirs = set()
     fs_dirs = set()
     for rep in directories:
+        rep = clean_path(rep)
+        print "Analysing %s..."%rep
         fs_dirs.update( os.path.join(root, d) for root, dirs, files in os.walk(rep) for d in dirs )
         db_dirs.update( dirname(d.filename) for d in zshell.songs.search(['filename']) if d.filename.startswith(rep) )
 
-    for rep in fs_dirs.symmetric_difference(db_dirs):
-        _scan(directory=rep, db_name=zshell.DEFAULT_NAME)
+    difference = list(fs_dirs.symmetric_difference(db_dirs))
+    difference.sort()
+
+    for i, item in enumerate(difference):
+        for it in itertools.islice(difference, i+1, None):
+            if it.startswith(item):
+                print "rm %s"%item
+                break
+        else:
+            print "\nScanning %s..."%item
+            _scan(directory=item, db_name=zshell.DEFAULT_NAME)
 
 def do_scan():
     """ Scan a directory for songs (fill Database)
