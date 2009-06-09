@@ -64,7 +64,6 @@ def do_inc_scan():
                     break
 
         if scan_item:
-            print "\nScanning %s..."%item
             _scan(directory=item, db_name=zshell.DEFAULT_NAME)
         else:
             print "rm %s"%item
