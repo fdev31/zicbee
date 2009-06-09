@@ -34,6 +34,8 @@ def do_inc_scan():
         rep = clean_path(rep)
         print "Analysing %s..."%rep
 
+        # collect directories of filesystem in fs_dirs
+        # and try to "guess" the ones in database (TODO: store scanned directories)
         add, up = fs_dirs.add, fs_dirs.update
         for root, dirs, files in os.walk(rep):
             add(root)
