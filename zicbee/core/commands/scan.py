@@ -38,7 +38,10 @@ def do_inc_scan():
         # and try to "guess" the ones in database (TODO: store scanned directories)
         add, up = fs_dirs.add, fs_dirs.update
         for root, dirs, files in os.walk(rep):
-            add(root)
+            if not files:
+                if root in fs_dirs:
+                    fs_dirs.remove(root)
+
             up(os.path.join(root, d) for d in dirs)
 
         add, up = db_dirs.add, db_dirs.update
@@ -46,7 +49,6 @@ def do_inc_scan():
             fn = d.filename
             if fn.startswith(rep):
                 add(dirname(fn))
-                add(dirname(dirname(fn)))
 
     difference = list(fs_dirs.symmetric_difference(db_dirs))
     difference.sort()
