@@ -33,20 +33,37 @@ def do_inc_scan():
     for rep in directories:
         rep = clean_path(rep)
         print "Analysing %s..."%rep
-        fs_dirs.update( os.path.join(root, d) for root, dirs, files in os.walk(rep) for d in dirs )
-        db_dirs.update( dirname(d.filename) for d in zshell.songs.search(['filename']) if d.filename.startswith(rep) )
+
+        add, up = fs_dirs.add, fs_dirs.update
+        for root, dirs, files in os.walk(rep):
+            add(root)
+            up(os.path.join(root, d) for d in dirs)
+
+        add, up = db_dirs.add, db_dirs.update
+        for d in zshell.songs.search(['filename']):
+            fn = d.filename
+            if fn.startswith(rep):
+                add(dirname(fn))
+                add(dirname(dirname(fn)))
 
     difference = list(fs_dirs.symmetric_difference(db_dirs))
     difference.sort()
 
     for i, item in enumerate(difference):
-        for it in itertools.islice(difference, i+1, None):
-            if it.startswith(item):
-                print "rm %s"%item
-                break
+        scan_item = True
+        if item in directories:
+            scan_item = False
         else:
+            for it in itertools.chain(itertools.islice(difference, None, i), itertools.islice(difference, i+1, None)):
+                if item.startswith(it):
+                    scan_item = False
+                    break
+
+        if scan_item:
             print "\nScanning %s..."%item
             _scan(directory=item, db_name=zshell.DEFAULT_NAME)
+        else:
+            print "rm %s"%item
 
 def do_scan():
     """ Scan a directory for songs (fill Database)
