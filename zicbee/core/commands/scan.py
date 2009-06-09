@@ -23,8 +23,8 @@ def _scan(**kw):
 def do_inc_scan():
     """ Scan a directory in an incremental way, directory based:
         - removed directories are flushed from DB
-        - added directories are scanned
-        NOTE: if you add a file in an already existing directory containing songs, it won't be detected!
+        - added directories are scanned (if not empty)
+        NOTE: if you add a file into an already existing directory containing songs, it won't be detected!
     """
     directories = zshell.args + []
     print "Incremental scan asked for %s"%(', '.join(directories))
