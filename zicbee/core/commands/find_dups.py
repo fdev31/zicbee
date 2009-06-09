@@ -46,3 +46,4 @@ def do_find_dups(wpt=None, ar=None):
                 total_cnt.next()
                 print "%d: %s"%(num, zshell.songs[num].filename)
     print "# %d songs are duplicates."%(total_cnt.next()-cnt.next())
+

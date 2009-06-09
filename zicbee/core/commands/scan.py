@@ -8,9 +8,8 @@ from zicbee.core.debug import DEBUG
 from zicbee.core.zutils import duration_tidy, clean_path
 from os.path import dirname
 
-newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
-
 def _scan(**kw):
+    newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
     print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
     try:
         for status_char in zshell.songs.merge(**kw):
