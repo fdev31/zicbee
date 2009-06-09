@@ -175,7 +175,6 @@ class Database(object):
         """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
 
-
         try:
             EasyID3
         except NameError:

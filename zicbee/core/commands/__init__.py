@@ -17,7 +17,7 @@ from .list import do_list
 from .find_dups import do_find_dups
 from .serve import do_serve
 from .search import do_search
-from .scan import do_scan
+from .scan import do_scan, do_inc_scan
 from .help import do_help
 from .get import do_get
 from .player import (do_play, do_clear, do_pause,
