@@ -86,6 +86,10 @@ class Playlist(list):
             d['tags'] = d.get('tags') or u''
             d['pls_position'] = self.pos
             d['pls_size'] = len(self)
+        except ValueError, e:
+            # !!corrupted data!!
+            web.debug('data corruption: %s'%e)
+            return dict()
         except Exception:
             DEBUG()
         try:
