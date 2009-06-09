@@ -58,8 +58,10 @@ def do_inc_scan():
         if item in directories:
             scan_item = False
         else:
-            for it in itertools.chain(itertools.islice(difference, None, i), itertools.islice(difference, i+1, None)):
-                if item.startswith(it):
+            for it in difference:
+                if it is item:
+                    continue
+                elif item.startswith(it):
                     scan_item = False
                     break
 
