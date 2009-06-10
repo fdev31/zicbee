@@ -13,10 +13,14 @@ def _scan(**kw):
     print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
     try:
         for status_char in zshell.songs.merge(**kw):
+            newlined=False
             print status_char,
             if newline_iterator.next():
+                newlined=True
                 print ''
             sys.stdout.flush()
+        if not newlined:
+            print ''
     except Exception, e:
         DEBUG()
 
