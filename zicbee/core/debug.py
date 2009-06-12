@@ -13,6 +13,12 @@ try:
 except:
     debug_enabled = False
 
+if debug_enabled:
+    try:
+        from pudb import set_trace
+    except ImportError:
+        from pdb import set_trace
+
 # environment overrides
 if not debug_enabled and os.environ.get('DEBUG'):
     debug_enabled = os.environ['DEBUG'] != '0'
@@ -23,14 +29,14 @@ def traced(fn):
             try:
                 return decorated(*args, **kw)
             except:
-                import pdb; pdb.set_trace()
+                DEBUG()
         return _decorator
     return _get_decorator(fn)
 
 def DEBUG():
     traceback.print_stack()
     traceback.print_exc()
-    import pdb; pdb.set_trace()
+    set_trace()
 
 
 if debug_enabled:
