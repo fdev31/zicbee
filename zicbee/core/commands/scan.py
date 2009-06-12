@@ -39,7 +39,7 @@ def do_inc_scan():
         print "Analysing %s..."%rep
 
         # collect directories of filesystem in fs_dirs
-        # and try to "guess" the ones in database (TODO: store scanned directories)
+        # and try to "guess" the ones in database (TODO: store [directory:number_of_entries scanned (including errors)], ...)
         add, up = fs_dirs.add, fs_dirs.update
         for root, dirs, files in os.walk(rep):
             if not files:
