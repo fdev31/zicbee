@@ -235,7 +235,7 @@ class web_db_index:
                         yield '\n'
                     web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
                 except Exception, e:
-                    web.debug("ERR:", e)
+                    web.debug("ERR: %s(%s)"% (type(e), e))
             else:
                 # TODO: add support for zip output (returns a zip stream with all the songs)
                 for res in dump_data_as_text(res, format):
