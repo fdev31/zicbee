@@ -30,7 +30,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=1.5', 'mutagen>=1.14' ]
+requirements = [ 'buzhug>=1.5', 'mutagen>=1.14', 'web.py>=0.32' ]
 
 if sys.version_info[:2] < (2, 6):
     # add cjson dependency
@@ -94,7 +94,6 @@ It can be adapted to handle video too, hacking some bit of code.
 
         extras_require = dict(
             player='zicbee-mplayer>=0.9',
-            server='web.py>=0.32',
             ),
 
         dependency_links = [
