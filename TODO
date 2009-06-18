@@ -59,6 +59,7 @@ Before **0.9**
  [DONE]
  * allow easy player backends integration (packages splitting via entry-points)
   ** there is a single backend so far (mplayer)
+  ** made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
   ** see [[Developers]] section
  * minimal www interface (for low power machines, don't expect too much)
  ** use /basic on any server with a player, it's quite rought now
