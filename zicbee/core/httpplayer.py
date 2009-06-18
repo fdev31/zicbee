@@ -50,6 +50,8 @@ class Playlist(list):
         if len(self) == 0:
             return
         current = self.selected
+        if current:
+            self.pop(current)
         random.shuffle(self)
         if current:
             self.insert(0, current)
