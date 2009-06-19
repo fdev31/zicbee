@@ -29,6 +29,7 @@ for pyversion in 2.5 2.6; do
     ./bin/easy_install $SRC/zicbee-wasp || die "install zicbee"
     VERSION=`./bin/python -c "import zicbee; print zicbee.__version__"`
     cd ..
+    virtualenv --relocatable -p python$pyversion $env_path || die "relocating"
     tar cvfh - $env_path | bzip2 -9 > ${ENV_NAME}-${VERSION}-py${pyversion}.tbz
 done
 
