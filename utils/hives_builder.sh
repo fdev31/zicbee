@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ENV_NAME="zicbee_hive"
-if [ $# -gt 1 ]; then
+if [ $# -eq 1 ]; then
     SRC=$1
 else
     SRC=~/dev
