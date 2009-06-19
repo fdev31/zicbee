@@ -82,7 +82,7 @@ It can be adapted to handle video too, hacking some bit of code.
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
                 'zicbee = zicbee.core:shell',
-                'zicserve = zicbee.core:serve [server]',
+                'zicserve = zicbee.core:serve',
 #                'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
             "setuptools.installation" : [
