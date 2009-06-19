@@ -51,7 +51,7 @@ class Playlist(list):
             return
         current = self.selected
         if current:
-            self.pop(current)
+            self.pop(self.pos)
         random.shuffle(self)
         if current:
             self.insert(0, current)
@@ -534,6 +534,7 @@ class webplayer:
         val = i.get('val')
         if val is not None:
             self.player.volume(val)
+        return ''
 
     def REQ_infos(self):
         format = web.input().get('fmt', 'txt')
@@ -579,28 +580,29 @@ class webplayer:
             yield jdump(False)
 
     def REQ_shuffle(self):
-        return self.player.shuffle()
+        return self.player.shuffle() or ''
 
     def REQ_clear(self):
-        return self.player.clear()
+        return self.player.clear() or ''
 
     def REQ_pause(self):
-        return self.player.pause()
+        return self.player.pause() or ''
 
     def REQ_prev(self):
-        return self.player.select(-1)
+        return self.player.select(-1) or ''
 
     def REQ_next(self):
-        return self.player.select(1)
+        return self.player.select(1) or ''
 
     def REQ_tag(self, tag):
-        return self.player.tag(unicode(tag.lstrip('/')))
+        return self.player.tag(unicode(tag.lstrip('/'))) or ''
 
     def REQ_rate(self, score):
-        return self.player.rate(score.lstrip('/'))
+        return self.player.rate(score.lstrip('/')) or ''
 
     def REQ_seek(self, val):
         val = val[1:]
         web.debug('VAL=%s'%val)
-#        self.player.seek(int(val))
+        self.player.seek(int(val))
+        return ''
 
