@@ -44,8 +44,8 @@ setup (
         version=VERSION,
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
-        url = 'http://box.gnux.info/zicbee/',
-        download_url='http://box.gnux.info/hg/index.cgi/zicbee/archive/wip.tar.bz2',
+        url = 'http://zicbee.gnux.info/',
+        download_url='http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/wip.tar.bz2',
         license='BSD',
         platform='all',
         description='A simple & powerful distributed Music database engine',
@@ -98,7 +98,7 @@ It can be adapted to handle video too, hacking some bit of code.
 
         dependency_links = [
             'eggs',
-            'http://box.gnux.info/zicbee/files/',
+            'http://zicbee.gnux.info/files/',
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
             'http://code.google.com/p/quodlibet/downloads/list',
