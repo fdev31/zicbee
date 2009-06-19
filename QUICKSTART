@@ -1,22 +1,31 @@
 If you need player features, install zicbee-mplayer
 
-# read some help (to start, you only need to know "scan" command)
+== read some help (to start, you only need to know "scan" command)
+{{{
 ./run.py help
 ./run.py scan $HOME/Music/
+}}}
 
-# start the daemon
+== start the daemon
+{{{
 ./run.py serve &
+}}}
 
-# query the database
+== query the database
+{{{
 ./run.py search artist: black or title: guitar
+}}}
 
-# plays some nice music
+== plays some nice music
+{{{
 ./run.py play artist: björk
+}}}
 
 ... That' all !
 You may want to visit http://127.0.0.1:9090/ to access the web interface
 
-NOTE: if you installed zicbee system-wide,
-   you may use "zicdb" from any directory instead of using "run.py".
-   Also check "zicserve" as an alias to "zicdb serve".
+== Installation note
+If you installed zicbee system-wide,
+you may use {{{zicdb}}} from any directory instead of using {{{run.py}}}.
+Also check {{{zicserve}}} as an alias to {{{zicdb serve}}}.
 
