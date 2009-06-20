@@ -31,12 +31,17 @@ def do_find_dups(wpt=None, ar=None):
             for num in m:
                 total_cnt.next()
                 song = zshell.songs[num]
+                score = song.length + (len(song.track) if song.track else -10) + len(song.title) + len(song.genre) + len(song.artist) + len(song.album) + (-10 if '/32 ' in song.filename else 0)
                 heapq.heappush(h,
-                        (len(song.filename), song))
+                        (-score, song))
 
             for nb, other in h:
-                if other != h[-1][1]:
-                    print "rm '%s'"%(other.filename.replace("'", r"\'"))
+                ref = h[0][1]
+                if other != ref:
+                    if ref.length - 30 < other.length < ref.length + 30:
+                        print "rm '%s'"%(other.filename.replace("'", r"\'"))
+                    else:
+                        print "# rm '%s'"%(other.filename.replace("'", r"\'"))
                 else:
                     print "# kept %s"%other.filename
     else:
