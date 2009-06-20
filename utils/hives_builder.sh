@@ -1,10 +1,10 @@
 #!/bin/sh
-SRC=~/devs
 
-if [ $# -gt 1 ]; then
-    ENV_NAME=$1
+ENV_NAME="zicbee_hive"
+if [ $# -eq 1 ]; then
+    SRC=$1
 else
-    ENV_NAME="zicbee_hive"
+    SRC=~/dev
 fi
 
 die () {
