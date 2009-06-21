@@ -4,7 +4,7 @@ ENV_NAME="zicbee_hive"
 if [ $# -eq 1 ]; then
     SRC=$1
 else
-    SRC=~/dev
+    SRC=
 fi
 
 die () {
@@ -24,9 +24,14 @@ for pyversion in 2.5 2.6; do
 
     cd $env_path || die "cd $env_path"
     . ./bin/activate # source the environment
-    ./bin/easy_install $SRC/zicbee-mplayer || die "install zicbee-mplayer"
-    ./bin/easy_install $SRC/zicbee || die "install zicbee"
-    ./bin/easy_install $SRC/zicbee-wasp || die "install zicbee"
+    if [ $SRC ]; then
+        URLS="$SRC/zicbee-mplayer $SRC/zicbee $SRC/zicbee-wasp"
+    else
+        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-wasp/archive/tip.zip"
+    fi
+    for url in $URLS; do
+        ./bin/easy_install "$url" || die "install $url"
+    done
     VERSION=`./bin/python -c "import zicbee; print zicbee.__version__"`
     cd ..
     virtualenv --relocatable -p python$pyversion $env_path || die "relocating"
