@@ -50,7 +50,7 @@ Once you installed zicbee (or downloaded a  as a simpler way, provided for linux
    now the server is looping, you can access the music of this computer remotely (or not)
    if you installed zicbee-mplayer, then you can use this device to play music too
 
-Open your web browser, point http://adress.of.the.machine:9090/ and you should see some graphics.
+Open your web browser, point http://address.of.the.machine:9090/ and you should see some graphics.
 
 To know all the commands, try **zicdb help** command. Note that there is a shortcut for ``zicdb serve``, you can just type ``zicserve``.
 
