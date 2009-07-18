@@ -11,6 +11,7 @@ Features
 * Pure Python (it should run on any computer, mac, etc...)
 * HTTP everywhere (you can use the web browser on your phone to control the playback or do a query on your library, try "http://host:9090/compact" HTTP address for minimal embedded devices support)
 * Always growing set of features:
+
   * nice playlist handling
   * duplicates detection
   * last fm support (auto-generation of playlist based on small request)
