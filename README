@@ -145,6 +145,9 @@ Still undocumented, usage may vary between zicdb & wasp: tag, rate, kill, stfu
 === prev
     Move backward in playlist
 
+=== guess
+    tells if the given parameter matches with the current song (fault tolerant)
+
 === playlist
     Display the current playlist
 
