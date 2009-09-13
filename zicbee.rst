@@ -30,6 +30,7 @@ Including projects
   * zicbee (server / admin utilities / db tools)
   * zicbee-wasp (client, much faster than zicbee)
   * zicbee-mplayer (mplayer bindings, allow zicbee to play music)
+  * zicbee-vlc (vlc bindings, allow zicbee to play music)
   * zicbee-quodlibet (plugin that turns quodlibet into a zicbee client)
 
 Install
