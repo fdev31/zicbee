@@ -39,6 +39,8 @@ Install it on your system::
 
  easy_install zicbee
 
+Alternatively, you may try using `hives <http://zicbee.gnux.info/hive/>`_, a self-contained package, for linux only for now...
+
 Scan your songs (you can reproduce this step several times)::
 
  zicdb scan <a directory with many songs>
