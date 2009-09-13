@@ -6,18 +6,25 @@ Read this if you want to experience a new approach of song accesibility. This su
 Features
 ========
 
-* Faster than most on big playlists and libraries
-* Nice syntax for queries, accessible to any user
+* Still fast even on big playlists and libraries (OK with 30k entries on a netbook)
+* Nice syntax for queries, accessible to any user, *search* and *play* takes the same parameters so you just replace the command name when you are happy with the output
+* Daemon/Network oriented (not unlike mpd)
+    * Access songs on remote computers
+    * Close the client, songs will continue playing
+    * Open as many clients as you want at any moment
+    * You can mix songs from several computers on the same playlist
 * Pure Python (it should run on any computer, mac, etc...)
 * HTTP everywhere (you can use the web browser on your phone to control the playback or do a query on your library, try "http://host:9090/compact" HTTP address for minimal embedded devices support)
 * Always growing set of features:
+    * nice playlist handling
+    * real shuffle (not random)
+    * last fm support (auto-generation of playlist based on small request)
+    * song downloading
+    * blind test mode (very minimalistic btw, see *guess* command)
+    * duplicates detection (alpha quality)
 
-  * nice playlist handling
-  * duplicates detection
-  * last fm support (auto-generation of playlist based on small request)
-  * song downloading
-  * blind test mode (now minimalistic, see /guess command)
-  * ...
+    And much more... try *help* parameter to get an idea ! :)
+
 
 Entities
 ========

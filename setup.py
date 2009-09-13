@@ -39,6 +39,8 @@ if sys.version_info[:2] < (2, 6):
     else:
         requirements.append( 'python-cjson>=1.0.5' )
 
+DESCRIPTION=open('zicbee.rst').read()
+
 setup (
         name='zicbee',
         version=VERSION,
@@ -49,7 +51,7 @@ setup (
         license='BSD',
         platform='all',
         description='A simple & powerful distributed Music database engine',
-        long_description=open('QUICKSTART').read(),
+        long_description=DESCRIPTION,
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         zip_safe = False,
@@ -60,15 +62,13 @@ setup (
                 'ui/web/static/*.js',
                 'ui/web/static/pics/*.*',
                 'ui/web/static/pics/cmd/*.*',
-                'ui/gtk/*.glade'],
+                ],
             },
 
         entry_points = {
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
-                'zicbee = zicbee.core:shell',
                 'zicserve = zicbee.core:serve',
-#                'zicgui = zicbee.ui.gtk.player:main [player]'
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicbee.core:startup'
@@ -87,8 +87,6 @@ setup (
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
             'http://code.google.com/p/quodlibet/downloads/list',
-#            'http://sourceforge.net/project/showfiles.php?group_id=167078&package_id=190037&release_id=664931',
-#            'http://code.google.com/p/pyglet/downloads/list',
             ],
         classifiers = [
                 'Development Status :: 4 - Beta',

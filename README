@@ -196,3 +196,5 @@ Still undocumented, usage may vary between zicdb & wasp: tag, rate, kill, stfu
 === scan <directory|archive> [directory|archive...]
     Scan directories/archive for files and add them to the database
 
+
+ And much more... see <zicdb|wasp> help for more !
