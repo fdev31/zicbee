@@ -219,7 +219,7 @@ class web_db_index:
                 yield unicode(render.m3u(web.http.url, res))
             elif not format or format == 'html':
                 yield unicode(render.index(af, res, config.web_skin or 'default'))
-            elif format == 'json':
+            elif format in ('json', 'txt'):
                 some_db = zshell.songs.databases.itervalues().next()['handle']
                 # try to pre-compute useful things
                 field_decoder = zip( WEB_FIELDS,
@@ -229,16 +229,23 @@ class web_db_index:
 
                 infos_iterator = ( [r[0]] + [d(r[1][r[1].fields.index(f)]) for f, d in field_decoder]
                         for r in res )
+                if format == 'json':
+                    d = jdump
+                else:
+                    def d(line):
+                        return ' | '.join(line[:4])
+
                 try:
                     # TODO: optimise this (jdump by 100 size blocks)
                     for r in infos_iterator:
-                        yield jdump(r)
+                        yield d(r)
                         yield '\n'
                     web.debug('handled in %.2fs (%.2f for select)'%(time() - t0, t_sel - t0))
                 except Exception, e:
                     web.debug("ERR: %s(%s)"% (type(e), e))
             else:
                 # TODO: add support for zip output (returns a zip stream with all the songs)
-                for res in dump_data_as_text(res, format):
-                    yield res
+                web.debug('unknown search mode')
+                for r in res:
+                    yield dump_data_as_text(r, format)
 
