@@ -11,24 +11,16 @@ try:
 except Exception, e:
     log.warning("unable to set socket timeout to '%s': %s.", config.socket_timeout, e)
 
-from .misc_commands import do_kill, do_stfu, do_hash, do_reset, do_bundle, do_debug
+from .misc_commands import do_hash, do_reset, do_bundle, do_debug
 from .set import do_set
 from .list import do_list
 from .find_dups import do_find_dups
 from .serve import do_serve
 from .search import do_search
 from .scan import do_scan, do_inc_scan
-from .help import do_help
-from .get import do_get
-from .player import (do_play, do_clear, do_pause,
-        do_next, do_prev, do_shuffle,
-        do_infos, do_playlist,
-        do_tag, do_rate)
 
-from .shell import do_shell # import at the very end !!
-
-def do_fullhelp():
-    """ The Hacker's help [read standard help before !!] (WIP functions included) """
+def do_help():
+    """ Automatic help from self documentation """
     g = globals()
     undoc = []
     command_functions = [g[name] for name in g.keys() if name[:3] == 'do_']
@@ -46,7 +38,13 @@ def do_fullhelp():
         if not '\n' in cmd_help:
             undoc.append(cmd.func_name[3:])
 
-    for cmd in itertools.chain( ['[REMOTE COMMANDS]\n'], remote_commands_display, ['[LOCAL COMMANDS]\n'], commands_display ):
+    if remote_commands_display:
+        it = itertools.chain( ['[REMOTE COMMANDS]\n'], remote_commands_display, ['[LOCAL COMMANDS]\n'], commands_display )
+    else:
+        it = itertools.chain( ['[commands list]\n'], commands_display )
+    for cmd in it:
         print cmd
-    print "Not documented:", ', '.join(undoc)
+
+    if undoc:
+        print "Not documented:", ', '.join(undoc)
 

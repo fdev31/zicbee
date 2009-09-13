@@ -1,5 +1,5 @@
 # vim: et ts=4 sw=4
-__all__ = ['do_kill', 'do_stfu', 'do_hash', 'do_reset', 'do_bundle', 'do_debug']
+__all__ = ['do_hash', 'do_reset', 'do_bundle', 'do_debug']
 
 import urllib
 from zicbee.core import zshell
@@ -36,20 +36,4 @@ def _webget(uri):
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
 
-def do_stfu(host=None):
-    """ Kills the current player_host
-    (in case db_host and player_host are the same, this command
-    is equivalent to "kill")
-    """
-    if host is None:
-        host = config.player_host
-    _webget('%s/close'%host)
-    _webget('%s/db/kill'%host)
-
-def do_kill(host=None):
-    """ Kills the current db_host or any specified as argument """
-    if host is None:
-        host = config.db_host
-    _webget('%s/close'%host)
-    _webget('%s/db/kill'%host)
 
