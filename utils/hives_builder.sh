@@ -25,9 +25,9 @@ for pyversion in 2.5 2.6; do
     cd $env_path || die "cd $env_path"
     . ./bin/activate # source the environment
     if [ $SRC ]; then
-        URLS="$SRC/zicbee-mplayer $SRC/zicbee $SRC/zicbee-wasp"
+        URLS="$SRC/zicbee-mplayer $SRC/zicbee $SRC/zicbee-wasp $SRC/zicbee-vlc"
     else
-        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-wasp/archive/tip.zip"
+        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-wasp/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-vlc/archive/tip.zip"
     fi
     for url in $URLS; do
         ./bin/easy_install "$url" || die "install $url"
