@@ -301,6 +301,13 @@ class PlayerCtl(object):
         del self.playlist[position]
 
     def move_entry(self, pos1, pos2):
+        """ Move an entry to a given playlist position"""
+        p = self.playlist
+        to_move = p[pos1]
+        del p[pos1]
+        p.inject(to_move, pos2)
+
+    def swap_entry(self, pos1, pos2):
         """ Swap two entries in the current playlist """
         p = self.playlist
         p[pos1], p[pos2] = p[pos2], p[pos1]
