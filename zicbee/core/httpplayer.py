@@ -38,11 +38,61 @@ class Playlist(list):
         list.__init__(self, *args)
         self.pos = -1
 
+    def __delitem__(self, slc):
+        self.__checkindex(slc)
+        try:
+            idx = int(slc)
+        except TypeError:
+            # slice
+            idx = slc.start
+
+        if idx < self.pos:
+            self.pos -= 1
+
+        return list.__delitem__(self, slc)
+
+    def __setitem__(self, slc):
+        self.__checkindex(slc)
+        return list.__setitem__(slc)
+
+    def __checkindex(self, start, stop=None):
+
+        if stop is None:
+            try:
+                start = int(start)
+            except TypeError:
+                try:
+                    stop = start[-1]
+                    start = start[0]
+                except TypeError:
+                    # slice
+                    stop = start.stop
+                    start = start.start
+            else:
+                stop = start
+
+        if start < self.pos:
+            # increment
+            self.pos += 1
+        else:
+            if start < self.pos and stop < self.pos:
+                # increment stop-start
+                self.pos += stop-start
+            elif start < self.pos < stop:
+                # reset position to beginning of slice
+                self.pos = 0 if self.playlist else -1
+
+    def insert(self, idx, obj):
+        self.__checkindex(idx)
+        list.insert(self, idx, obj)
+
     def inject(self, data, position=None):
         """ inject a song """
         if hasattr(data, '__getitem__') and isinstance(data[0], basestring):
             data = [data]
         p = self.pos+1 if position is None else position
+
+        self.__checkindex(position)
 
         self[p:p] = data
 
