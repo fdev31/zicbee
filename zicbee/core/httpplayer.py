@@ -51,9 +51,9 @@ class Playlist(list):
 
         return list.__delitem__(self, slc)
 
-    def __setitem__(self, slc):
+    def __setitem__(self, slc, val):
         self.__checkindex(slc)
-        return list.__setitem__(slc)
+        return list.__setitem__(self, slc, val)
 
     def __checkindex(self, start, stop=None):
 
