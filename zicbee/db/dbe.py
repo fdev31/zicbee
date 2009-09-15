@@ -13,10 +13,7 @@ try:
 except AssertionError:
     raise SystemExit('Wrong buzhug installed, please install at least version %s'%('.'.join(required_buzhug)))
 
-#valid_ext = ('.ogg','.mp3', '.mp4',
-#    '.aac', '.vqf', '.wmv', '.wma', '.m4a', '.asf', '.oga', '.flac')
-
-valid_ext = ['.%s'%ext for ext in media_config.keys()]
+valid_ext = media_config.keys()
 
 valid_tags = (
         'genre',
@@ -69,12 +66,23 @@ class Database(object):
     def __init__(self, name):
         """ Open/Create a database """
         self.databases = dict()
+        artists = set()
+        albums = set()
+        genres = set()
         for name in name.split(','):
             p = os.path.join(DB_DIR, name)
+            h = self._create(p)
             self.databases[name] = dict(
                     path = p,
-                    handle = self._create(p)
+                    handle = h,
                     )
+            artists.update(i.artist for i in h.select(['artist']))
+            albums.update(i.album for i in h.select(['album']))
+            genres.update(i.genre for i in h.select(['genre']))
+
+        self.artists = list(artists)
+        self.albums = list(albums)
+        self.genres = list(genres)
 
     def _create(self, db_name=None):
         if isinstance(db_name, basestring):
@@ -167,7 +175,6 @@ class Database(object):
         """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
 
-
         try:
             EasyID3
         except NameError:
@@ -216,7 +223,7 @@ class Database(object):
         if directory is not None and not us_prefix:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
-                    if '.' + fname.rsplit('.', 1)[-1].lower() in valid_ext:
+                    if fname.rsplit('.', 1)[-1].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
 
                         try:

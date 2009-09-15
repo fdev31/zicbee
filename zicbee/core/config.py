@@ -19,7 +19,7 @@ defaults_dict = {
         'default_search' : '',
         'history_size' : 50,
         'default_port': '9090',
-        'web_skin' : '',
+        'web_skin' : 'default',
         'fork': 'blank_me_to_stop_forking_on_serve_mode',
         'socket_timeout': '30',
         'enable_history': 'blank_to_disable',
@@ -40,13 +40,15 @@ class ConfigObj(object):
     def __setattr__(self, name, val):
         if name.endswith('_host') and ':' not in val:
             val = '%s:%s'%( val, self.default_port )
-        return self._cfg.set('DEFAULT', name, val)
+        val = self._cfg.set('DEFAULT', name, val)
+        config._cfg.write(file(config_filename, 'w'))
+        return val
 
     def __getattr__(self, name):
         return self._cfg.get('DEFAULT', name)
 
 # Ensure the file is written on drive
-atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
+#atexit.register(lambda: config._cfg.write(file(config_filename, 'w')))
 
 config = ConfigObj()
 

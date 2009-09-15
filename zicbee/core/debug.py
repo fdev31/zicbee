@@ -7,12 +7,21 @@ from zicbee.core.config import config
 
 log = getLogger('zicbee')
 
-default_formatter = logging.Formatter('[%(threadName)s %(relativeCreated)d] %(module)s %(funcName)s:%(lineno)s %(message)s')
+try:
+    debug_enabled = (str(config.debug).lower()[:1] not in 'fn') if config.debug else False
+    # disable if "false" or "no"
+except:
+    debug_enabled = False
 
-# add two handlers
-for h in logging.FileHandler('/tmp/zicbee.log'), logging.StreamHandler():
-    log.addHandler(h)
-    h.setFormatter( default_formatter )
+if debug_enabled:
+    try:
+        from pudb import set_trace
+    except ImportError:
+        from pdb import set_trace
+
+# environment overrides
+if not debug_enabled and os.environ.get('DEBUG'):
+    debug_enabled = os.environ['DEBUG'] != '0'
 
 def traced(fn):
     def _get_decorator(decorated):
@@ -20,23 +29,40 @@ def traced(fn):
             try:
                 return decorated(*args, **kw)
             except:
-                import pdb; pdb.set_trace()
+                DEBUG()
         return _decorator
     return _get_decorator(fn)
 
 def DEBUG():
     traceback.print_stack()
     traceback.print_exc()
+    set_trace()
 
-debug_enabled = ('DEBUG' in os.environ) or config.debug
 
 if debug_enabled:
+    default_formatter = logging.Formatter('[%(threadName)s %(relativeCreated)d] %(module)s %(funcName)s:%(lineno)s %(message)s')
     try:
-        val = logging.ERROR - int(os.environ.get('DEBUG', 1))*10
+        LOGFILENAME='zicbee.log'
+        file(LOGFILENAME, 'a').close()
+    except Exception:
+        LOGFILENAME=None
+
+    handlers = [ logging.StreamHandler() ] # first is stderr
+    if LOGFILENAME:
+        handlers.append( logging.FileHandler(LOGFILENAME) )
+
+    # add handlers
+    for h in handlers:
+        log.addHandler(h)
+        h.setFormatter( default_formatter )
+
+    try:
+        val = int(os.environ.get('DEBUG', 1))*10
     except ValueError:
         val = logging.DEBUG
 
     log.setLevel(val)
 else:
     globals()['DEBUG'] = lambda: None # NO-OP if not debugging
+    log.setLevel(logging.FATAL)
 

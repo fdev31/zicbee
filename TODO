@@ -1,65 +1,57 @@
-=== IDEAS
-  * video support
-  * picture support
-      ** (merge with imgplayer.js ?)
-  * add update support from syntax
-    ** playlist: store a playlist (TODO: without other argument it GETS a playlist...)
-    ** +score: change the score of the given pattern
-    ** +tags: add the given keyword(s) to tags
-    ** example: `artist: Rolling album: stone +tags: rock`
-  * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
-  * re-write zicbee in C (the executable, not the project !)
-    ** have python fallback (use code generation from cmd/requests description?)
-  * let choice of multiples players
-  * database operations (difference, merge, substract, etc...)
-  * allow alternative databases synchronization (SQL, XML, ...)
-  * unify output format (re-architecture output operations)
-    ** add support for rss/rdf/atom formats as output
-  * add file transcoder functions (on a given database)
-    ** could be available via text and www
-  * add more formats to the player on www "live" (flash ? :( )
-  * add "size" lookup option, limiting the size of the answer (in s)
-    ** add advanced "skip" option, to skip a number of entries
-    ** add advanced "limit" option, to limit the number of entries answered
-  * add views support (aka "dynamic playlists", stored also...)
-    ** example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
-  * pluggable audio backend/minimal plugin support:
-      ** upnp/dlna support
-      ** audioscrobbler
-        *** syntax proposition: just "audioscrobbler:" ?
-      ** podcasts (atom/rss/etc...)
-        *** example: ```feed: http://blah title: something```
-        *** add named feeds support (use "myradio" instead of http://....)
-      ** specific hardware support (ipod...)  <-- give me one if you want it ;P
-      ** more...
-  * automatic (but clever...) autodetection of mountpoints
+**1.4** (diversity)
+ * Write many player backends (ex: xine, vlc, gst, pyglet.avbin)
+ * Introduce db backends (ex: buzhug, json, whoosh, sqlite)
+ * add optional video support (handle capabilities of backend)
 
-----
+**1.3** (stable)
 
-For **1.1**: (architecture cleanup)
+**1.2** (db cleanup)
+ * write real multi-db support (add hostname to bundles, <dbname>.ini file?)
+
+**1.1** (architecture cleanup)
  * write some backends detection and loading
- * need to split zicdb executable ?
  * Much more doc
- 
+ * auto-playlists: handle track sorting during decimation
 
-Before **1.0**: (very useable, db schema freeze)
+**1.0** (very useable, db schema freeze)
  * distribution cleanup
  * fill feature gap between www (poor) & text (rich) ui
  * add themes support for www player (and DB ?)
- * good duplicates detection
+ * good duplicates detection (change the way hash is computed ?)
+ * API/db cleanup & documentation
+ * playcount
+ * lastplayed (date)
+ * add hostname when scanning (ask for one, store in .ini file)
 
-Before **0.9**:
+**0.9**
+ [DONE]
+ * allow easy player backends integration (packages splitting via entry-points)
+  ** there is a single backend so far (mplayer)
+  ** made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
+  ** see [[Developers]] section
+ * minimal www interface (for low power machines, don't expect too much)
+ ** use /basic on any server with a player, it's quite rought now
+ * Integrate automatic playlists with *AUTO* keyword
+  ** minimalistic last.fm support (no account needed, only works with "artist" keyword)
+  ** modulable tolerence giving a digit (ex: *AUTO 15*)
+  ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
+ * Split code into 3 projects to clarify parts
+ * stored playlists (including position)
+    ** use "#" to act on current playlist
+    ** use "pls: <playlist name>" to WRITE a playlist
+    ** use "playlist: <playlist name>" to LOAD a playlist
+    ** prefix playlist name with "+" to append results to playlist
+    ** prefix playlist name with ">" to insert results into playlist just after the current song
+    ** inc. playlist resume
+ [WIP]
  * cleaner javascript/cookies/sessions (prepare theme support)
- * improve shell completion ?
+ * improve shell completion (abbreviations done, maybe "set" command to come)
+    ** www (TBD) and text interface
+ [TODO]
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
- * stored playlists (including position)
-    ** inc. playlist resume
-    ** www and text interface
 
-Before **0.8**: (slight feature/stable)
-<--- **WE ARE HERE**
- DONE:
+**0.8** (released)
  * add support for FLAC
  * interactive shell support with completion and history
    ** see "zicdb shell" or "zicbee" commands
@@ -71,7 +63,7 @@ Before **0.8**: (slight feature/stable)
  * better documentation
 
 
-**0.7** (cleanup/refactor):
+**0.7** (released)
 
  * add play, pause, next, prev, list
  * add cleaner configuration:: more unified (prepare themes handling)
@@ -94,4 +86,41 @@ Before **0.8**: (slight feature/stable)
   * different mplayer wrapper
   * other flavors of www interface
   * architectural mistakes ;)
+
+---- 
+
+=== PENDING IDEAS
+  * video support
+  * picture support
+      ** (merge with imgplayer.js ?)
+  * add update support from syntax
+    ** playlist: store a playlist (TODO: without other argument it GETS a playlist...)
+    ** +score: change the score of the given pattern
+    ** +tags: add the given keyword(s) to tags
+    ** example: `artist: Rolling album: stone +tags: rock`
+  * separate zicdb into zicdb (database/local maintenance) / zicbee (player/remote control)
+  * re-write zicbee in C (the executable, not the project !)
+    ** have python fallback (use code generation from cmd/requests description?)
+  * database operations (difference, merge, substract, etc...)
+  * allow alternative databases synchronization (SQL, XML, ...)
+  * unify output format (re-architecture output operations)
+    ** add support for rss/rdf/atom formats as output
+  * add file transcoder functions (on a given database)
+    ** could be available via text and www
+  * add more formats to the player on www "live" (flash ? :( )
+  * add "size" lookup option, limiting the size of the answer (in s)
+    ** add advanced "skip" option, to skip a number of entries
+    ** add advanced "limit" option, to limit the number of entries answered
+  * add views support (aka "dynamic playlists", stored also...)
+    ** example: `artist: Rolling album: stone +view: stones` (still could use "+playlist" to store regular playlists)
+  * pluggable audio backend/minimal plugin support:
+      ** upnp/dlna support
+      ** audioscrobbler
+        *** syntax proposition: just "audioscrobbler:" ?
+      ** podcasts (atom/rss/etc...)
+        *** example: ```feed: http://blah title: something```
+        *** add named feeds support (use "myradio" instead of http://....)
+      ** specific hardware support (ipod...)  <-- give me one if you want it ;P
+      ** more...
+  * automatic (but clever...) autodetection of mountpoints
 
