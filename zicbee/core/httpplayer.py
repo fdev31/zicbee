@@ -573,9 +573,15 @@ class webplayer:
         self.player.delete_entry(int(i['idx']))
         return ''
 
+
     def REQ_move(self):
         i = web.input()
-        self.player.move_entry(int(i['i1']), int(i['i2']))
+        self.player.move_entry(int(i['s']), int(i['d']))
+        return ''
+
+    def REQ_swap(self):
+        i = web.input()
+        self.player.swap_entry(int(i['i1']), int(i['i2']))
         return ''
 
     def REQ_append(self):
