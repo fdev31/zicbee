@@ -24,7 +24,7 @@ def do_search(out=None, edit_mode=False):
     elif out == 'm3u':
         print "#EXTM3U"
         def song_output(song):
-            print "#EXTINF:%d,%s - %s\n%s"%(song.length, song.artist, song.title, song.filename)
+            print u"#EXTINF:%d,%s - %s\n%s"%(song.length, song.artist, song.title, song.filename)
     elif out == 'null':
         def song_output(song): pass
     else:
