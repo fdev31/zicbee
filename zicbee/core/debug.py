@@ -1,4 +1,4 @@
-__all__ = ['DEBUG', 'debug_enabled', 'log']
+__all__ = ['DEBUG', 'debug_enabled', 'log', 'nop', 'set_trace']
 import os
 import logging
 import traceback
@@ -6,6 +6,7 @@ from logging import getLogger
 from zicbee.core.config import config
 
 log = getLogger('zicbee')
+def nop(): pass
 
 try:
     debug_enabled = (str(config.debug).lower()[:1] not in 'fn') if config.debug else False
@@ -13,11 +14,17 @@ try:
 except:
     debug_enabled = False
 
-if debug_enabled:
-    try:
-        from pudb import set_trace
-    except ImportError:
-        from pdb import set_trace
+try:
+    from pudb import set_trace as _strace
+except ImportError:
+    from pdb import set_trace as _strace
+else:
+    _strace = None
+
+if _strace:
+    set_trace = _strace
+else:
+    set_trace = nop
 
 # environment overrides
 if not debug_enabled and os.environ.get('DEBUG'):
@@ -63,6 +70,6 @@ if debug_enabled:
 
     log.setLevel(val)
 else:
-    globals()['DEBUG'] = lambda: None # NO-OP if not debugging
+    globals()['DEBUG'] = nop
     log.setLevel(logging.FATAL)
 
