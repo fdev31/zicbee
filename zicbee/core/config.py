@@ -52,18 +52,20 @@ class ConfigObj(object):
 
 config = ConfigObj()
 
+class DefaultDict(dict):
+    def __init__(self, default, *a):
+        dict.__init__(self, *a)
+        self._default = default
 
-media_config = {
-        'mp3' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'ogg' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'mp4' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'aac' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'vqf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'wmv' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'wma' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'm4a' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'asf' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'oga' : {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
-        'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
-        }
+    def __getitem__(self, val):
+        try:
+            return dict.__getitem__(self, val)
+        except KeyError:
+            return self._default
+
+media_config = DefaultDict( {'player_cache': 128, 'init_chunk_size': 2**18, 'chunk_size': 2**14},
+        {
+            'flac' : {'player_cache': 4096, 'init_chunk_size': 2**22, 'chunk_size': 2**20},
+            }
+        )
 
