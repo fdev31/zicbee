@@ -236,7 +236,7 @@ class PlayerCtl(object):
             uri = sel['uri']
             web.debug('download: %s'%uri)
             if uri.count('/db/get') != 1 or uri.count('id=') != 1: # something strange
-                song_name = str(uri) # ensure not unicode
+                song_name = uri
                 dl_it = (None for n in xrange(1))
             else: # zicbee
                 dl_it = self._download_zic(sel['uri'], song_name)
@@ -560,7 +560,7 @@ class webplayer:
                         it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
                     except:
                         pls = self.player.playlist
-                        pls.inject( [uri, u'injected uri', 1000, None, None, 1000] )
+                        pls.inject( [str(uri), u'injected uri', 1000, None, None, 1000] )
                 else:
                     it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
