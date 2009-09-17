@@ -89,7 +89,7 @@ class Playlist(list):
             data = [data]
         p = self.pos+1 if position is None else position
 
-        self.__checkindex(position)
+        self.__checkindex(p)
 
         self[p:p] = data
 
