@@ -1,22 +1,19 @@
 # vim: et ts=4 sw=4
 from __future__ import with_statement
 
+import difflib
 import os
+import pkg_resources
 import random # shuffle
 import thread
 import urllib
-import difflib
-from time import sleep
 from threading import RLock
-import itertools
-import pkg_resources
-from time import time
-from zicbee.core.zutils import compact_int, jdump, jload, dump_data_as_text
-from zicbee.core.parser import extract_props
-from zicbee.core.zutils import uncompact_int
-from zicbee.core.debug import DEBUG, log, debug_enabled
+from time import sleep
 from zicbee.core.config import config, media_config, DB_DIR
-from zicbee.core.httpdb import WEB_FIELDS, render, web
+from zicbee.core.debug import log, DEBUG
+from zicbee.core.httpdb import render, web, WEB_FIELDS
+from zicbee.core.parser import extract_props
+from zicbee.core.zutils import compact_int, dump_data_as_text, jdump, jload
 try:
     from cPickle import Pickler, Unpickler
 except ImportError:
