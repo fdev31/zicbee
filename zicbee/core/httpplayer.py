@@ -247,8 +247,9 @@ class PlayerCtl(object):
             web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
             if old_pos != sel['pls_position']:
                 web.debug("Loadfile %d/%s : %s !!"%(sel['pls_position'], sel['pls_size'], song_name))
-                cache = media_config[self.selected_type]['player_cache']
-                self.player.set_cache(cache)
+                cache = media_config[self.selected_type].get('player_cache')
+                if cache:
+                    self.player.set_cache(cache)
                 self.player.load(song_name)
             self._paused = False
         return dl_it
