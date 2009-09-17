@@ -176,6 +176,7 @@ class PlayerCtl(object):
         self.position = None
         self._lock = RLock()
         self._paused = False
+        self.play_live = False
         thread.start_new_thread(self._main_loop, tuple())
         self._load_playlists()
 
@@ -233,9 +234,16 @@ class PlayerCtl(object):
             self.playlist.move(sense)
             song_name = config.streaming_file
             sel = self.selected
-            web.debug('download: %s'%sel['uri'])
-            dl_it = self._download_zic(sel['uri'], song_name)
-            dl_it.next()
+            uri = sel['uri']
+            web.debug('download: %s'%uri)
+            if uri.count('/db/get') != 1 or uri.count('id=') != 1: # something strange
+                self.play_live = True
+                song_name = str(uri) # ensure not unicode
+                dl_it = (None for n in xrange(1))
+            else: # zicbee
+                self.play_live = False
+                dl_it = self._download_zic(sel['uri'], song_name)
+                dl_it.next()
             web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
             if old_pos != sel['pls_position']:
                 web.debug("Loadfile %d/%s : %s !!"%(sel['pls_position'], sel['pls_size'], song_name))
