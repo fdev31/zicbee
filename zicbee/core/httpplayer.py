@@ -127,6 +127,7 @@ class Playlist(list):
     @property
     def selected_dict(self):
         sel = self.selected
+        web.debug('SELECTED: %r'%sel)
         if not sel:
             return dict()
 
@@ -202,6 +203,7 @@ class PlayerCtl(object):
                         # restart player
                         self.player.respawn()
                     except:
+                        DEBUG()
                         self.position = None
 
 #                    web.debug('pos: %s, errors: %s'%(self.position, errors))
@@ -407,6 +409,7 @@ class PlayerCtl(object):
                 try:
                     r = jload(line)
                 except:
+                    DEBUG()
                     web.debug("Can't load json description: %s"%line)
                     break
                 total += r[4]
@@ -451,7 +454,6 @@ class PlayerCtl(object):
         achieved += len(data)
         self._running = True
         yield site.fileno()
-#        web.debug('downloading %d'%achieved)
 
         try:
             buf_sz = media_config[self.selected_type]['chunk_size'] # 16k micro chunks
@@ -462,7 +464,6 @@ class PlayerCtl(object):
                 if not data:
                     break
                 achieved += len(data)
-#                web.debug('downloading %s from %s (%.1f%%)'%(uri, self, progress))
                 fd.write(data)
                 yield ''
             fd.close()
@@ -564,7 +565,7 @@ class webplayer:
             it.next()
 
         except (IndexError, KeyError):
-            pass
+            DEBUG()
         finally:
             return it
 
