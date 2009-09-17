@@ -516,7 +516,11 @@ class PlayerCtl(object):
         # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
         uri = self.selected.get('uri')
         if uri:
-            return uri.rsplit('song.', 1)[1].split('?', 1)[0]
+            try:
+                return uri.rsplit('song.', 1)[1].split('?', 1)[0]
+            except IndexError:
+                return 'dunno'
+                return uri.rsplit('.', 1)[1]
         return 'mp3'
 
 
