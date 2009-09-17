@@ -450,8 +450,6 @@ class PlayerCtl(object):
         self._download_stream = fd
 
         site = urllib.urlopen(uri)
-        total = float(site.info().getheader('Content-Length'))
-        total_length = 100
         achieved = 0
 
         init_sz = media_config[self.selected_type]['init_chunk_size']
@@ -465,8 +463,6 @@ class PlayerCtl(object):
             buf_sz = media_config[self.selected_type]['chunk_size'] # 16k micro chunks
             while True:
                 data = site.read(buf_sz)
-                progress = total_length * (achieved / total)
-#                self.signal_view('download_progress', progress)
                 if not data:
                     break
                 achieved += len(data)
