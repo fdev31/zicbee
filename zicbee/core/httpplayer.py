@@ -550,7 +550,7 @@ class webplayer:
         self.player.close()
 
     def REQ_search(self):
-        it = None
+        it = ('' for i in xrange(1))
         try:
             i = web.input()
             tempname = i.get('tempname', '').strip() or False
