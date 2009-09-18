@@ -203,7 +203,7 @@ class web_db_index:
             pattern = af['pattern'].value
 
             if pattern is None:
-                res = None
+                res = xrange(0)
             else:
                 pat, vars = parse_line(pattern)
                 urlencode = web.http.urlencode

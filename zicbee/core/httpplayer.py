@@ -219,7 +219,7 @@ class PlayerCtl(object):
                         else:
                             errors['count'] += 1
                 except Exception, e:
-                    DEBUG()
+                    DEBUG(False)
             sleep(1)
 
     def select(self, sense):

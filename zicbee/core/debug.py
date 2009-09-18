@@ -14,17 +14,16 @@ try:
 except:
     debug_enabled = False
 
-try:
-    from pudb import set_trace as _strace
-except ImportError:
-    from pdb import set_trace as _strace
-else:
-    _strace = None
+#try:
+#    from pudb import set_trace as _strace
+#except ImportError:
+from pdb import set_trace as _strace
 
-if _strace:
-    set_trace = _strace
-else:
-    set_trace = nop
+def set_trace():
+    try:
+        _strace()
+    except :
+        print "Exception in stread, can't step into!"
 
 # environment overrides
 if not debug_enabled and os.environ.get('DEBUG'):
@@ -40,10 +39,11 @@ def traced(fn):
         return _decorator
     return _get_decorator(fn)
 
-def DEBUG():
+def DEBUG(trace=True):
     traceback.print_stack()
     traceback.print_exc()
-    set_trace()
+    if trace:
+        set_trace()
 
 
 if debug_enabled:
