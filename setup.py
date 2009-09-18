@@ -62,6 +62,7 @@ setup (
                 'ui/web/static/*.js',
                 'ui/web/static/pics/*.*',
                 'ui/web/static/pics/cmd/*.*',
+                'ui/notify/*.png',
                 ],
             },
 

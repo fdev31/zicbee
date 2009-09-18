@@ -14,6 +14,7 @@ from zicbee.core.debug import log, DEBUG
 from zicbee.core.httpdb import render, web, WEB_FIELDS
 from zicbee.core.parser import extract_props
 from zicbee.core.zutils import compact_int, dump_data_as_text, jdump, jload
+from zicbee.utils import notify
 try:
     from cPickle import Pickler, Unpickler
 except ImportError:
@@ -248,6 +249,10 @@ class PlayerCtl(object):
                 if cache:
                     self.player.set_cache(cache)
                 self.player.load(song_name)
+                description="""Artist:\t%(artist)s
+Title: \t%(title)s
+Album: \t%(album)s"""%sel
+                notify('Play', description)
             self._paused = False
         return dl_it
 
@@ -273,12 +278,14 @@ class PlayerCtl(object):
 
         with self._lock:
             self.playlist.shuffle()
+            notify('Shuffled')
 
     def seek(self, val):
         """ Seek according to given value
         """
         with self._lock:
             self.player.seek(val)
+            notify('Seeking %s'%val)
 
     def clear(self):
         """ Clear the current playlist and stop the player
@@ -293,6 +300,7 @@ class PlayerCtl(object):
     def pause(self):
         """ (Un)Pause the player
         """
+        notify('Paused', icon='media-pause')
         with self._lock:
             self.player.pause()
             self._paused = not self._paused
@@ -363,6 +371,7 @@ class PlayerCtl(object):
 
         with self._lock:
             self.hostname = hostname
+            notify('Play %(pattern)s'%kw)
             params = '&%s'%urllib.urlencode(kw) if kw else ''
             uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)
@@ -656,9 +665,11 @@ class webplayer:
         return self.player.pause() or ''
 
     def REQ_prev(self):
+        notify('Zap!', icon='media-previous')
         return self.player.select(-1) or ''
 
     def REQ_next(self):
+        notify('Zap!', icon='media-next')
         return self.player.select(1) or ''
 
     def REQ_tag(self, tag):
