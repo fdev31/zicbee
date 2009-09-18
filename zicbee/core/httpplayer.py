@@ -249,10 +249,9 @@ class PlayerCtl(object):
                 if cache:
                     self.player.set_cache(cache)
                 self.player.load(song_name)
-                description="""Artist:\t%(artist)s
-Title: \t%(title)s
-Album: \t%(album)s"""%sel
-                notify('Play', description)
+                description="""Title:\t%(title)s
+Album:\t%(album)s"""%sel
+                notify(sel.get('artist', 'Play'), description)
             self._paused = False
         return dl_it
 
@@ -278,14 +277,14 @@ Album: \t%(album)s"""%sel
 
         with self._lock:
             self.playlist.shuffle()
-            notify('Shuffled')
+            notify('Shuffled', timeout=200)
 
     def seek(self, val):
         """ Seek according to given value
         """
         with self._lock:
             self.player.seek(val)
-            notify('Seeking %s'%val)
+            notify('Seeking %s'%val, timeout=200)
 
     def clear(self):
         """ Clear the current playlist and stop the player
@@ -300,10 +299,13 @@ Album: \t%(album)s"""%sel
     def pause(self):
         """ (Un)Pause the player
         """
-        notify('Paused', icon='media-pause')
         with self._lock:
             self.player.pause()
             self._paused = not self._paused
+        if self._paused:
+            notify('Pause', timeout=300)
+        else:
+            notify('Play', timeout=300)
 
     def delete_playlist(self, name):
         """ Delete the given named playlist (by name) """
@@ -389,7 +391,7 @@ Album: \t%(album)s"""%sel
                     if self.playlist.pos >= 0:
                         append = self.playlist.pos + 1 # insert just next
                 if pls != '#':
-                    # output playlist is not 'current playlist' 
+                    # output playlist is not 'current playlist'
                     if pls not in self._named_playlists:
                         self._named_playlists[pls] = Playlist()
                     out_pls = self._named_playlists[pls]
@@ -665,11 +667,11 @@ class webplayer:
         return self.player.pause() or ''
 
     def REQ_prev(self):
-        notify('Zap!', icon='media-previous')
+        notify('Zap!', icon='media-previous', timeout=200)
         return self.player.select(-1) or ''
 
     def REQ_next(self):
-        notify('Zap!', icon='media-next')
+        notify('Zap!', icon='media-next', timeout=200)
         return self.player.select(1) or ''
 
     def REQ_tag(self, tag):
