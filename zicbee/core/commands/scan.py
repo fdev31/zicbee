@@ -4,8 +4,8 @@ import os
 import sys
 from time import time
 from zicbee.core import zshell
-from zicbee.core.debug import DEBUG
-from zicbee.core.zutils import duration_tidy, clean_path
+from zicbee_lib.debug import DEBUG
+from zicbee_lib.formats import duration_tidy, clean_path
 from os.path import dirname
 
 def _scan(**kw):

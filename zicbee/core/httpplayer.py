@@ -9,11 +9,11 @@ import thread
 import urllib
 from threading import RLock
 from time import sleep
-from zicbee.core.config import config, media_config, DB_DIR
-from zicbee.core.debug import log, DEBUG
+from zicbee_lib.config import config, media_config, DB_DIR
+from zicbee_lib.debug import log, DEBUG
 from zicbee.core.httpdb import render, web, WEB_FIELDS
 from zicbee.core.parser import extract_props
-from zicbee.core.zutils import compact_int, dump_data_as_text, jdump, jload
+from zicbee_lib.formats import compact_int, dump_data_as_text, jdump, jload
 from zicbee.utils import notify
 try:
     from cPickle import Pickler, Unpickler

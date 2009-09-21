@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 from zicbee.core import zshell
-from zicbee.core.config import config, defaults_dict
+from zicbee_lib.config import config, defaults_dict
 
 def do_set():
     """ set a config variable to the given value

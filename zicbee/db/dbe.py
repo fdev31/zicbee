@@ -4,8 +4,7 @@ __all__ = ['Database', 'valid_tags']
 import os
 import buzhug
 from itertools import chain
-from zicbee.core.config import DB_DIR
-from zicbee.core.config import media_config
+from zicbee_lib.config import DB_DIR, media_config
 
 try:
     required_buzhug = [1, 5]

@@ -2,9 +2,9 @@
 
 import itertools
 import socket
-from zicbee.core.config import config
-from zicbee.core.debug import log
-from zicbee.core.zutils import get_help_from_func
+from zicbee_lib.config import config
+from zicbee_lib.debug import log
+from zicbee_lib.formats import get_help_from_func
 
 try:
     socket.setdefaulttimeout(int(config.socket_timeout)) # setsocket  timeout, for interactive cmds

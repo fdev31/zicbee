@@ -3,7 +3,7 @@ __all__ = ['do_hash', 'do_reset', 'do_bundle', 'do_debug']
 
 import urllib
 from zicbee.core import zshell
-from zicbee.core.config import config, defaults_dict, DB_DIR
+from zicbee_lib.config import config, defaults_dict, DB_DIR
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.db import Database, DB_DIR
 

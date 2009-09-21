@@ -1,2 +1,2 @@
-import zicbee.core.debug # init logging
+import zicbee_lib.debug # init logging
 __version__ = '0.9-dev'

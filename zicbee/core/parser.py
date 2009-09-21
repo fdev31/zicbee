@@ -3,8 +3,8 @@ __all__ = ['parse_line', 'extract_props']
 import itertools
 import os
 import string
-from zicbee.core.debug import log
-from zicbee.core.zutils import uncompact_int
+from zicbee_lib.debug import log
+from zicbee_lib.formats import uncompact_int
 from zicbee.remote_apis import ASArtist
 
 ################################################################################

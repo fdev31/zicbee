@@ -1,0 +1,19 @@
+__version__='0.2'
+
+def startup():
+    import sys
+    from .core import Shell, execute
+    if len(sys.argv) > 1:
+        execute(' '.join(sys.argv[1:]))
+    else:
+        s = Shell()
+        s._prompt = 'wasp'
+        user_happy = True
+        while user_happy:
+            try:
+                s.cmdloop('Wasp %s!'%__version__)
+            except KeyboardInterrupt:
+                if raw_input("Do you really want to exit (y/n) ? ").lower()[:1] == 'y':
+                    user_happy = False
+
+

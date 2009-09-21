@@ -30,7 +30,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'buzhug>=1.5', 'mutagen>=1.14', 'web.py>=0.32' ]
+requirements = [ 'zicbee-lib', 'buzhug>=1.5', 'mutagen>=1.14', 'web.py>=0.32' ]
 
 if sys.version_info[:2] < (2, 6):
     # add cjson dependency
@@ -70,6 +70,7 @@ setup (
             "console_scripts": [
                 'zicdb = zicbee.core:startup',
                 'zicserve = zicbee.core:serve',
+                'wasp = zicbee.wasp:startup',
                 ],
             "setuptools.installation" : [
                 'eggsecutable = zicbee.core:startup'

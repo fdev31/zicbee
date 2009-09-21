@@ -2,10 +2,10 @@ from time import time
 import sys
 from zicbee.db import valid_tags
 from zicbee.core import zshell
-from zicbee.core.zutils import duration_tidy, jload
+from zicbee_lib.formats import duration_tidy, jload
 from zicbee.core.parser import parse_line
-from zicbee.core.config import config
-from zicbee.core.debug import log, DEBUG
+from zicbee_lib.config import config
+from zicbee_lib.debug import log, DEBUG
 
 def do_search(out=None, edit_mode=False):
     """ Search for song, display results.

@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
-from zicbee.core.config import config
-from zicbee.core.debug import DEBUG
+from zicbee_lib.config import config
+from zicbee_lib.debug import DEBUG
 
 def do_serve(pure=False):
     """ Create a ZicDB instance
