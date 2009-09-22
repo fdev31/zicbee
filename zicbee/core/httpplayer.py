@@ -194,7 +194,12 @@ class PlayerCtl(object):
                 try:
                     try:
                         with self._lock:
-                            self.position = int(self.player.position)
+                            p = self.player.position
+                            if p is None:
+                                errors['count'] = 10
+                                self.position = None
+                            else:
+                                self.position = int(p)
                     except IOError, e:
                         web.debug('E: %s'%e)
                         self.position = None
