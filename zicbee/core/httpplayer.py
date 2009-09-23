@@ -30,6 +30,8 @@ SimpleSearchForm = web.form.Form(
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
+class EndOfPlaylist(Exception): pass
+
 class Playlist(list):
 
     def __init__(self, *args):
@@ -153,6 +155,7 @@ class Playlist(list):
         self.pos += steps
         if self.pos >= len(self):
             self.pos = -1
+            raise EndOfPlaylist()
         elif self.pos < -1:
             self.pos = -1
 
@@ -245,7 +248,11 @@ class PlayerCtl(object):
 
         with self._lock:
             old_pos = self.playlist.pos
-            self.playlist.move(sense)
+            try:
+                self.playlist.move(sense)
+            except EndOfPlaylist:
+                if not config.loop:
+                    self.pause()
             song_name = config.streaming_file
             sel = self.selected
             uri = sel['uri']
