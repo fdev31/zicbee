@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 from zicbee.core import zshell
-from zicbee_lib.config import config, defaults_dict
+from zicbee_lib.config import config
 
 def do_set():
     """ set a config variable to the given value
@@ -8,18 +8,11 @@ def do_set():
 
     if not zshell.args:
         # dumps *
-        values = defaults_dict.keys()
 #        print "[DEFAULT]"
 
         not_found = []
-        for param in values:
-            try:
-                print "%s = %s"%(param, getattr(config, param))
-            except:
-                not_found.append(param)
-
-        if not_found:
-            print "unavaible: %s"%(', '.join(not_found))
+        for k, v in config:
+            print "%s = %s"%(k, v)
 
     elif zshell.args and len(zshell.args) < 4:
         # (re)set a value
