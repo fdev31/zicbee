@@ -163,7 +163,16 @@ class PlayerCtl(object):
     def __init__(self):
         self.playlist = Playlist()
         self.views = []
+        players = []
+        preferences = [n.strip() for n in config.players.split(',')]
+        web.debug('player preferences: %s'%(', '.join(preferences)))
         for player_plugin in pkg_resources.iter_entry_points('zicbee.player'):
+            if player_plugin.name in preferences:
+                players.insert(preferences.index(player_plugin.name), player_plugin)
+            else:
+                players.append(player_plugin)
+        web.debug('available players: %s'%players)
+        for player_plugin in players:
             try:
                 self.player = player_plugin.load()()
             except Exception, e:
