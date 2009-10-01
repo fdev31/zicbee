@@ -106,6 +106,12 @@ class web_db_index:
 
     def REQ_kill(self):
         zshell.songs.close()
+        try:
+            from zicbee.core.httpplayer import webplayer
+            webplayer.player.close()
+        except:
+            pass
+        yield 'Aaaah!'
         raise SystemExit()
 
     def REQ_infos(self, song_id):
