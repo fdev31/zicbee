@@ -583,7 +583,8 @@ class webplayer:
                         it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
                     except:
                         pls = self.player.playlist
-                        pls.inject( [str(uri), u'injected uri', 1000, None, None, 1000] )
+
+                        pls.inject( [str(uri), u'No artist', u'No album', 'External stream', 1000, None, None, 0] )
                 else:
                     it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
             else:
