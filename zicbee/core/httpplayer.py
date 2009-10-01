@@ -378,6 +378,7 @@ Album:\t%(album)s"""%sel
     def delete_playlist(self, name):
         """ Delete the given named playlist (by name) """
         del self._named_playlists[name]
+        self._save_playlists()
 
     def save(self, name):
         from copy import copy
@@ -602,10 +603,10 @@ class webplayer:
         i = web.input()
         try:
             i = int(i['idx'])
-        except TypeError:
+        except ValueError:
             self.player.delete_playlist(i['idx'])
         else:
-            self.player.delete(i)
+            self.player.delete_entry(i)
 
         return ''
 
