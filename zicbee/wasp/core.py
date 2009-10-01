@@ -23,15 +23,16 @@ def execute(name=None, line=None):
       * id (compact style) * genre * artist * album * title * track
       * filename * score * tags * length
 
-    Playlists:
-        use "playlist" to read from, else "pls"
-        add "+" prefix to name to append instead of replacing
-        ">" prefix inserts just next
-        "#" = current playlist name
+    Playlists (only with play command):
+        use "pls: <name>" to store the request as "<name>"
+        add ">" prefix to name to append instead of replacing
+        "+" prefix inserts just next
+        "#" = special name to point "current" playlist
 
-    Numerics (length, track, score) needs spaces around modifiers if some is specified, examples:
+    Numerics (length, track, score) have rich operators, default is "==" for equality
         length: >= 60*5
         length: < 60*3+30
+        length: >100
         score: 5
         """
 
