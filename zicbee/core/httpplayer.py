@@ -39,7 +39,7 @@ class Playlist(list):
         self.pos = -1
 
     def __delitem__(self, slc):
-        self.__checkindex(slc)
+        self.__update_position(slc)
         try:
             idx = int(slc)
         except TypeError:
@@ -52,10 +52,10 @@ class Playlist(list):
         return list.__delitem__(self, slc)
 
     def __setitem__(self, slc, val):
-        self.__checkindex(slc)
+        self.__update_position(slc)
         return list.__setitem__(self, slc, val)
 
-    def __checkindex(self, start, stop=None):
+    def __update_position(self, start, stop=None):
 
         if stop is None:
             try:
@@ -83,7 +83,7 @@ class Playlist(list):
                 self.pos = 0 if self.playlist else -1
 
     def insert(self, idx, obj):
-        self.__checkindex(idx)
+        self.__update_position(idx)
         list.insert(self, idx, obj)
 
     def inject(self, data, position=None):
@@ -92,7 +92,7 @@ class Playlist(list):
             data = [data]
         p = self.pos+1 if position is None else position
 
-        self.__checkindex(p)
+        self.__update_position(p)
 
         self[p:p] = data
 
