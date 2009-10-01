@@ -396,20 +396,22 @@ Album:\t%(album)s"""%sel
         (the main one is not affected)
         returns an iterator
         """
+        self.running = False # do not disturb !
         web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, temp, kw))
         hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
 
         pattern = kw.get('pattern', None)
-        playlist = pls = None
+        in_pls = None
+        out_pls = '#' # current playlist, by default
         if pattern:
             # try to find 'pls' (output) and 'playlist' (input) in pattern
             (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
             if props:
                 props = dict(props)
-                playlist = props.get('playlist', None)
-                pls = props.get('pls', None)
+                in_pls = props.get('playlist', None)
+                out_pls = props.get('pls', None)
             if new_pattern:
                 kw['pattern'] = new_pattern
             else:
@@ -418,52 +420,22 @@ Album:\t%(album)s"""%sel
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
 
-        to_be_inserted = []
-
         with self._lock:
             self.hostname = hostname
             notify('Play %(pattern)s'%kw)
             params = '&%s'%urllib.urlencode(kw) if kw else ''
             uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)
-            web.debug('fetch_pl: playlist=%s pls=%s kw=%s uri=%s'%(playlist, pls, kw, uri))
-
-            append = False
             out_pls = self.playlist
-            if pls:
-                # we have an 'output' playlist
-                if pls.startswith('+'):
-                    pls = pls[1:]
-                    append = True
-                elif pls.startswith('>'):
-                    pls = pls[1:]
-                    if self.playlist.pos >= 0:
-                        append = self.playlist.pos + 1 # insert just next
-                if pls != '#':
-                    # output playlist is not 'current playlist'
-                    if pls not in self._named_playlists:
-                        self._named_playlists[pls] = Playlist()
-                    out_pls = self._named_playlists[pls]
+            web.debug('fetch_pl: in_pls=%s out_pls=%s kw=%s uri=%s'%(in_pls, out_pls, kw, uri))
             add = out_pls.append
-            ext = out_pls.extend
-            current = self.playlist.selected
-            if isinstance(append, int):
-                add = to_be_inserted.append
-                ext = to_be_inserted.extend
-
-            if not append:
-                out_pls[:] = []
-                if current:
-                    add(current)
+            self.playlist.replace([])
+            # TODO: in & out playlist (playlist: & pls:)
+            # + for append, > for insertion, else overwrite
 
         total = 0
         done = False
-        if playlist:
-            if playlist in self._named_playlists:
-                ext(self._named_playlists[playlist])
-            elif playlist == '#' and out_pls is not self.playlist:
-                ext(self.playlist)
-
+        add = out_pls.append
         while True:
             for n in xrange(50):
                 line = site.readline()
@@ -488,16 +460,7 @@ Album:\t%(album)s"""%sel
         if out_pls is self.playlist:
             # reset song position
             with self._lock:
-                if not self.playlist:
-                    self.playlist.pos = out_pls.pos
-                if to_be_inserted:
-                    self.playlist.inject(to_be_inserted, position=append)
-
-                if self.playlist.pos > 0 and not append:
-                    self.playlist.pos = 0
                 self._tmp_total_length = total
-        else:
-            self._save_playlists()
 
     def _download_zic(self, uri, fname):
         if getattr(self, '_download_stream', None):
