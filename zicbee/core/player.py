@@ -296,10 +296,9 @@ Album:\t%(album)s"""%sel
                     n = offset
                     _injct = out_pls.inject
                     while True:
-                        val = yield()
+                        val = yield
                         _injct(val, n)
                         n = n+1
-                        print n
                 iterator = add_coroutine(append)
                 iterator.next()
                 add = iterator.send
@@ -325,7 +324,7 @@ Album:\t%(album)s"""%sel
                     add(r)
                 self.signal_view('update_total', total)
 
-            yield
+            yield ''
 
             if not line:
                 del add
