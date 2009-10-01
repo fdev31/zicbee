@@ -385,41 +385,34 @@ Album:\t%(album)s"""%sel
         self._named_playlists[web.input()['name']] = copy(self.playlist)
         self._save_playlists()
 
-    def fetch_playlist(self, hostname=None, temp=False, **kw):
+    def fetch_playlist(self, hostname=None, playlist=False, **kw):
         """
         Fetch a playlist from a given hostname,
         can take any keyword, will be passed with the remote command
-        some useful keywords:
-            pattern: a search string
-            db: the database name (default is ok in general)
-        if the temp keyword is given,
+        kw should contain "pattern" parameter
+        you can pass a playlist name to save the search
         a temporary playlist will be created with the given name
         (the main one is not affected)
         returns an iterator
         """
         self.running = False # do not disturb !
-        web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, temp, kw))
+        web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, playlist, kw))
+
+        # sanitise hostname
         hostname = hostname.strip()
         if not hostname:
             hostname = '127.0.0.1'
-
-        pattern = kw.get('pattern', None)
-        in_pls = None
-        out_pls = '#' # current playlist, by default
-        if pattern:
-            # try to find 'pls' (output) and 'playlist' (input) in pattern
-            (new_pattern , props) = extract_props(pattern, ('playlist', 'pls'))
-            if props:
-                props = dict(props)
-                in_pls = props.get('playlist', None)
-                out_pls = props.get('pls', None)
-            if new_pattern:
-                kw['pattern'] = new_pattern
-            else:
-                del kw['pattern']
-
         if ':' not in hostname:
             hostname = "%s:%s"%(hostname, config.default_port)
+
+        # set playlist name
+        (new_pattern , props) = extract_props(kw['pattern'], ('pls',))
+        if new_pattern:
+            kw['pattern'] = new_pattern
+
+        props = dict(props)
+        if props:
+            playlist = props['pls']
 
         with self._lock:
             self.hostname = hostname
@@ -427,16 +420,50 @@ Album:\t%(album)s"""%sel
             params = '&%s'%urllib.urlencode(kw) if kw else ''
             uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)
-            out_pls = self.playlist
-            web.debug('fetch_pl: in_pls=%s out_pls=%s kw=%s uri=%s'%(in_pls, out_pls, kw, uri))
-            add = out_pls.append
-            self.playlist.replace([])
-            # TODO: in & out playlist (playlist: & pls:)
-            # + for append, > for insertion, else overwrite
+
+            # convert outpout playlist parameter
+            append = False
+            if playlist[0] in '>+':
+                if playlist[0] == '>':
+                    append = True
+                else: # +
+                    try:
+                        append = self.playlist.pos + 1
+                    except TypeError:
+                        append = True
+                playlist = playlist[1:].strip()
+
+            elif not playlist:
+                playlist = '#'
+
+            if playlist == '#':
+                out_pls = self.playlist
+            else:
+                out_pls = self._named_playlists[playlist] = Playlist()
+
+            web.debug('fetch_pl: out_pls=%s kw=%s uri=%s'%(out_pls, kw, uri))
+
+            # set up the output
+            if not append:
+                out_pls.replace([])
+
+            if append and not isinstance(append, bool):
+                def add_coroutine(offset):
+                    n = offset
+                    _injct = out_pls.inject
+                    while True:
+                        val = yield()
+                        _injct(val, n)
+                        n = n+1
+                        print n
+                iterator = add_coroutine(append)
+                iterator.next()
+                add = iterator.send
+            else:
+                add = out_pls.append
 
         total = 0
-        done = False
-        add = out_pls.append
+
         while True:
             for n in xrange(50):
                 line = site.readline()
@@ -454,14 +481,15 @@ Album:\t%(album)s"""%sel
                     add(r)
                 self.signal_view('update_total', total)
 
-            yield ''
+            yield
+
             if not line:
+                del add
                 break
 
-        if out_pls is self.playlist:
-            # reset song position
-            with self._lock:
-                self._tmp_total_length = total
+        if out_pls is not self.playlist:
+            self._save_playlists()
+
 
     def _download_zic(self, uri, fname):
         if getattr(self, '_download_stream', None):
@@ -573,28 +601,30 @@ class webplayer:
     def REQ_search(self):
         it = ('' for i in xrange(1))
         try:
-            i = web.input()
-            tempname = i.get('tempname', '').strip() or False
-            if i.get('pattern'):
-                if i.pattern.startswith('http'):
-                    try:
-                        uri = i.pattern
-                        hostname = uri.split("/", 3)[2]
-                        song_id = uri.rsplit('=', 1)[1]
-                        it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id, temp=tempname)
-                    except:
-                        pls = self.player.playlist
 
-                        pls.inject( [str(uri), u'No artist', u'No album', 'External stream', 1000, None, None, 0] )
-                else:
-                    it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern, temp=tempname)
+            i = web.input()
+            tempname = False
+
+            if i.get('pattern', '').startswith('http'):
+                # http pattern
+                try:
+                    uri = i.pattern.split()[0]
+                    hostname = uri.split("/", 3)[2]
+                    song_id = uri.rsplit('=', 1)[1]
+                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id)
+                except:
+                    # hardcore injection
+                    pls = self.player.playlist
+
+                    pls.inject( [str(uri), u'No artist', u'No album', 'External stream', 1000, None, None, 0] )
             else:
-                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=u'', temp=tempname)
+                # standard pattern
+                it = self.player.fetch_playlist(i.get('host', 'localhost'), pattern=i.pattern)
             it.next()
 
         except (IndexError, KeyError):
             DEBUG(False)
-        except:
+        except Exception, e:
             DEBUG()
         finally:
             return it
