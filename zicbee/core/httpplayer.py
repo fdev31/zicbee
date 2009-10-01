@@ -600,7 +600,13 @@ class webplayer:
 
     def REQ_delete(self):
         i = web.input()
-        self.player.delete_entry(int(i['idx']))
+        try:
+            i = int(i['idx'])
+        except TypeError:
+            self.player.delete_playlist(i['idx'])
+        else:
+            self.player.delete(i)
+
         return ''
 
 
@@ -619,8 +625,23 @@ class webplayer:
         return ''
 
     def REQ_copy(self):
-        self.player.playlist_change('copy', web.input()['name'])
-        return ''
+        try:
+            self.player.playlist_change('copy', web.input()['name'])
+            return ''
+        except KeyError:
+            return 'Not Found'
+
+    def REQ_inject(self):
+        try:
+            self.player.playlist_change('inject', web.input()['name'])
+            return ''
+        except KeyError:
+            return 'Not Found'
+
+    def REQ_save(self):
+        name = web.input()['name']
+        self.player.save(name)
+        return 'saved %s'%name
 
     def REQ_volume(self):
         i = web.input()
@@ -640,6 +661,9 @@ class webplayer:
         if format.startswith('htm'):
             web.header('Content-Type', 'text/html; charset=utf-8')
         return dump_data_as_text(_d, format)
+
+    def REQ_playlists(self):
+        return '\n'.join(self.player._named_playlists.keys())
 
     def REQ_playlist(self):
         i = web.input()
