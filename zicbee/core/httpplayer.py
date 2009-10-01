@@ -62,7 +62,7 @@ class Playlist(list):
                 start = int(start)
             except TypeError:
                 try:
-                    stop = start[-1]
+                    stop = start[1]
                     start = start[0]
                 except TypeError:
                     # slice
