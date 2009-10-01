@@ -592,6 +592,8 @@ class webplayer:
             it.next()
 
         except (IndexError, KeyError):
+            DEBUG(False)
+        except:
             DEBUG()
         finally:
             return it
