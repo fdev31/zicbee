@@ -345,10 +345,6 @@ Album:\t%(album)s"""%sel
         else:
             notify('Play', timeout=300)
 
-    def delete_playlist(self, name):
-        """ Delete the given named playlist (by name) """
-        del self._named_playlists[name]
-
     def delete_entry(self, position):
         """ delete the song at the given position """
         del self.playlist[position]
@@ -368,10 +364,25 @@ Album:\t%(album)s"""%sel
     def playlist_change(self, operation, pls_name):
         """ copy or append a named playlist to the active one
         """
+        pls = self._named_playlists[pls_name]
         if operation == 'copy':
-            self.playlist = self._named_playlists[pls_name]
+            from copy import copy
+            self.playlist = copy(pls)
+            self.select(0)
         elif operation == 'append':
-            self.playlist.extend(self._named_playlists[pls_name])
+            self.playlist.extend(pls)
+        elif operation == 'inject':
+            self.playlist.inject(pls, self.playlist.pos)
+        self.running = True
+
+    def delete_playlist(self, name):
+        """ Delete the given named playlist (by name) """
+        del self._named_playlists[name]
+
+    def save(self, name):
+        from copy import copy
+        self._named_playlists[web.input()['name']] = copy(self.playlist)
+        self._save_playlists()
 
     def fetch_playlist(self, hostname=None, temp=False, **kw):
         """
