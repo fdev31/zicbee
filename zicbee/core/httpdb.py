@@ -122,7 +122,7 @@ class web_db_index:
             fmt = af['fmt'].value
 
         song = zshell.songs[song_id]
-        d = dict( (f, getattr(song, f)) for f in song.fields )
+        d = dict( (f, getattr(song, f)) for f in song.fields ) if song else {}
         return dump_data_as_text(d, fmt)
 
     def REQ_get(self, *args):
