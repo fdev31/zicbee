@@ -96,6 +96,23 @@ class Playlist(list):
 
         self[p:p] = data
 
+    def extend(self, data, idx=None):
+        if idx is None:
+            idx = len(self)
+        self.__update_position(idx, idx+len(data))
+        list.extend(self, data)
+
+    def replace(self, any_iterable):
+        current = self.selected
+        if current:
+            self.pop(self.pos)
+        self[:] = any_iterable
+        if current:
+            self.insert(0, current)
+            self.pos = 0
+        else:
+            self.pos = -1
+
     def shuffle(self):
         if len(self) == 0:
             return
