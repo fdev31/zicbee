@@ -267,7 +267,7 @@ Album:\t%(album)s"""%sel
 
             # convert outpout playlist parameter
             append = False
-            if playlist[0] in '>+':
+            if playlist and playlist[0] in '>+':
                 if playlist[0] == '>':
                     append = True
                 else: # +
