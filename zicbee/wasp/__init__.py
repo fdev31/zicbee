@@ -1,4 +1,4 @@
-__version__='0.2'
+import zicbee
 
 def startup():
     import sys
@@ -11,7 +11,7 @@ def startup():
         user_happy = True
         while user_happy:
             try:
-                s.cmdloop('Wasp %s!'%__version__)
+                s.cmdloop('Wasp %s!'%zicbee.__version__)
             except KeyboardInterrupt:
                 if raw_input("Do you really want to exit (y/n) ? ").lower()[:1] == 'y':
                     user_happy = False
