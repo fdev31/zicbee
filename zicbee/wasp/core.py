@@ -140,7 +140,11 @@ class Shell(Cmd):
         return self.names
 
     def do_EOF(self, line):
-        readline.set_history_length(int(config['history_size']))
+        try:
+            readline.set_history_length(int(config['history_size']))
+        except:
+            pass
+
         readline.write_history_file(self._history)
         raise SystemExit()
 
