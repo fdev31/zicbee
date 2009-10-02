@@ -27,7 +27,7 @@ for pyversion in 2.5 2.6; do
     if [ $SRC ]; then
         URLS="$SRC/zicbee-mplayer $SRC/zicbee $SRC/zicbee-lib $SRC/zicbee-vlc"
     else
-        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-lib/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-vlc/archive/tip.zip"
+        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-lib/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-vlc/archive/tip.zip"
     fi
     for url in $URLS; do
         ./bin/easy_install "$url" || die "install $url"
