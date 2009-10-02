@@ -1,4 +1,5 @@
-from zicbee_lib.debug import log
+from zicbee_lib.debug import log, DEBUG
+
 try:
     from .notify import notify
 except Exception, e:
