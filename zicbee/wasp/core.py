@@ -73,6 +73,10 @@ def execute(name=None, line=None):
 def show_help(name):
     print commands[name][1]
 
+def complete_command(name, completer, cur_var, line, s, e):
+    ret = completer(cur_var, line.split())
+    return [cur_var+h[e-s:] for h in ret if h.startswith(cur_var)]
+
 class Shell(Cmd):
     prompt = "Wasp> "
     def __init__(self):
@@ -86,6 +90,12 @@ class Shell(Cmd):
         for cmd, infos in commands.iteritems():
             setattr(self, 'do_%s'%cmd, partial(execute, cmd))
             setattr(self, 'help_%s'%cmd, partial(show_help, cmd))
+            try:
+                completer = commands[cmd][2]['complete']
+            except (IndexError, KeyError):
+                pass
+            else:
+                setattr(self, 'complete_%s'%cmd, partial(complete_command, cmd, completer))
         Cmd.__init__(self)
         self.names = [n for n in dir(self) if n.startswith('do_') and callable(getattr(self, n))]
 
@@ -125,16 +135,6 @@ class Shell(Cmd):
             print "Err: %s"%e
         except KeyboardInterrupt:
             print "Interrupted!"
-
-    def complete_set(self, cur_var, line, s, e):
-        params = line.split()
-        ret = None
-        if len(params) <= 2:
-            ret = (v for v, a in config if v.startswith(cur_var))
-        elif len(params) > 2:
-            ret = set([v[1] for v in config] + ['localhost'])
-
-        return [cur_var+h[e-s:] for h in ret if h.startswith(cur_var)]
 
     def get_names(self):
         return self.names
