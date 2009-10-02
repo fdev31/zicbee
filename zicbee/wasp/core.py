@@ -7,17 +7,25 @@ from zicbee_lib.commands import commands
 from zicbee_lib.core import iter_webget
 import urllib
 
+possible_commands = commands.keys()
+possible_commands.append('help')
+
 def best_match(line):
     try:
         word = line.split(None, 1)[0]
     except IndexError: # empty string
         return None
 
-    if word not in commands.keys():
+    if word not in possible_commands:
         # abbreviations support
-        possible_keys = [k for k in commands.keys() if k.startswith(word)]
+        possible_keys = [k for k in possible_commands if k.startswith(word)]
         if len(possible_keys) == 1:
             line = possible_keys[0] + line[len(word):]
+        elif not possible_keys:
+            return line
+        elif word not in possible_keys:
+            print "Ambiguous: %s"%(', '.join(possible_keys))
+            return None
 
     return line
 
@@ -124,6 +132,14 @@ class Shell(Cmd):
             execute("help")
 
     def onecmd(self, line):
+        match = best_match(line)
+        if match == '[?]':
+            if not hasattr(self, 'do_%s'%line):
+                print "Unknown command."
+                return
+        elif match:
+            line = match
+
         try:
             word = line.split(None, 1)[0]
         except IndexError: # empty string
@@ -131,16 +147,6 @@ class Shell(Cmd):
                 return self.onecmd(self._last_line)
             return
 
-        if word not in commands.keys():
-            possible_keys = [k for k in commands.keys() if k.startswith(word)]
-            if len(possible_keys) == 1:
-                line = possible_keys[0] + line[len(word):]
-            elif not hasattr(self, 'do_%s'%word):
-                if possible_keys:
-                    print "Ambiguity: %s"%(', '.join(possible_keys))
-                else:
-                    print "Unkown command: %r, try 'help'."%word
-                return
         try:
             r = Cmd.onecmd(self, line)
             self._last_line = line

@@ -4,7 +4,11 @@ def startup():
     import sys
     from .core import Shell, execute, best_match
     if len(sys.argv) > 1:
-        execute(best_match(' '.join(sys.argv[1:])))
+        candidate = best_match(' '.join(sys.argv[1:]))
+        if candidate:
+            execute(candidate)
+        else:
+            print 'Unknown command, try "help".'
     else:
         s = Shell()
         s._prompt = 'wasp'
