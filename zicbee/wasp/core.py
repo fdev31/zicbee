@@ -7,6 +7,20 @@ from zicbee_lib.commands import commands
 from zicbee_lib.core import iter_webget
 import urllib
 
+def best_match(line):
+    try:
+        word = line.split(None, 1)[0]
+    except IndexError: # empty string
+        return None
+
+    if word not in commands.keys():
+        # abbreviations support
+        possible_keys = [k for k in commands.keys() if k.startswith(word)]
+        if len(possible_keys) == 1:
+            line = possible_keys[0] + line[len(word):]
+
+    return line
+
 def execute(name=None, line=None):
     if line is None:
         args = name.split()

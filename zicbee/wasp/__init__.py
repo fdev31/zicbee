@@ -2,9 +2,9 @@ import zicbee
 
 def startup():
     import sys
-    from .core import Shell, execute
+    from .core import Shell, execute, best_match
     if len(sys.argv) > 1:
-        execute(' '.join(sys.argv[1:]))
+        execute(best_match(' '.join(sys.argv[1:])))
     else:
         s = Shell()
         s._prompt = 'wasp'
