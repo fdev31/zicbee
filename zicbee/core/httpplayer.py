@@ -58,7 +58,7 @@ class webplayer:
                     uri = i.pattern.split()[0]
                     hostname = uri.split("/", 3)[2]
                     song_id = uri.rsplit('=', 1)[1]
-                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: >#'%song_id)
+                    it = self.player.fetch_playlist(hostname, pattern=u'id: %s pls: +#'%song_id)
                 except:
                     # hardcore injection
                     pls = self.player.playlist
