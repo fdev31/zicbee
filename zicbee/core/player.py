@@ -212,6 +212,8 @@ Album:\t%(album)s"""%sel
         if operation == 'copy':
             from copy import copy
             self.playlist = copy(pls)
+            if config.autoshuffle:
+                self.shuffle()
             self.select(0)
         elif operation == 'append':
             self.playlist.extend(pls)
@@ -330,7 +332,10 @@ Album:\t%(album)s"""%sel
                 del add
                 break
 
-        if out_pls is not self.playlist:
+        if out_pls is self.playlist:
+            if config.autoshuffle:
+                self.shuffle()
+        else:
             self._save_playlists()
 
     def _download_zic(self, uri, fname):
