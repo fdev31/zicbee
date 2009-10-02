@@ -2,13 +2,10 @@ import zicbee
 
 def startup():
     import sys
-    from .core import Shell, execute, best_match
+    from .core import Shell
+    from zicbee_lib.commands import execute
     if len(sys.argv) > 1:
-        candidate = best_match(' '.join(sys.argv[1:]))
-        if candidate:
-            execute(candidate)
-        else:
-            print 'Unknown command, try "help".'
+        execute(' '.join(sys.argv[1:]))
     else:
         s = Shell()
         s._prompt = 'wasp'
