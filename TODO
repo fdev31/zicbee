@@ -27,6 +27,7 @@
 
 **0.9**
  [DONE]
+ * add eyecandy notification of zicserve player actions (gnome-notify)
  * allow easy player backends integration (packages splitting via entry-points)
   ** there is a single backend so far (mplayer)
   ** made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
