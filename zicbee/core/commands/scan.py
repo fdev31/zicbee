@@ -69,7 +69,7 @@ def do_inc_scan():
                     break
 
         if scan_item:
-            _scan(directory=item, db_name=zshell.DEFAULT_NAME)
+            _scan(directory=item, db_name=zshell.songs.db_name)
         else:
             print "rm %s"%item
 
@@ -94,10 +94,10 @@ def do_scan():
             archives.append(path)
 
     for path in archives:
-        _scan(archive=path, db_name=zshell.DEFAULT_NAME)
+        _scan(archive=path, db_name=zshell.songs.db_name)
 
     for path in directories:
-        _scan(directory=path, db_name=zshell.DEFAULT_NAME)
+        _scan(directory=path, db_name=zshell.songs.db_name)
 
     elapsed = time() - start_t
     delta = len(zshell.songs)-orig_nb

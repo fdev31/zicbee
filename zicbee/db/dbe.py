@@ -65,6 +65,7 @@ class Database(object):
     def __init__(self, name):
         """ Open/Create a database """
         self.databases = dict()
+        self.db_name = name
         artists = set()
         albums = set()
         genres = set()
