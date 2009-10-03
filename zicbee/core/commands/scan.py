@@ -12,6 +12,7 @@ def _scan(**kw):
     newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
     print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
     try:
+        newlined=True
         for status_char in zshell.songs.merge(**kw):
             newlined=False
             print status_char,
