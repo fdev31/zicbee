@@ -333,7 +333,7 @@ Album:\t%(album)s"""%sel
                 break
 
         if out_pls is self.playlist:
-            if config.autoshuffle:
+            if config.autoshuffle and not append:
                 self.shuffle()
         else:
             self._save_playlists()
