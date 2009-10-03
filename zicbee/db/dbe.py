@@ -225,21 +225,28 @@ class Database(object):
                 for fname in files:
                     if fname.rsplit('.', 1)[-1].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
+                        tags = None
 
                         try:
                             tags = File(fullpath)
                         except Exception, e:
                             print 'Error reading %s: %s'%(fullpath, e)
-                            tags = None
-
-                        if not tags:
                             yield "E"
                             continue
-                        # Do it before tags is changed !
-                        length = int(tags.info.length+0.5)
-                        if isinstance(tags, MP3):
-                            tags = EasyID3(fullpath)
-                        data = filter_dict(dict(tags))
+
+                        if tags:
+                            # Do it before tags is changed !
+                            length = int(tags.info.length+0.5)
+                            if isinstance(tags, MP3):
+                                tags = EasyID3(fullpath)
+                            data = filter_dict(dict(tags))
+                        else:
+                            length = 0
+
+                            name = unicode(fname, 'utf-8', 'replace')
+                            album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
+                            data = {'title': name, 'album': album, 'artist': name}
+
                         data['filename'] = fullpath
                         data['length'] = length
                         if data.get('title') and data.get('artist'):
