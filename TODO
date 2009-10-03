@@ -24,10 +24,14 @@
  * add hostname when scanning (ask for one, store in .ini file)
  * satisfying duplicates detection
  * rating/tag fully working (intensive tests on distributed configurations)
+ * add MPRIS backend (http://incise.org/mpris-remote.html)
+ * add mpd/xmms2 backend ? ( http://git.xmms.se/?p=chalyx-eleusis.git;a=tree;f=src/Chalyx/services )
 
 **0.9**
  [DONE]
  * add eyecandy notification of zicserve player actions (gnome-notify)
+ * grep command (visually filters the playlist)
+ * more flexible commands (handles short commands)
  * allow easy player backends integration (packages splitting via entry-points)
   ** there is a single backend so far (mplayer)
   ** made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
