@@ -13,7 +13,6 @@ if [ $dn = '.' ]; then
 else
     env_path=$dn
 fi
-env_path=`dirname $env_path`
 
 cd $env_path || die "cd $env_path"
 . ./bin/activate # source the environment

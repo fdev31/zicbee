@@ -31,12 +31,26 @@ for pyversion in $PY_VERSIONS; do
     fi
 
     cd $env_path || die "cd $env_path"
-    cp ../hive_upgrade_script.sh ./bin/UPGRADE
-    ./bin/UPGRADE $SRC || die "upgrade failed"
+    cp ../hive_upgrade_script.sh ./UPGRADE
+    ./UPGRADE $SRC || die "upgrade failed"
+    for prog in zicdb zicserve wasp; do
+        rm $prog
+        sed 's/dirname(__file__),/dirname(__file__), "bin",/' < bin/$prog > $prog
+        chmod +x $prog
+    done
+    for prog in python easy_install; do
+        rm -f bin/$prog
+        if [ prog != "python" ]; then
+            ln -s bin/$prog-$pyversion $prog
+        else
+            ln -s bin/$prog$pyversion $prog
+        fi
+    done
 
     VERSION=`./bin/python -c "import zicbee; print zicbee.__version__"`
     cd ..
     virtualenv --no-site-packages --relocatable -p python$pyversion $env_path || die "relocating"
+    find $env_path -name "*.py[oc]" -exec rm {} \;
     tar cvfh - $env_path | bzip2 -9 > ${ENV_NAME}-${VERSION}-py${pyversion}.tbz
 done
 
