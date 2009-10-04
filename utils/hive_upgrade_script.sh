@@ -38,6 +38,7 @@ done
 
 wasp help || die "Can't run wasp!"
 zicdb help || die "Can't run zicdb!"
+zicdb set fork yes|| die "Can't run zicdb!"
 zicserve || die "Can't run zicserve!"
 wasp kill
 
