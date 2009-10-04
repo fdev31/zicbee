@@ -1,7 +1,7 @@
 ZicBee
 ++++++
 
-Read this if you want to experience a new approach of song accesibility. This suite is not designed to be full featured, it's just a very handy pipe to transfer songs and playlists, optionally able to play things itself (using mplayer executable for now).
+To know more, visit `the website <http://zicbee.gnux.info/>`_, **easy_install zicbee** or get some `hive <http://zicbee.gnux.info/hives>`_ (only available for linux) and watch `the video tutorial <http://zicbee.gnux.info/files/tutorial>`_
 
 Features
 ========
