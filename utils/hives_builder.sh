@@ -1,20 +1,28 @@
 #!/bin/sh
+cd `dirname $0`
 
 ENV_NAME="zicbee_hive"
+PY_VERSIONS="2.5 2.6"
+
 if [ $# -eq 1 ]; then
     SRC=$1
+elif [ $# -eq 2 ]; then
+    SRC=$1
+    shift
+    PY_VERSIONS=$*
 else
     SRC=
 fi
 
 die () {
     echo "DIED on $1."
-    exit
+    exit 1
 }
 
-for pyversion in 2.5 2.6; do
+for pyversion in $PY_VERSIONS; do
     unset VIRTUAL_ENV
     env_path=$ENV_NAME-py$pyversion
+    echo "Getting Python $pyversion environment..."
     if [ -d "./$env_path/" ]; then
         echo "Using existing directory."
     else
@@ -23,15 +31,9 @@ for pyversion in 2.5 2.6; do
     fi
 
     cd $env_path || die "cd $env_path"
-    . ./bin/activate # source the environment
-    if [ $SRC ]; then
-        URLS="$SRC/zicbee-mplayer $SRC/zicbee $SRC/zicbee-lib $SRC/zicbee-vlc"
-    else
-        URLS="http://zicbee.gnux.info/hg/index.cgi/zicbee-lib/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-mplayer/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.zip http://zicbee.gnux.info/hg/index.cgi/zicbee-vlc/archive/tip.zip"
-    fi
-    for url in $URLS; do
-        ./bin/easy_install "$url" || die "install $url"
-    done
+    cp ../hive_upgrade_script.sh ./bin/UPGRADE
+    ./bin/UPGRADE $SRC || die "upgrade failed"
+
     VERSION=`./bin/python -c "import zicbee; print zicbee.__version__"`
     cd ..
     virtualenv --no-site-packages --relocatable -p python$pyversion $env_path || die "relocating"
