@@ -14,7 +14,7 @@ Features
     * Open as many clients as you want at any moment
     * You can mix songs from several computers on the same playlist
 * Pure Python (it should run on any computer, mac, etc...)
-* HTTP everywhere (you can use the web browser on your phone to control the playback or do a query on your library, try "http://host:9090/compact" HTTP address for minimal embedded devices support)
+* HTTP everywhere (you can use the web browser on your phone to control the playback or do a query on your library, try "http://host:9090/basic" HTTP address for minimal embedded devices support)
 * Always growing set of features:
     * nice playlist handling
     * real shuffle (not random)
@@ -27,8 +27,8 @@ Features
 
 Including projects
 ==================
-  * zicbee (server / admin utilities / db tools)
-  * zicbee-wasp (client, much faster than zicbee)
+  * zicbee (server (zicserve) / admin utilities (zicdb) / lightweight client (wasp))
+  * zicbee-lib (base library for zicbee)
   * zicbee-mplayer (mplayer bindings, allow zicbee to play music)
   * zicbee-vlc (vlc bindings, allow zicbee to play music)
   * zicbee-quodlibet (plugin that turns quodlibet into a zicbee client)
@@ -61,16 +61,9 @@ Read help::
 
  zicdb help
 
-Install the client and run it::
+Fire up the client::
 
- easy_install zicbee-wasp
  wasp
-
-alternatively you can run the client embedded in zicdb (both commands are equivalent)::
-
- zicbee
- `or`
- zicdb shell
 
 Play songs from another computer here, after doing some search, zap first song & show playlist::
 
@@ -82,7 +75,6 @@ Play songs from another computer here, after doing some search, zap first song &
  wasp next
  wasp show
 
-Note that you have to remove "wasp" from the lines below if you are typing in zicdb shell or in wasp shell (run it giving no parameter to wasp).
 
 Dependencies
 ============
@@ -105,9 +97,16 @@ Changelog
 0.9
 ...
 
+ * shiny new client (wasp), comes with many new features (grep, append, inject, get...)
+ * improve shell completion
+    * abbreviations everywhere
+    * better completion
+ * autoshuffle mode (can be disabled of course)
+ * visual notification for player
+ * satisfying duplicates detection [WIP]
+ * more flexible commands (handles short commands)
  * allow easy player backends integration (packages splitting via entry-points)
-    * there is a single backend so far (mplayer)
-    * made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
+    * there is two available backends so far (mplayer and vlc)
     * see Developers section
  * minimal www interface (for low power machines, don't expect too much)
     * use /basic on any server with a player, it's quite rought now
@@ -115,22 +114,19 @@ Changelog
     * minimalistic last.fm support (no account needed, only works with "artist" keyword)
     * modulable tolerence giving a digit (ex: `*AUTO 15*`)
     * "artist: wax tailor or artist: birdy nam nam `*AUTO*`" automatically generates a playlist of similar artists
- * Split code into 3 projects to clarify parts
+ * Split project for clarity
  * stored playlists (including position)
-    * use "#" to act on current playlist
-    * use "pls: <playlist name>" to WRITE a playlist
-    * use "playlist: <playlist name>" to LOAD a playlist
-    * prefix playlist name with "+" to append results to playlist
-    * prefix playlist name with ">" to insert results into playlist just after the current song
+    * related wasp commands: load, save, append, inject
     * inc. playlist resume
+    * you can alternatively use "pls:" option in play:
+        * use "#" to act on current playlist
+        * use "pls: <playlist name>" to WRITE a playlist
+        * prefix playlist name with ">" to append results to playlist
+        * prefix playlist name with "+" to insert results into playlist just after the current song
  * cleaner javascript/cookies/sessions (prepare theme support)
- * improve shell completion (abbreviations done, maybe "set" command to come)
-    * text interface
- * rating/tag fully working (intensive tests on distributed configurations) [TBD: UnitTests]
- * satisfying duplicates detection [WIP]
 
 0.8
-..............
+...
 
  * add support for FLAC
  * interactive shell support with completion and history
@@ -142,7 +138,7 @@ Changelog
  * complete admin commands (see "set" command)
 
 0.7
-..............
+...
 
  * add play, pause, next, prev, list
  * add cleaner configuration:: more unified (prepare themes handling)

@@ -47,7 +47,7 @@ setup (
         author='Fabien Devaux',
         author_email='fdev31@gmail.com',
         url = 'http://zicbee.gnux.info/',
-        download_url='http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/wip.tar.bz2',
+        download_url='http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/%s.tar.bz2'%('default' if '-' in VERSION else VERSION),
         license='BSD',
         platform='all',
         description='A simple & powerful distributed Music database engine',
