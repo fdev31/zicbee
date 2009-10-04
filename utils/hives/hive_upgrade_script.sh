@@ -35,6 +35,8 @@ for url in $URLS; do
     ./bin/easy_install -U "$url" || die "install $url"
 done
 
+echo "Doing some basic tests..."
+
 wasp help || die "Can't run wasp!"
 zicdb help || die "Can't run zicdb!"
 zicdb set fork yes|| die "Can't run zicdb!"
