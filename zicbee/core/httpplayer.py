@@ -8,7 +8,7 @@ from zicbee.core.player import PlayerCtl
 from zicbee.utils import notify
 from zicbee_lib.config import config
 from zicbee_lib.debug import DEBUG
-from zicbee_lib.formats import dump_data_as_text, jdump
+from zicbee_lib.formats import dump_data_as_text, jdump, get_index_or_slice
 
 SimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
@@ -19,18 +19,6 @@ SimpleSearchForm = web.form.Form(
 
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
-
-def get_index_or_slice(val):
-    try:
-        i = int(val)
-    except ValueError:
-        if ':' in val:
-            vals = [int(x) for x in val.split(':')]
-            vals[1]+=1
-            i = slice(*vals)
-        else:
-            raise
-    return i
 
 class webplayer:
     player = PlayerCtl()
