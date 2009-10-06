@@ -39,13 +39,16 @@ class Shell(Cmd):
                 return self.default(line)
             self.lastcmd = line
             if cmd == '':
-                return self.default(line)
+                ret = self.default(line)
             else:
-                return execute(cmd,arg)
+                ret = execute(cmd,arg)
         except Exception, e:
             print "Err: %s"%e
         except KeyboardInterrupt:
             print "Interrupted!"
+        else:
+            print "."
+            return ret
 
     def get_names(self):
         return self.names
