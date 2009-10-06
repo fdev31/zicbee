@@ -150,9 +150,16 @@ class webplayer:
         start = int(i.get('start', 0))
 
         format = i.get('fmt', 'txt')
+        if start < 0:
+            start = len(pls) + start
 
         if i.get('res'):
-            end = start + int(i.res)
+            r = int(i.res)
+            if r >= 0:
+                end = start + r
+            else:
+                # compute from end
+                end = len(pls) + r
         else:
             end = len(pls)
 
