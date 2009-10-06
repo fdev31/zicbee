@@ -66,6 +66,9 @@ class Playlist(list):
         """ inject a song """
         if hasattr(data, '__getitem__') and isinstance(data[0], basestring):
             data = [data]
+        elif isinstance(data, slice):
+            data = self[data]
+
         p = self.pos+1 if position is None else position
 
         self.__update_position(p)

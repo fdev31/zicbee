@@ -20,6 +20,18 @@ SimpleSearchForm = web.form.Form(
 TagForm = web.form.Form(web.form.Textbox('tag', description='Set tag'))
 ScoreForm = web.form.Form(web.form.Dropdown('score', range(11), description='Set rate'))
 
+def get_index_or_slice(val):
+    try:
+        i = int(val)
+    except ValueError:
+        if ':' in val:
+            vals = [int(x) for x in val.split(':')]
+            vals[1]+=1
+            i = slice(*vals)
+        else:
+            raise
+    return i
+
 class webplayer:
     player = PlayerCtl()
 
@@ -79,7 +91,7 @@ class webplayer:
     def REQ_delete(self):
         i = web.input()
         try:
-            i = int(i['idx'])
+            i = get_index_or_slice(i['idx'])
         except ValueError:
             self.player.delete_playlist(i['idx'])
         else:
@@ -87,10 +99,10 @@ class webplayer:
 
         return ''
 
-
     def REQ_move(self):
         i = web.input()
-        self.player.move_entry(int(i['s']), int(i['d']))
+        start = get_index_or_slice(i['s'])
+        self.player.move_entry(start, int(i['d']))
         return ''
 
     def REQ_swap(self):
