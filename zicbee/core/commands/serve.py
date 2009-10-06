@@ -1,6 +1,6 @@
 # vim: et ts=4 sw=4
 from zicbee_lib.config import config
-from zicbee_lib.debug import DEBUG
+from zicbee_lib.debug import DEBUG, debug_enabled
 
 def do_serve(pure=False):
     """ Create a ZicDB instance
@@ -21,7 +21,7 @@ def do_serve(pure=False):
     pid = 0 # if not forking, still execute children commands
     do_detach = False # do not try to detach by default
 
-    if config.fork:
+    if config.fork and not debug_enabled:
         try:
             pid = os.fork()
             do_detach = True # fork succeded, try to detach
