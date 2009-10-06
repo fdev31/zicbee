@@ -29,6 +29,8 @@
 
 **0.9**
  [DONE]
+ * add slices support support to move and delete (ex.: move 1:3, delete 2:10)
+ * add "grep" keyword to move and delete (ex.: grep <something> then, move grep, delete grep)
  * add eyecandy notification of zicserve player actions (gnome-notify)
  * grep command (visually filters the playlist)
  * more flexible commands (handles short commands)
