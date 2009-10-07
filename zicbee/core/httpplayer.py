@@ -155,7 +155,7 @@ class webplayer:
 
         if i.get('res'):
             r = int(i.res)
-            if r >= 0:
+            if r > 0:
                 end = start + r
             else:
                 # compute from end
