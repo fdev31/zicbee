@@ -11,8 +11,11 @@ def do_serve(pure=False):
     import os, sys
     from pkg_resources import resource_filename
 
-    p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
-    os.chdir( p )
+    try:
+        p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
+        os.chdir( p )
+    except Exception:
+        DEBUG()
 
     import web
     from zicbee.core.httpdb import web_db_index

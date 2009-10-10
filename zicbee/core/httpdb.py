@@ -28,7 +28,16 @@ else:
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
 from pkg_resources import resource_filename
-render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
+try:
+    render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
+except Exception, e:
+    DEBUG()
+    class FakeRender(object):
+        def __getattr__(self, name):
+            return self
+        def __call__(self, *args, **kw):
+            return 'Unable to load templates'
+    render = FakeRender()
 
 # DB part
 
@@ -223,6 +232,11 @@ class web_db_index:
 
             if format == 'm3u':
                 yield unicode(render.m3u(web.http.url, res))
+            elif format == 'zip':
+                import zipfile
+                zf = zipfile.ZipFile('/tmp/search.zip', 'w', zipfile.ZIP_DEFLATED)
+                for r in res:
+                    import pdb; pdb.set_trace()
             elif not format or format == 'html':
                 yield unicode(render.index(af, res, config.web_skin or 'default'))
             elif format in ('json', 'txt'):
