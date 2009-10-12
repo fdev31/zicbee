@@ -1,12 +1,13 @@
 #!/usr/bin/env python
-import os
-import sys
 try:
-	import setuptools
-except ImportError:
-	from ez_setup import use_setuptools
-	use_setuptools()
+    from distribute_setup_3k import use_setuptools
+except SyntaxError:
+    from distribute_setup import use_setuptools
+use_setuptools()
+
 from setuptools import setup, find_packages
+import sys
+import os
 
 sys.path.insert(0, '.')
 import zicbee
