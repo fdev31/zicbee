@@ -12,6 +12,8 @@
  * write some backends detection and loading
  * Much more doc
  * auto-playlists: handle track sorting during decimation
+ * Have song-level buffer (one probable song in advance) for slow communications
+   + introduce cancel of download
 
 **1.0** (very useable, db schema freeze)
  * distribution cleanup
