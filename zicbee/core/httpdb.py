@@ -27,7 +27,7 @@ else:
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
-from pkg_resources import resource_filename
+from zicbee_lib.resources import resource_filename
 try:
     render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 except Exception, e:

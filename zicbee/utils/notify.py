@@ -1,4 +1,4 @@
-from pkg_resources import resource_filename
+from zicbee_lib.resources import resource_filename
 import pynotify
 import pygtk
 pygtk.require('2.0')

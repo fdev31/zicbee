@@ -1,6 +1,7 @@
 # vim: et ts=4 sw=4
 from zicbee_lib.config import config
 from zicbee_lib.debug import DEBUG, debug_enabled
+from zicbee_lib.resources import resource_filename
 
 def do_serve(pure=False):
     """ Create a ZicDB instance
@@ -9,7 +10,6 @@ def do_serve(pure=False):
     """
     # chdir to serve files at the right place
     import os, sys
-    from pkg_resources import resource_filename
 
     try:
         p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
