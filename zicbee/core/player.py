@@ -9,7 +9,7 @@ from threading import RLock
 from time import sleep
 from zicbee.core.httpdb import web
 from zicbee.core.parser import extract_props
-from zicbee_lib.resources import load_players
+from zicbee_lib.resources import get_players
 from zicbee.core.playlist import EndOfPlaylist, Playlist
 from zicbee.utils import notify
 from zicbee_lib.config import config, media_config, DB_DIR
@@ -30,7 +30,7 @@ class PlayerCtl(object):
         players = []
         preferences = [n.strip() for n in config.players.split(',')]
         web.debug('player preferences: %s'%(', '.join(preferences)))
-        for player_plugin in load_players():
+        for player_plugin in get_players():
             if player_plugin.name in preferences:
                 players.insert(preferences.index(player_plugin.name), player_plugin)
             else:
