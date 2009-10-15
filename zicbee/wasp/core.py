@@ -4,6 +4,7 @@ from cmd import Cmd
 from functools import partial
 from zicbee_lib.commands import commands, execute
 from zicbee_lib.config import config, DB_DIR
+from zicbee_lib.debug import DEBUG
 
 
 def complete_command(name, completer, cur_var, line, s, e):
@@ -44,6 +45,7 @@ class Shell(Cmd):
                 ret = execute(cmd,arg)
         except Exception, e:
             print "Err: %s"%e
+            DEBUG()
         except KeyboardInterrupt:
             print "Interrupted!"
         else:
