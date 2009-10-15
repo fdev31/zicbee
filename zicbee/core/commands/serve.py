@@ -13,6 +13,7 @@ def do_serve(pure=False):
     from zicbee_lib.config import config
     from zicbee_lib.debug import debug_enabled, DEBUG
     from zicbee_lib.resources import resource_filename
+    from zicbee.core.httpdb import web_db_index
     if not pure:
         # let's do webplayer
         try:
