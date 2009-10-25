@@ -191,11 +191,11 @@ class webplayer:
         return self.player.pause() or ''
 
     def REQ_prev(self):
-        notify('Zap!', icon='media-previous', timeout=200)
+        notify('Zap!', icon='prev', timeout=200)
         return self.player.select(-1) or ''
 
     def REQ_next(self):
-        notify('Zap!', icon='media-next', timeout=200)
+        notify('Zap!', icon='next', timeout=200)
         return self.player.select(1) or ''
 
     def REQ_tag(self, tag):

@@ -133,7 +133,7 @@ class PlayerCtl(object):
                 self.player.load(song_name)
                 description="""Title:\t%(title)s
 Album:\t%(album)s"""%sel
-                notify(sel.get('artist', 'Play'), description)
+                notify(sel.get('artist', 'Play'), description, icon='info') # generic notification
             self._paused = False
         return dl_it
 
@@ -159,14 +159,14 @@ Album:\t%(album)s"""%sel
 
         with self._lock:
             self.playlist.shuffle()
-            notify('Shuffled', timeout=200)
+            notify('Shuffled', timeout=200, icon='shuffle')
 
     def seek(self, val):
         """ Seek according to given value
         """
         with self._lock:
             self.player.seek(val)
-            notify('Seeking %s'%val, timeout=200)
+            notify('Seeking %s'%val, timeout=200, icon='next')
 
     def clear(self):
         """ Clear the current playlist and stop the player
@@ -185,9 +185,9 @@ Album:\t%(album)s"""%sel
             self.player.pause()
             self._paused = not self._paused
         if self._paused:
-            notify('Pause', timeout=300)
+            notify('Pause', timeout=300, icon='pause')
         else:
-            notify('Play', timeout=300)
+            notify('Play', timeout=300, icon='play')
 
     def delete_entry(self, position):
         """ delete the song at the given position """
@@ -262,7 +262,7 @@ Album:\t%(album)s"""%sel
 
         with self._lock:
             self.hostname = hostname
-            notify('Play %(pattern)s'%kw)
+            notify('Requesting', kw.get('pattern'))
             params = '&%s'%urllib.urlencode(kw) if kw else ''
             uri = 'http://%s/db/?fmt=json%s'%(hostname, params)
             site = urllib.urlopen(uri)

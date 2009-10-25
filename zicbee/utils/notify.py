@@ -4,10 +4,23 @@ import pygtk
 pygtk.require('2.0')
 import gtk
 
-icons = 'connect convert dialog-info dialog-error find media-pause media-next media-play media-previous'.split()
+icons = 'connect refresh convert dialog-info dialog-error find media-pause media-next-ltr media-play-ltr media-next-rtl'.split()
+shortnames = {
+        'info': 'dialog-info',
+        'error': 'dialog-error',
+        'play': 'media-play-ltr',
+        'pause': 'media-pause',
+        'next': 'media-next-ltr',
+        'prev': 'media-next-rtl',
+        'previous': 'media-next-rtl',
+        'shuffle': 'refresh', # can't find better...
+        }
 bee_icon = resource_filename('zicbee.ui.notify', 'bee_icon.png')
 
 def notify(title, description=None, icon=None, timeout=750):
+    if icon in shortnames:
+        icon = shortnames[icon]
+
     if icon in icons:
         iname = "gtk-"+icon
     else:
