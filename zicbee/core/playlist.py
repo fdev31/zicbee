@@ -13,6 +13,7 @@ class Playlist(list):
     def __init__(self, *args):
         list.__init__(self, *args)
         self.pos = -1
+        self.sense = 1
 
     def __delitem__(self, slc):
         self.__update_position(slc)
@@ -109,20 +110,26 @@ class Playlist(list):
         self[:] = []
         self.pos = -1
 
-    @property
-    def selected(self):
-        if self.pos == -1 or len(self) == 0:
+    def _selected(self, p=None):
+        if not p:
+            p = self.pos
+
+        if p == -1 or len(self) == 0:
             return None
         try:
-            return self[self.pos]
+            return self[p]
         except IndexError:
             DEBUG()
-            self.pos = -1
-            return None
+
+    selected = property(_selected)
 
     @property
-    def selected_dict(self):
-        sel = self.selected
+    def sibling(self):
+        return self._selected_dict(self.pos+self.sense)
+
+    def _selected_dict(self, pos=None):
+        sel = self._selected(pos)
+
         web.debug('SELECTED: %r'%sel)
         if not sel:
             return dict()
@@ -147,8 +154,11 @@ class Playlist(list):
             pass
         return d
 
+    selected_dict = property(_selected_dict)
+
     def move(self, steps):
         self.pos += steps
+        self.sense = steps
         if self.pos >= len(self):
             self.pos = -1
             raise EndOfPlaylist()

@@ -5,6 +5,7 @@ __all__ = ['PlayerCtl']
 import os
 import thread
 import urllib
+import itertools
 from threading import RLock
 from time import sleep
 from zicbee.core.httpdb import web
@@ -122,7 +123,37 @@ class PlayerCtl(object):
                 song_name = uri
                 dl_it = (None for n in xrange(1))
             else: # zicbee
-                dl_it = self._download_zic(sel['uri'], song_name)
+                sibling = self.sibling
+                try:
+                    preload_name = song_name+('.%s'%hash(sel['uri']))
+                except IndexError:
+                    preload_name = None
+
+                iterators = []
+
+                if preload_name and os.path.exists(preload_name):
+                    try:
+                        os.remove(song_name)
+                    except OSError:
+                        pass
+                    try:
+                        os.rename(preload_name, song_name)
+                    except OSError:
+                        pass
+
+                else:
+                    iterators.append(self._download_zic(sel['uri'], song_name))
+
+                if sel.get('cursed'):
+                    try:
+                        for i in iterators[0]:
+                            pass
+                    except StopIteration:
+                        iterators.pop(0)
+
+                if sibling and not sibling.get('cursed'):
+                    iterators.append(self._download_zic(sibling['uri'], song_name+('.%s'%hash(sibling['uri']))))
+                dl_it = itertools.chain( *iterators )
                 dl_it.next()
             web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
             if old_pos != sel['pls_position']:
@@ -407,6 +438,10 @@ Album:\t%(album)s"""%sel
     @property
     def selected(self):
         return self.playlist.selected_dict or None
+
+    @property
+    def sibling(self):
+        return self.playlist.sibling
 
     @property
     def selected_type(self):
