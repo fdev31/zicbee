@@ -5,14 +5,16 @@ __all__ = ['PlayerCtl']
 import os
 import thread
 import urllib
+import atexit
 import itertools
-from threading import RLock
 from time import sleep
+from Queue import Queue, Empty
+from zicbee.utils import notify
 from zicbee.core.httpdb import web
+from threading import RLock, Thread, Event
 from zicbee.core.parser import extract_props
 from zicbee_lib.resources import get_players
 from zicbee.core.playlist import EndOfPlaylist, Playlist
-from zicbee.utils import notify
 from zicbee_lib.config import config, media_config, DB_DIR
 from zicbee_lib.debug import log, DEBUG
 from zicbee_lib.formats import jload
@@ -21,12 +23,91 @@ try:
 except ImportError:
     from Pickle import Pickler, Unpickler
 
+from hashlib import md5
+
+def uri2fname(uri):
+    return "%s.%s"%(config.streaming_file, md5(uri).hexdigest())
+
+class Downloader(Thread):
+    q = Queue(3)
+    next = None
+    preloaded = []
+
+    def __init__(self):
+        Thread.__init__(self)
+        atexit.register(self.stop)
+
+    def run(self):
+        MAX_PRELOADS = 5
+        self.running = True
+        stream = None
+
+        while self.running:
+            if stream: # stream in progress
+                d = stream.read(cs)
+                if not d:
+                    fd.close()
+                    stream = None
+                else:
+                    fd.write(d)
+            else: # nothing to do
+                got_one = False
+                while True:
+                    try:
+                        uri, ic, cs, cb = self.q.get_nowait()
+                        got_one = True
+                    except Empty:
+                        break
+                if got_one:
+                    fd = file(config.streaming_file, 'w')
+                    preload_name = uri2fname(uri)
+                    if os.path.exists( preload_name ):
+                        fd.write(file(preload_name).read())
+                    else:
+                        if len(self.preloaded) > MAX_PRELOADS:
+                            rm = self.preloaded.pop(0)
+                            try:
+                                os.unlink(rm)
+                            except OSError:
+                                pass
+
+                        stream = urllib.urlopen(uri)
+                        fd.write(stream.read(ic))
+                    cb()
+                else: # really nothing to do ! :)
+                    if self.next: # preload
+                        next = self.next
+                        self.next = None
+                        preload_name = uri2fname(next)
+                        self.preloaded.append(preload_name)
+                        fd = file(preload_name, 'w')
+                        stream = urllib.urlopen(next)
+                    else: # sleeps
+                        sleep(1)
+
+    def get(self, uri, i_chunk=None, chunk=None):
+        # ask for a download and wait for the initial_chunk to be completed
+        e = Event()
+        self.q.put( (uri, i_chunk, chunk, e.set) )
+        e.wait()
+
+    def stop(self=None):
+        self.running = False
+        for rm in self.preloaded:
+            try:
+                os.unlink(rm)
+            except OSError:
+                pass
+
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
     See documentation for the zicbee.player hook for the needed interface.
     """
+    downloader = Downloader()
+
     def __init__(self):
         self.playlist = Playlist()
+        self.downloader.start()
         self.views = []
         players = []
         preferences = [n.strip() for n in config.players.split(',')]
@@ -55,6 +136,7 @@ class PlayerCtl(object):
         self._load_playlists()
 
     def close(self):
+        self.downloader.stop()
         self.player.quit()
 
     def __repr__(self):
@@ -89,17 +171,16 @@ class PlayerCtl(object):
                         if errors['count'] > 2:
                             errors['count'] = 0
                             i = self.select(1)
-                            while True:
-                                try:
-                                    with self._lock:
-                                        i.next()
-                                except StopIteration:
-                                    break
                         else:
                             errors['count'] += 1
                 except Exception, e:
                     DEBUG(False)
             sleep(1)
+
+    #@classmethod
+    def _download_zic(self, uri, sync=False):
+            d = media_config[self._get_type_from_uri(uri)]
+            self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
 
     def select(self, sense):
         """ Selects a song, according to the given offset
@@ -119,44 +200,20 @@ class PlayerCtl(object):
             sel = self.selected
             uri = sel['uri']
             web.debug('download: %s'%uri)
-            if uri.count('/db/get') != 1 or uri.count('id=') != 1: # something strange
+            if uri.count('/db/get') != 1 or uri.count('id=') != 1:
+                # something strange (LIVE mode)
                 song_name = uri
-                dl_it = (None for n in xrange(1))
             else: # zicbee
                 sibling = self.sibling
-                try:
-                    preload_name = song_name+('.%s'%hash(sel['uri']))
-                except IndexError:
-                    preload_name = None
-
-                iterators = []
-
-                if preload_name and os.path.exists(preload_name):
-                    try:
-                        os.remove(song_name)
-                    except OSError:
-                        pass
-                    try:
-                        os.rename(preload_name, song_name)
-                    except OSError:
-                        pass
-
-                else:
-                    iterators.append(self._download_zic(sel['uri'], song_name))
-
-                if sel.get('cursed'):
-                    try:
-                        for i in iterators[0]:
-                            pass
-                    except StopIteration:
-                        iterators.pop(0)
+                sync = bool(sel.get('cursed'))
+                self._download_zic(sel['uri'], sync) # threaded
 
                 if sibling and not sibling.get('cursed'):
-                    iterators.append(self._download_zic(sibling['uri'], song_name+('.%s'%hash(sibling['uri']))))
-                dl_it = itertools.chain( *iterators )
-                dl_it.next()
+                    self.downloader.next = sibling['uri']
+
             web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
             if old_pos != sel['pls_position']:
+                sleep(0.3) # FIXME: wait for things to settle... :(((
                 web.debug("Loadfile %d/%s : %s !!"%(sel['pls_position'], sel['pls_size'], song_name))
                 cache = media_config[self.selected_type].get('player_cache')
                 if cache:
@@ -166,7 +223,7 @@ class PlayerCtl(object):
 Album:\t%(album)s"""%sel
                 notify(sel.get('artist', 'Play'), description, icon='info') # generic notification
             self._paused = False
-        return dl_it
+        return
 
     def volume(self, val):
         self.player.volume(val)
@@ -270,7 +327,6 @@ Album:\t%(album)s"""%sel
         you can pass a playlist name to save the search
         a temporary playlist will be created with the given name
         (the main one is not affected)
-        returns an iterator
         """
         self.running = False # do not disturb !
         web.debug('fetch_pl: h=%s tmp=%s %s'%(hostname, playlist, kw))
@@ -369,38 +425,6 @@ Album:\t%(album)s"""%sel
         else:
             self._save_playlists()
 
-    def _download_zic(self, uri, fname):
-        if getattr(self, '_download_stream', None):
-            self._download_stream.close()
-
-        fd = file(fname, 'wb')
-        self._download_stream = fd
-
-        site = urllib.urlopen(uri)
-        achieved = 0
-
-        init_sz = media_config[self.selected_type]['init_chunk_size']
-        data = site.read(init_sz)
-        fd.write(data) # read ~130k (a few seconds in general)
-        achieved += len(data)
-        self._running = True
-        yield site.fileno()
-
-        try:
-            buf_sz = media_config[self.selected_type]['chunk_size'] # 16k micro chunks
-            while True:
-                data = site.read(buf_sz)
-                if not data:
-                    break
-                achieved += len(data)
-                fd.write(data)
-                yield ''
-            fd.close()
-        except Exception, e:
-            web.debug('ERROR %s %s'%(repr(e), dir(e)))
-        finally:
-            if fd is self._download_stream:
-                self._download_stream = None
 
     def _save_playlists(self):
         try:
@@ -443,10 +467,8 @@ Album:\t%(album)s"""%sel
     def sibling(self):
         return self.playlist.sibling
 
-    @property
-    def selected_type(self):
-        # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
-        uri = self.selected.get('uri')
+    #@classmethod
+    def _get_type_from_uri(self, uri):
         if uri:
             try:
                 return uri.rsplit('song.', 1)[1].split('?', 1)[0]
@@ -455,4 +477,8 @@ Album:\t%(album)s"""%sel
                 return uri.rsplit('.', 1)[1]
         return 'mp3'
 
+    @property
+    def selected_type(self):
+        # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
+        return self._get_type_from_uri(self.selected.get('uri'))
 
