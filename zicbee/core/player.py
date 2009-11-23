@@ -38,7 +38,6 @@ class Downloader(Thread):
         atexit.register(self.stop)
 
     def run(self):
-        MAX_PRELOADS = 5
         self.running = True
         stream = None
 
@@ -64,13 +63,6 @@ class Downloader(Thread):
                     if os.path.exists( preload_name ):
                         fd.write(file(preload_name).read())
                     else:
-                        if len(self.preloaded) > MAX_PRELOADS:
-                            rm = self.preloaded.pop(0)
-                            try:
-                                os.unlink(rm)
-                            except OSError:
-                                pass
-
                         stream = urllib.urlopen(uri)
                         fd.write(stream.read(ic))
                     cb()
@@ -79,19 +71,31 @@ class Downloader(Thread):
                         next = self.next
                         self.next = None
                         preload_name = uri2fname(next)
-                        self.preloaded.append(preload_name)
                         fd = file(preload_name, 'w')
                         stream = urllib.urlopen(next)
+                        self.preloaded.append(preload_name)
                     else: # sleeps
                         sleep(1)
 
     def get(self, uri, i_chunk=None, chunk=None):
+        MAX_PRELOADS = 5
+        if len(self.preloaded) > MAX_PRELOADS:
+            rm = self.preloaded.pop(0)
+            try:
+                os.unlink(rm)
+            except OSError:
+                pass
+
         # ask for a download and wait for the initial_chunk to be completed
+        cache = uri2fname(uri)
+        if cache in self.preloaded:
+            return cache
         e = Event()
         self.q.put( (uri, i_chunk, chunk, e.set) )
         e.wait()
+        return config.streaming_file
 
-    def stop(self=None):
+    def stop(self):
         self.running = False
         for rm in self.preloaded:
             try:
@@ -206,7 +210,7 @@ class PlayerCtl(object):
             else: # zicbee
                 sibling = self.sibling
                 sync = bool(sel.get('cursed'))
-                self._download_zic(sel['uri'], sync) # threaded
+                song_name = self._download_zic(sel['uri'], sync) # threaded
 
                 if sibling and not sibling.get('cursed'):
                     self.downloader.next = sibling['uri']
