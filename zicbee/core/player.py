@@ -192,7 +192,6 @@ class PlayerCtl(object):
         self.select(-1) # selects the previous track
         self.select(0) # no-op
         """
-
         with self._lock:
             old_pos = self.playlist.pos
             try:
@@ -224,10 +223,10 @@ class PlayerCtl(object):
                 cache = media_config[self.selected_type].get('player_cache')
                 if cache:
                     self.player.set_cache(cache)
-                self.player.load(song_name)
-                description="""Title:\t%(title)s
-Album:\t%(album)s"""%sel
-                notify(sel.get('artist', 'Play'), description, icon='info') # generic notification
+            self.player.load(song_name)
+            description="""<b>%(title)s</b>
+<i>%(album)s</i>"""%sel
+            notify(sel.get('artist', 'Play'), description, icon='info') # generic notification
             self._paused = False
         return
 
