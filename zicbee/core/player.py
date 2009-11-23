@@ -201,6 +201,8 @@ class PlayerCtl(object):
                 if not config.loop:
                     self.pause()
             song_name = config.streaming_file
+            if len(self.playlist) and self.playlist.pos < 0:
+                self.playlist.pos = 0
             sel = self.selected
             uri = sel['uri']
             web.debug('download: %s'%uri)
