@@ -66,9 +66,6 @@ class Database(object):
         """ Open/Create a database """
         self.databases = dict()
         self.db_name = name
-        artists = set()
-        albums = set()
-        genres = set()
         for name in name.split(','):
             p = os.path.join(DB_DIR, name)
             h = self._create(p)
@@ -76,13 +73,18 @@ class Database(object):
                     path = p,
                     handle = h,
                     )
-            artists.update(i.artist for i in h.select(['artist']))
-            albums.update(i.album for i in h.select(['album']))
-            genres.update(i.genre for i in h.select(['genre']))
 
-        self.artists = list(artists)
-        self.albums = list(albums)
-        self.genres = list(genres)
+    @property
+    def artists(self):
+        return set(r.artist for r in self.search(['artist']))
+
+    @property
+    def albums(self):
+        return set(r.album for r in self.search(['album']))
+
+    @property
+    def genres(self):
+        return set(r.genre for r in self.search(['genre']))
 
     def _create(self, db_name=None):
         if isinstance(db_name, basestring):
@@ -120,6 +122,10 @@ class Database(object):
     def cleanup(self):
         for name, db in self._dbs_iter():
             db['handle'].cleanup()
+
+    def update(self, record, **kw):
+        for name, db in self._dbs_iter():
+            db['handle'].update(record, **kw)
 
     @checkdb
     def __getitem__(self, item):
