@@ -183,8 +183,8 @@ class PlayerCtl(object):
 
     #@classmethod
     def _download_zic(self, uri, sync=False):
-            d = media_config[self._get_type_from_uri(uri)]
-            self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
+        d = media_config[self._get_type_from_uri(uri)]
+        return self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
 
     def select(self, sense):
         """ Selects a song, according to the given offset
