@@ -22,11 +22,14 @@ def do_reset():
     zshell.songs.destroy()
     print "Database cleared!"
 
-
 def do_hash():
     """ List all songs by id and hash (mostly to debug find_dups command) """
     for i in zshell.songs.get_hash_iterator():
         print "%8d / %s"%i
+
+def do_cleanup():
+    """ Clean the database up """
+    zshell.songs.cleanup()
 
 def _webget(uri):
     if not uri.startswith('http://'):

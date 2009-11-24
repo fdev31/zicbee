@@ -11,7 +11,7 @@ try:
 except Exception, e:
     log.warning("unable to set socket timeout to '%s': %s.", config.socket_timeout, e)
 
-from .misc_commands import do_hash, do_reset, do_bundle, do_debug
+from .misc_commands import do_hash, do_reset, do_bundle, do_debug, do_cleanup
 from .set import do_set
 from .list import do_list
 from .find_dups import do_find_dups

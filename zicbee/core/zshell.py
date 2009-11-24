@@ -21,5 +21,4 @@ def init(args=None, db_name=None):
     print "opening %s..."%db_name
     db = Database(db_name)
     globals().update( dict(songs=db, args=args) )
-    db.cleanup() # XXX: Ugly !
 
