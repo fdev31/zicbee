@@ -227,6 +227,7 @@ class web_db_index:
             data = in_fd.read(CHUNK)
             if not data: break
             y = (yield data)
+        in_fd.close()
         return
 
     def GET(self, name):
