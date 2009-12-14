@@ -3,10 +3,12 @@ from __future__ import with_statement
 __all__ = ['PlayerCtl']
 
 import os
+import gc
 import thread
 import urllib
 import atexit
 import itertools
+from functools import partial
 from time import sleep
 from Queue import Queue, Empty
 from zicbee.utils import notify
@@ -18,12 +20,24 @@ from zicbee.core.playlist import EndOfPlaylist, Playlist
 from zicbee_lib.config import config, media_config, DB_DIR
 from zicbee_lib.debug import log, DEBUG
 from zicbee_lib.formats import jload
+from zicbee_lib.debug import nop
+
 try:
     from cPickle import Pickler, Unpickler
 except ImportError:
     from Pickle import Pickler, Unpickler
 
 from hashlib import md5
+
+class MirrObj(object):
+
+    __slots__ = ['__objs']
+
+    def __init__(self, *objs):
+        self.__objs = objs
+
+    def __getattr__(self, name):
+        return MirrObj(*(getattr(o, name) for o in self.__objs))
 
 def uri2fname(uri):
     return "%s.%s"%(config.streaming_file, md5(uri).hexdigest())
@@ -35,17 +49,30 @@ class Downloader(Thread):
 
     def __init__(self):
         Thread.__init__(self)
+        self.aborted = False
         atexit.register(self.stop)
 
     def run(self):
         self.running = True
         stream = None
+        abort_cmd = None
 
         while self.running:
             if stream: # stream in progress
                 d = stream.read(cs)
+                if self.aborted:
+                    self.aborted = False
+                    if abort_cmd:
+                        try:
+                            abort_cmd()
+                        except Exception:
+                            DEBUG()
+                        d = None
+                    # resets the aborted state
+                    abort_cmd = None
                 if not d:
                     fd.close()
+                    stream.close()
                     stream = None
                 else:
                     fd.write(d)
@@ -57,25 +84,38 @@ class Downloader(Thread):
                         got_one = True
                     except Empty:
                         break
-                if got_one:
+                if got_one: # urgent request
+                    self.aborted = True
+                    abort_cmd = None
                     fd = file(config.streaming_file, 'w')
                     preload_name = uri2fname(uri)
-                    if os.path.exists( preload_name ):
+                    if preload_name in self.preloaded and os.path.exists( preload_name ):
+                        # copy the preload to stream file
                         fd.write(file(preload_name).read())
+                        fd.close()
                     else:
+                        # start song download...
                         stream = urllib.urlopen(uri)
                         fd.write(stream.read(ic))
-                    cb()
-                else: # really nothing to do ! :)
-                    if self.next: # preload
+                    cb() # call the callback, initial chunk injected (or whole file if cached)
+                elif not self.aborted: # really nothing to do ! :)
+
+                    sleep(1) # wait some idle time
+                    gc.collect()
+
+                    if self.next: # preload asked, set the right descriptors
                         next = self.next
                         self.next = None
                         preload_name = uri2fname(next)
                         fd = file(preload_name, 'w')
                         stream = urllib.urlopen(next)
                         self.preloaded.append(preload_name)
-                    else: # sleeps
-                        sleep(1)
+                        abort_cmd = partial(self.preloaded.remove, preload_name)
+                else:
+                    # resets the aborted state
+                    self.next = None
+                    self.aborted = False
+
 
     def get(self, uri, i_chunk=None, chunk=None):
         MAX_PRELOADS = 5
@@ -164,7 +204,7 @@ class PlayerCtl(object):
                         web.debug('E: %s'%e)
                         self.position = None
                         # restart player
-                        self.player.respawn()
+                        # self.player.respawn()
                     except:
                         DEBUG()
                         self.position = None
@@ -184,6 +224,8 @@ class PlayerCtl(object):
     #@classmethod
     def _download_zic(self, uri, sync=False):
         d = media_config[self._get_type_from_uri(uri)]
+
+        self.downloader.aborted = True
         return self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
 
     def select(self, sense):
