@@ -105,7 +105,7 @@ class Downloader(Thread):
 
 class PlayerCtl(object):
     """ The player interface, this should lead to a constant code, with an interchangeable backend
-    See documentation for the zicbee.player hook for the needed interface.
+    See documentation for the `zicbee.player`_ entry_point for the needed interface.
     """
     downloader = Downloader()
 

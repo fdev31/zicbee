@@ -9,6 +9,8 @@ from zicbee_lib.formats import compact_int
 class EndOfPlaylist(Exception): pass
 
 class Playlist(list):
+    """ A playlist class
+    """
 
     def __init__(self, *args):
         list.__init__(self, *args)
@@ -16,6 +18,7 @@ class Playlist(list):
         self.sense = 1
 
     def __delitem__(self, slc):
+        """ Deletes an entry (int and slices are supported) """
         self.__update_position(slc)
         try:
             idx = int(slc)
@@ -60,11 +63,14 @@ class Playlist(list):
                 self.pos = 0 if self.playlist else -1
 
     def insert(self, idx, obj):
+        """ Inserts an object at a position, behaves like `list.insert`.
+        """
         self.__update_position(idx)
         list.insert(self, idx, obj)
 
     def inject(self, data, position=None):
-        """ inject a song """
+        """ inject a song or a range of songs,
+        keeps the position if possible """
         if hasattr(data, '__getitem__') and isinstance(data[0], basestring):
             data = [data]
         elif isinstance(data, slice):

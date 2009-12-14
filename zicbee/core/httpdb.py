@@ -58,6 +58,15 @@ class web_db_index:
     _db_lock = RLock()
 
     def REQ_tag(self, song, tag):
+        """ Tags a song
+        tag/<song id>/<tag>
+
+        Args:
+            - song (int): song
+            - tag (str): the tag you want to add to that song
+        Returns:
+            None
+        """
 
         song_id = uncompact_int(song)
         try:
@@ -76,6 +85,15 @@ class web_db_index:
             refresh_db()
 
     def REQ_rate(self, song, rating):
+        """ Rate a song
+        rate/<song id>/<rating>
+
+        Args:
+            - song (int): song
+            - rating (int): the rate you want to give to that song
+        Returns:
+            None
+        """
         web.debug('rate: song=%s rating=%s'%(song,rating))
         try:
             with self._db_lock:
@@ -85,6 +103,15 @@ class web_db_index:
             refresh_db()
 
     def REQ_multirate(self, ratings_list):
+        """ Rate a list of songs
+        multirate/[song id=rating]<,song id2=rating2><,song id3=rating3>...
+
+        Args:
+            - ratings_list: a list of tuples of the form::
+                song=rating,song2=rating2,...
+        Returns:
+            None
+        """
         web.debug('rate: ratings_list=%s'%ratings_list)
         try:
             ratings = [rating.split('=') for rating in ratings_list.split(',')]
@@ -96,24 +123,58 @@ class web_db_index:
             refresh_db()
 
     def REQ_version(self):
+        """ Returns version of zicbee used on that instance
+
+        Returns:
+            None
+        """
         yield VERSION
 
     def REQ_artists(self):
+        """ List all the artists
+
+        Keywords:
+            fmt (str, optional): output format
+
+        Returns:
+            A list of artists in desired format
+        """
         inp = web.input()
         for d in dump_data_as_text(zshell.songs.artists, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_albums(self):
+        """ List all the albums
+
+        Keywords:
+            fmt (str, optional): output format
+
+        Returns:
+            A list of albums in desired format
+        """
         inp = web.input()
         for d in dump_data_as_text(zshell.songs.albums, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_genres(self):
+        """ List all the genres
+
+        Keywords:
+            fmt (str, optional): output format
+
+        Returns:
+            A list of genres in desired format
+        """
         inp = web.input()
         for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
             yield d
 
     def REQ_kill(self):
+        """ Kills the application
+
+        Returns:
+            "Aaaah!"
+        """
         zshell.songs.close()
         try:
             from zicbee.core.httpplayer import webplayer
@@ -124,6 +185,19 @@ class web_db_index:
         raise SystemExit()
 
     def REQ_infos(self, song_id):
+        """ Show infos about a song
+        Either positional parameter or ``id`` keyword has to be given
+
+        Keywords:
+            fmt (str): output format
+            id (str): id of the song
+        Args:
+            song_id (int): index of the song
+        Returns:
+            all the metadatas in desired format
+        """
+
+
         af = DbSimpleSearchForm()
         if af.validates():
             af.fill()
