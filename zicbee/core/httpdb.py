@@ -41,12 +41,53 @@ except Exception, e:
 
 # DB part
 
+available_formats = [
+        ('html', 'WWW Browser'),
+        ('txt', 'Text'),
+        ('json', 'JSON'),
+        ('m3u', 'Playlist (m3u)'),
+        ('zip', 'ZIP archive'),
+        ]
+
 DbSimpleSearchForm = web.form.Form(
         web.form.Hidden('id'),
         web.form.Textbox('pattern', description="Play pattern"),
-        web.form.Dropdown('fmt', [ ('html', 'WWW Browser'), ('txt', 'Text'), ('json', 'JSON'), ('m3u', 'Playlist (m3u)') ],
+        web.form.Dropdown('fmt', available_formats,
             value="html", description="Output"),
         )
+
+import zipfile
+#import cZipFile
+
+
+class Zipper(list):
+    """ Object used to handle zip files """
+    def __init__(self, zipname):
+        self.name = zipname
+
+#    def extract(self, name=None, to_path=None, members=None, load=False):
+#        name = name or self.name
+#        zf = zipfile.ZipFile(name)
+#        if load:
+#            self[:] = [(x, '') for x in zf.namelist()]
+#        zf.extractall(to_path, members)
+#        zf.close()
+
+    def saveSongs(self, as_name=None, prefix=''):
+        name = as_name or self.name
+        zf = zipfile.ZipFile(name, 'w', zipfile.ZIP_DEFLATED)
+        for uri, song in self:
+            fname = song.filename
+            zf.write(fname, "/".join((song.artist, song.album, song.title))+"."+(fname.rsplit('.', 1)[-1]))
+        zf.close()
+
+#    def saveFiles(self, as_name=None, prefix=''):
+#        name = as_name or self.name
+#        zf = zipfile.ZipFile(name, 'w', zipfile.ZIP_DEFLATED)
+#        for fname, dirname in self:
+#            zf.write(fname, prefix+fname[len(dirname):])
+#        zf.close()
+
 
 def refresh_db():
     zshell.songs.commit()
@@ -308,10 +349,23 @@ class web_db_index:
             if format == 'm3u':
                 yield unicode(render.m3u(web.http.url, res))
             elif format == 'zip':
-                import zipfile
-                zf = zipfile.ZipFile('/tmp/search.zip', 'w', zipfile.ZIP_DEFLATED)
-                for r in res:
-                    import pdb; pdb.set_trace()
+                web.header('Content-Type', 'application/zip')
+                import tempfile
+                tmp_file = tempfile.NamedTemporaryFile()
+                z = Zipper(tmp_file.name)
+                z[:]= res
+                z.saveSongs()
+                tmp_file.seek(0)
+                CZ = 2**18
+
+                while True:
+                    dat = tmp_file.read(CZ)
+                    if not dat:
+                        break
+                    yield dat
+
+                tmp_file.close()
+                return
             elif not format or format == 'html':
                 yield unicode(render.index(af, res, config.web_skin or 'default'))
             elif format in ('json', 'txt'):
