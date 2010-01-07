@@ -277,7 +277,6 @@ class web_db_index:
         t0 = time()
 
         # XXX: move this to special commands, using dedicated Form()s
-        # m3u flag has to move to "fmt"
         args = None
         song_id = None
         handler = None # special action handler executed before listing
@@ -394,7 +393,6 @@ class web_db_index:
                     DEBUG()
                     web.debug("ERR: %s(%s)"% (type(e), e))
             else:
-                # TODO: add support for zip output (returns a zip stream with all the songs)
                 web.debug('unknown search mode')
                 for r in res:
                     yield dump_data_as_text(r, format)

@@ -154,7 +154,7 @@ class PlayerCtl(object):
         self.downloader.start()
         self.views = []
         players = []
-        preferences = [n.strip() for n in config.players.split(',')]
+        preferences = [n.strip() for n in config.players]
         web.debug('player preferences: %s'%(', '.join(preferences)))
         for player_plugin in get_players():
             if player_plugin.name in preferences:
