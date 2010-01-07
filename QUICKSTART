@@ -1,0 +1,124 @@
+ZicBee
+++++++
+
+Read this if you want to experience a new approach of song accesibility. This suite is not designed to be full featured, it's just a very handy pipe to transfer songs and playlists, optionally able to play things itself (using mplayer executable for now).
+
+Features
+========
+
+* Still fast even on big playlists and libraries (OK with 30k entries on a netbook)
+* Nice syntax for queries, accessible to any user, *search* and *play* takes the same parameters so you just replace the command name when you are happy with the output
+* Daemon/Network oriented (not unlike mpd)
+    * Access songs on remote computers
+    * Close the client, songs will continue playing
+    * Open as many clients as you want at any moment
+    * You can mix songs from several computers on the same playlist
+* Pure Python (it should run on any computer, mac, etc...)
+* HTTP everywhere (you can use the web browser on your phone to control the playback or do a query on your library, try "http://host:9090/compact" HTTP address for minimal embedded devices support)
+* Always growing set of features:
+    * nice playlist handling
+    * real shuffle (not random)
+    * last fm support (auto-generation of playlist based on small request)
+    * song downloading
+    * blind test mode (very minimalistic btw, see *guess* command)
+    * duplicates detection (alpha quality)
+
+    And much more... try *help* parameter to get an idea ! :)
+
+
+Entities
+========
+
+`ZicBee <http://zicbee.gnux.info/>`_ is the name of the whole project, it covers:
+
+* `zicbee <http://zicbee.gnux.info/>`_ (Contains the server and optionally the player, install this on any computer containing music files, preferably tagged or, on the computers you want to play music if you have many...)
+* `zicbee-mplayer <http://zicbee.gnux.info/hg/index.cgi/zicbee/archive/tip.tar.bz2>`_  adds player functionalities to zicdb serve mode
+* `zicbee-wasp <http://zicbee.gnux.info/hg/index.cgi/zicbee-wasp/archive/tip.tar.bz2>`_ is a lightweight command line client to command the player - you should install that on computers/notebooks you want to use to control zicbee.
+* `zicbee-quodlibet <http://zicbee.gnux.info/hg/index.cgi/zicbee-quodlibet/>`_ is a plugin for quodlibet - it allows you to access zicbee music directly from quodlibet, without using m3u http request
+
+Installing
+==========
+
+Use setuptools (easy_install command) passing the downloaded files as argument.
+
+Install mplayer in your PATH if you need player features.
+
+You may try using `hives <http://zicbee.gnux.info/hive/>`_, a self-contained package, for linux only for now...
+
+Get Started
+===========
+
+Once you installed zicbee (or downloaded a  as a simpler way, provided for linux only for now...) on computers with music, run those shell commands on each
+::
+
+ % zicdb scan <base directory containing music files>
+   wait a few, depending on your library size ...
+ % zicdb serve
+   now the server is looping, you can access the music of this computer remotely (or not)
+   if you installed zicbee-mplayer, then you can use this device to play music too
+
+Open your web browser, point http://address.of.the.machine:9090/ and you should see some graphics.
+
+To know all the commands, try **zicdb help** command. Note that there is a shortcut for ``zicdb serve``, you can just type ``zicserve``.
+
+Easy access
+===========
+Once your done scanning all your songs, you can try running ``zicdb shell`` to control things instead of using web user interface. It's an interactive shell where you can do most of the commands easily. For an even nicer text interface, use wasp, if you prefer gtk, use quodlibet plugin.
+
+Everything is self documented, try typing "help" or "help <command>".
+
+Understanding more
+==================
+
+If you are curious or already understand some things about web, here is a mini introduction to HTTP interface, I use w3m -dump to show the pages, but you can use any web-brower.
+
+Examples are assuming use of local host, replace with appropriate name or ip address.
+
+Those commands should query the list of Michael Jackson songs in many formats
+::
+
+ % w3m -dump 'http://localhost:9090/db/search?pattern=artist: Michael Jackson&fmt=m3u'
+ % w3m -dump 'http://localhost:9090/db/search?pattern=artist: Michael Jackson&fmt=txt'
+ % w3m -dump 'http://localhost:9090/db/search?pattern=artist: Michael Jackson&fmt=json'
+
+This command should query the list of Gainsboug's "je t'aime moi non plus" album songs
+::
+
+ % w3m -dump 'http://localhost:9090/db/search?pattern=artist: gainsbourg album: moi non plus&fmt=txt'
+
+Now play it (Note I just removed "/db" part)
+::
+
+ % w3m -dump 'http://localhost:9090/search?pattern=artist: gainsbourg album: moi non plus&fmt=txt'
+
+Displays the playlist
+::
+
+ % w3m -dump 'http://localhost:9090/playlist'
+
+Dumps the playlist in json format
+::
+
+ % w3m -dump 'http://localhost:9090/playlist?fmt=json'
+
+Play next song
+::
+
+ % w3m -dump 'http://localhost:9090/next'
+
+Toggle pause
+::
+
+ % w3m -dump 'http://localhost:9090/pause'
+
+Show informations about current song
+::
+
+ % w3m -dump 'http://localhost:9090/infos'
+
+Now changes the playlist, taking songs from host accessible via *192.168.1.100*
+::
+
+ % w3m -dump 'http://localhost:9090/search?pattern=artist: Michael Jackson&host=192.168.1.100'
+
+

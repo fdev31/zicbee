@@ -2,20 +2,15 @@ from time import time
 import sys
 from zicbee.db import valid_tags
 from zicbee.core import zshell
-from zicbee.core.zutils import duration_tidy, jload
+from zicbee_lib.formats import duration_tidy, jload
 from zicbee.core.parser import parse_line
-from zicbee.core.config import config
-from zicbee.core.debug import log, DEBUG
+from zicbee_lib.config import config
+from zicbee_lib.debug import log, DEBUG
 
-def do_search(out=None, host=None, edit_mode=False):
+def do_search(out=None, edit_mode=False):
     """ Search for song, display results.
-    See "help" for a more complete documentation
+    out can be "m3u" or "null", defaults to human-readable
     """
-    if host is None:
-        host = config.db_host
-
-    if ':' not in host:
-        host = "%s:%s"%(host, config.default_port)
 
     duration = 0
     start_t = time()
@@ -27,50 +22,30 @@ def do_search(out=None, host=None, edit_mode=False):
     if callable(out):
         song_output = out
     elif out == 'm3u':
+        print "#EXTM3U"
         def song_output(song):
-            print song[0]
+            print u"#EXTINF:%d,%s - %s\n%s"%(song.length, song.artist, song.title, song.filename)
     elif out == 'null':
         def song_output(song): pass
     else:
         def song_output(song):
-            txt = '%s :\n%s [%s, score: %s, tags: %s]'%(song[0],
-                    ' - '.join(str(i) for i in song[1:4]),
-                    duration_tidy(song[4]), song[5], song[6],
+            txt = '%s :\n%s [%s, score: %s, tags: %s]'%(song.filename,
+                    '%s - %s - %s'%(song.artist, song.album, song.title),
+                    duration_tidy(song.length), song.score, song.tags,
                     )
             print txt.decode('utf8').encode('utf8')
 
-    num = 0
-    if host is not None:
-        import urllib
-        params = {'pattern':' '.join(zshell.args)}
-        uri = 'http://%s/db/?fmt=json&%s'%(host, urllib.urlencode(params))
-        site = urllib.urlopen(uri)
-        while True:
-            line = site.readline()
-            if not line:
-                break
-            try:
-                r = jload(line)
-            except:
-                DEBUG()
-                for l in site.readlines():
-                    log.error(l.rstrip())
-                raise
+    pat, kw = parse_line(' '.join(zshell.args))
 
-            song_output(r)
-            duration += r[4]
-            num += 1
+    if edit_mode:
+        search_fn = zshell.songs.u_search
     else:
-        pat, kw = parse_line(' '.join(zshell.args))
+        search_fn = zshell.songs.search
 
-        if edit_mode:
-            search_fn = zshell.songs.u_search
-        else:
-            search_fn = zshell.songs.search
-
-        for num, res in enumerate(search_fn(None, pat, **kw)):
-            song_output(res)
-            duration += res.length
+    num = 0
+    for num, res in enumerate(search_fn(None, pat, **kw)):
+        song_output(res)
+        duration += res.length
 
     sys.stderr.write("# %d results in %s for a total of %s!\n"%(
             num,

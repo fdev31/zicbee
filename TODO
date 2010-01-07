@@ -1,4 +1,103 @@
-=== IDEAS
+**1.4** (diversity)
+ * Write many player backends (ex: xine, vlc, gst, pyglet.avbin)
+ * Introduce db backends (ex: buzhug, json, whoosh, sqlite)
+ * add optional video support (handle capabilities of backend)
+
+**1.3** (stable)
+
+**1.2** (db cleanup)
+ * write real multi-db support (add hostname to bundles, <dbname>.ini file?)
+
+**1.1** (architecture cleanup)
+ * write some backends detection and loading
+ * Much more doc
+ * auto-playlists: handle track sorting during decimation
+ * Have song-level buffer (one probable song in advance) for slow communications
+   + introduce cancel of download
+
+**1.0** (very useable, db schema freeze)
+ * distribution cleanup
+ * fill feature gap between www (poor) & text (rich) ui
+ * add themes support for www player (and DB ?)
+ * good duplicates detection (change the way hash is computed ?)
+ * API/db cleanup & documentation
+ * playcount
+ * lastplayed (date)
+ * add hostname when scanning (ask for one, store in .ini file)
+ * satisfying duplicates detection
+ * rating/tag fully working (intensive tests on distributed configurations)
+ * add MPRIS backend (http://incise.org/mpris-remote.html)
+ * add mpd/xmms2 backend ? ( http://git.xmms.se/?p=chalyx-eleusis.git;a=tree;f=src/Chalyx/services )
+
+**0.9**
+ [DONE]
+ * add slices support support to move and delete (ex.: move 1:3, delete 2:10)
+ * add "grep" keyword to move and delete (ex.: grep <something> then, move grep, delete grep)
+ * add eyecandy notification of zicserve player actions (gnome-notify)
+ * grep command (visually filters the playlist)
+ * more flexible commands (handles short commands)
+ * allow easy player backends integration (packages splitting via entry-points)
+  ** there is a single backend so far (mplayer)
+  ** made server not an optional feature for zicbee (since now we have a proper independent shell and most people was confused with it)
+  ** see [[Developers]] section
+ * minimal www interface (for low power machines, don't expect too much)
+ ** use /basic on any server with a player, it's quite rought now
+ * Integrate automatic playlists with *AUTO* keyword
+  ** minimalistic last.fm support (no account needed, only works with "artist" keyword)
+  ** modulable tolerence giving a digit (ex: *AUTO 15*)
+  ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
+ * Split code into 3 projects to clarify parts
+ * auto shuffle (you can disable it in config)
+ * stored playlists (including position)
+    ** related commands: load, save, append, inject, as, is
+    ** use "#" to act on current playlist
+    ** use "pls: <playlist name>" to WRITE a playlist
+    ** prefix playlist name with ">" to append results to playlist
+    ** prefix playlist name with "+" to insert results into playlist just after the current song
+    ** inc. playlist resume
+ * improved shell completion (abbreviations, set & alias commands parameters)
+ [TODO]
+ * improve scan
+
+**0.8** (released)
+ * add support for FLAC
+ * interactive shell support with completion and history
+   ** see "zicdb shell" or "zicbee" commands
+ * integrate/complete tagging & scoring support
+ * add support for multiple DBs at once
+   ** (ie. have separate databases for your mp3 player & your local drive)
+   ** see "use" command for usage
+ * complete admin commands (see "set" command)
+ * better documentation
+
+
+**0.7** (released)
+
+ * add play, pause, next, prev, list
+ * add cleaner configuration:: more unified (prepare themes handling)
+   ** ensure default host is well given
+ * public repositories (Hg) setup
+ * add some docs on the website
+ * add screenshots on website
+
+**0.7**-rc1 (first public release)
+ * site launch
+ * fixes egg/root installation (temporary file created)
+
+----
+
+**the underground** (unreleased mode, use mercurial to recover)
+ RIP:
+  * gtk player (many flavors tested)
+  * broken gstreamer backend (player)
+  * avbin (with pyglet) backend (player)
+  * different mplayer wrapper
+  * other flavors of www interface
+  * architectural mistakes ;)
+
+---- 
+
+=== PENDING IDEAS
   * video support
   * picture support
       ** (merge with imgplayer.js ?)
@@ -32,82 +131,4 @@
       ** specific hardware support (ipod...)  <-- give me one if you want it ;P
       ** more...
   * automatic (but clever...) autodetection of mountpoints
-
-----
-
-Before **1.2**
- * write real multi-db support (add hostname to bundles, <dbname>.ini file?)
-
-For **1.1** (architecture cleanup)
- * write some backends detection and loading
- * need to split zicdb executable ?
- * Much more doc
- * auto-playlists: handle track sorting during decimation
- 
-
-Before **1.0** (very useable, db schema freeze)
- * distribution cleanup
- * fill feature gap between www (poor) & text (rich) ui
- * add themes support for www player (and DB ?)
- * good duplicates detection
- * API/db cleanup & documentation
- * add hostname when scanning (ask for one, store in .ini file)
-
-Before **0.9**
- [DONE]
- * allow easy player backends integration (packages splitting via entry-points)
-  ** there is a single backend so far (mplayer)
-  ** see [[Developers]] section
- * minimal www interface (for low power machines, don't expect too much)
- ** use /basic on any server with a player, it's quite rought now
- * Integrate automatic playlists with *AUTO* keyword
-  ** minimalistic last.fm support (no account needed, only works with "artist" keyword)
-  ** modulable tolerence giving a digit (ex: *AUTO 15*)
-  ** "artist: wax tailor or artist: birdy nam nam *AUTO*" automatically generates a playlist of similar artists
- * Split code into 3 projects to clarify parts
- [WIP]
- * cleaner javascript/cookies/sessions (prepare theme support)
- * improve shell completion (abbreviations done, maybe "set" command to come)
- * stored playlists (including position)
-    ** inc. playlist resume
-    ** www and text interface
- [TODO]
- * satisfying duplicates detection
- * rating/tag fully working (intensive tests on distributed configurations)
-
-**0.8** (slight feature/stable)
- * add support for FLAC
- * interactive shell support with completion and history
-   ** see "zicdb shell" or "zicbee" commands
- * integrate/complete tagging & scoring support
- * add support for multiple DBs at once
-   ** (ie. have separate databases for your mp3 player & your local drive)
-   ** see "use" command for usage
- * complete admin commands (see "set" command)
- * better documentation
-
-
-**0.7** (cleanup/refactor):
-
- * add play, pause, next, prev, list
- * add cleaner configuration:: more unified (prepare themes handling)
-   ** ensure default host is well given
- * public repositories (Hg) setup
- * add some docs on the website
- * add screenshots on website
-
-**0.7**-rc1 (first public release)
- * site launch
- * fixes egg/root installation (temporary file created)
-
-----
-
-**the underground** (unreleased mode, use mercurial to recover)
- RIP:
-  * gtk player (many flavors tested)
-  * broken gstreamer backend (player)
-  * avbin (with pyglet) backend (player)
-  * different mplayer wrapper
-  * other flavors of www interface
-  * architectural mistakes ;)
 

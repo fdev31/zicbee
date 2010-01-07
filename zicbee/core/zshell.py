@@ -1,4 +1,5 @@
 # vim: et ts=4 sw=4
+__all__ = ['songs', 'args', 'init']
 import os
 import sys
 from zicbee.db import Database
@@ -20,5 +21,4 @@ def init(args=None, db_name=None):
     print "opening %s..."%db_name
     db = Database(db_name)
     globals().update( dict(songs=db, args=args) )
-    db.cleanup() # XXX: Ugly !
 

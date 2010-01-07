@@ -1,5 +1,5 @@
 # vim: et ts=4 sw=4
-from zicbee.core.config import DB_DIR
+from zicbee_lib.config import DB_DIR
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.db import Database, DB_DIR
 

@@ -4,8 +4,7 @@ __all__ = ['Database', 'valid_tags']
 import os
 import buzhug
 from itertools import chain
-from zicbee.core.config import DB_DIR
-from zicbee.core.config import media_config
+from zicbee_lib.config import DB_DIR, media_config
 
 try:
     required_buzhug = [1, 5]
@@ -66,9 +65,7 @@ class Database(object):
     def __init__(self, name):
         """ Open/Create a database """
         self.databases = dict()
-        artists = set()
-        albums = set()
-        genres = set()
+        self.db_name = name
         for name in name.split(','):
             p = os.path.join(DB_DIR, name)
             h = self._create(p)
@@ -76,13 +73,18 @@ class Database(object):
                     path = p,
                     handle = h,
                     )
-            artists.update(i.artist for i in h.select(['artist']))
-            albums.update(i.album for i in h.select(['album']))
-            genres.update(i.genre for i in h.select(['genre']))
 
-        self.artists = list(artists)
-        self.albums = list(albums)
-        self.genres = list(genres)
+    @property
+    def artists(self):
+        return set(r.artist for r in self.search(['artist']))
+
+    @property
+    def albums(self):
+        return set(r.album for r in self.search(['album']))
+
+    @property
+    def genres(self):
+        return set(r.genre for r in self.search(['genre']))
 
     def _create(self, db_name=None):
         if isinstance(db_name, basestring):
@@ -120,6 +122,10 @@ class Database(object):
     def cleanup(self):
         for name, db in self._dbs_iter():
             db['handle'].cleanup()
+
+    def update(self, record, **kw):
+        for name, db in self._dbs_iter():
+            db['handle'].update(record, **kw)
 
     @checkdb
     def __getitem__(self, item):
@@ -175,7 +181,6 @@ class Database(object):
         """ Merge informations from files in specified directory or archive """
         # TODO: add auto "no_dups" style after a len() check of the db
 
-
         try:
             EasyID3
         except NameError:
@@ -226,21 +231,28 @@ class Database(object):
                 for fname in files:
                     if fname.rsplit('.', 1)[-1].lower() in valid_ext:
                         fullpath = os.path.join(root, fname)
+                        tags = None
 
                         try:
                             tags = File(fullpath)
                         except Exception, e:
                             print 'Error reading %s: %s'%(fullpath, e)
-                            tags = None
-
-                        if not tags:
                             yield "E"
                             continue
-                        # Do it before tags is changed !
-                        length = int(tags.info.length+0.5)
-                        if isinstance(tags, MP3):
-                            tags = EasyID3(fullpath)
-                        data = filter_dict(dict(tags))
+
+                        if tags:
+                            # Do it before tags is changed !
+                            length = int(tags.info.length+0.5)
+                            if isinstance(tags, MP3):
+                                tags = EasyID3(fullpath)
+                            data = filter_dict(dict(tags))
+                        else:
+                            length = 0
+
+                            name = unicode(fname, 'utf-8', 'replace')
+                            album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
+                            data = {'title': name, 'album': album, 'artist': name}
+
                         data['filename'] = fullpath
                         data['length'] = length
                         if data.get('title') and data.get('artist'):

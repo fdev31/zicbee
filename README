@@ -1,19 +1,200 @@
-If you need player features, install zicbee.player
+= User documentation =
+== Pattern/match command ==
+Pattern is everywhere, used in www interface, in many shell commands (search, play, etc...).
 
-QUICKSTART
+Syntax summary:
 
-# start the daemon
-./run.py serve &
+{{{
+field: value [ [or|and] field2: value2 ]...
+}}}
 
-# read some help (to start, you only need to know "scan" command)
-./run.py help
-./run.py scan $HOME/Music/
-./run.py search artist: black or title: guitar
+for length, value may be preceded by **<** or **>**
+if field name starts with a capital, the search is case-sensitive
 
-... That' all !
-You may want to visit http://127.0.0.1:9090/ to access the web interface
+Possible fields:
 
-NOTE: if you installed zicbee system-wide,
-   you may use "zicdb" from any directory instead of using "run.py".
-   Also check "zicserve" as an alias to "zicdb serve".
+    * id (compact style)
+    * genre
+    * artist
+    * album
+    * title
+    * track
+    * filename
+    * score
+    * tags
+    * length
+    * playlist <special: output a named playlist>
+    * pls <special: input a named playlist>
 
+=== Named playlist:
+ Named playlists are arbitrary string, with a special case "#": being the current playlist
+You may prefix the name with **+** to append or **>** to insert at current position (also works with **#** playlist). If not you are just replacing the specified playlist.
+
+=== Working Examples:
+
+{{{
+% zicdb search filename: shak length: > 3*60
+}}}
+> songs with "shak" in filename and of more than 3 min
+{{{
+% zicdb search artist: shak length: > 3*60 or artist: black
+}}}
+> songs with "shak" or "black" in artist name and of more than 3 min
+{{{
+% zicdb search artist: shak length: > 3*60 and title: mo
+}}}
+> songs with "shak" in artist name and of more than 3 min and with "moon" on the title
+{{{
+% zicdb search tags: jazz title: moon
+}}}
+> songs tagged "jazz" and with titles containing "moon"
+{{{
+% zicdb search score: >2
+}}}
+> songs with a score higher than 2
+{{{
+% zicdb search score: >2 score: <= 3 tags: rock length: <= 120
+}}}
+> a quite dumb search ;) (the selected songs will have a score of 3, less than 2 min and tagged as "rock")
+
+== Commands ===
+
+Note that "::" arguments are not (yet) supported in wasp, unlike zicbee / zicdb [shell].
+Most commands will read {{{db_host}}} and {{{player_host}}} variables (see **set** command).
+
+=== help
+    List all available commands (with associated help if available)
+
+=== set
+   Without argument, lists the variables
+   If two arguments are passed, just set the value
+
+=== shell (zicdb - default for wasp)
+    Launches a shell accepting any command
+
+Still undocumented, usage may vary between zicdb & wasp: tag, rate, kill, stfu
+
+== Remote commands (including wasp)
+
+=== get[::host][::out] <match command> (not in wasp yet)
+  host:
+    the host to connect to
+  out:
+    the output directory
+
+====  Examples:
+{{{
+% zicdb get::out=/tmp/download::host=gunter.biz artist: black
+% zicdb get::gunter.biz artist: black
+}}}
+
+=== show [offset [size]] (only in wasp)
+   Shows the playlist 
+
+=== play[::dbhost::phost] <match command>
+    Set playlist to specified request and start playing if previously stopped
+
+    dbhost:
+      the computer owning the songs
+    phost:
+      the playback computer
+    match command:
+      same as 'search' command with 2 more fields:
+        pls: output playlist name
+        playlist: input playlist name
+
+        - # is the current playlist name
+        - names can be prefixed with '+' to append
+
+==== Examples:
+{{{
+% zicdb play artist: doors
+}}}
+> play the doors
+{{{
+% zicdb play artist: bouchers pls: boucherie
+}}}
+> store in playlist "boucherie" songs with "bouchers" in artist
+{{{
+% zicdb play artist: pigalle pls: +boucherie
+}}}
+> append to playlist "boucherie" songs with "pigalle" in artist
+{{{
+% zicdb play playlist: boucherie
+}}}
+> play songs stored in playlist "boucherie"
+{{{
+% zicdb play pls: sogood playlist: #
+}}}
+> save the current playlist to playlist "sogood"
+
+=== search[::out::host] <match command>
+
+  out:
+    specifies the output format (for now: m3u or null or default)
+
+=== infos
+    Display informations about player status
+
+=== shuffle
+    Shuffles the current playlist
+
+=== next
+    Zap current song
+
+=== prev
+    Move backward in playlist
+
+=== guess
+    tells if the given parameter matches with the current song (fault tolerant)
+
+=== playlist
+    Display the current playlist
+
+=== m3u (only in wasp)
+    Display the current playlist in m3u format
+
+== Local commands
+
+=== use
+    Not a command by itself, used to specify active database (default: songs)
+    You can specify mutiple databases at once using ',' separator (without spaces)
+    Exemple:
+{{{
+% zicdb use lisa serve
+}}}
+> starts serving lisa's database
+{{{
+% zicdb use usb_drive reset
+}}}
+> destroy usb_drive database
+{{{
+% zicdb use ipod bundle ipod_database_backup.zdb
+}}}
+> backups the "ipod" database into "ipod_database_backup.zdb" file in current directory
+
+**WARNING:** using more than one database will most probably lead to song conflicts and won't be usable
+      consider this feature very experimental, use only if you know what you are doing.
+
+**NOTE:** you can alternatively use the "ZDB" environment variable instead
+
+=== serve[::pure]
+    Runs a user-accessible www server on port 8080
+
+  pure:
+    don't allow player functionality access
+
+=== list
+    List available Databases.
+
+=== reset
+    Erases the Database (every previous scan is lost!)
+
+=== bundle <filename>
+    Create a bundle (compressed archive) of the database
+
+=== scan <directory|archive> [directory|archive...]
+    Scan directories/archive for files and add them to the database
+
+
+ And much more... see <zicdb|wasp> help for more !

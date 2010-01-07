@@ -3,8 +3,8 @@ __all__ = ['parse_line', 'extract_props']
 import itertools
 import os
 import string
-from zicbee.core.debug import log
-from zicbee.core.zutils import uncompact_int
+from zicbee_lib.debug import log
+from zicbee_lib.formats import uncompact_int
 from zicbee.remote_apis import ASArtist
 
 ################################################################################
@@ -32,6 +32,8 @@ def extract_props(line, property_list):
     props = properties[:]
     props.extend(property_list)
     conv_line = _conv_line(line, props)
+    if isinstance(conv_line, basestring):
+        return ( conv_line, [] )
     ret_props = (conv for conv in conv_line if isinstance(conv, tuple) and conv[0] in property_list)
     new_conv_line = [conv for conv in conv_line if not isinstance(conv, tuple) or conv[0] not in property_list]
     try:

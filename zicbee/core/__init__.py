@@ -53,8 +53,8 @@ def startup(*args):
         else:
             action = 'help'
         # feature: you can use aliases like zicdb-bigdrive to automatically use "bigdrive" db
-        if '-' in sys.argv[0]:
-            db_name = sys.argv[0].split('-', 1)[1]
+        if '-' in os.path.basename(sys.argv[0]):
+            db_name = sys.argv[0].rsplit('-', 1)[1]
     else:
         action = args[0]
         arguments = args[1:]

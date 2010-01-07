@@ -1,9 +1,9 @@
 # vim: et ts=4 sw=4
-__all__ = ['do_kill', 'do_stfu', 'do_hash', 'do_reset', 'do_bundle', 'do_debug']
+__all__ = ['do_hash', 'do_reset', 'do_bundle', 'do_debug']
 
 import urllib
 from zicbee.core import zshell
-from zicbee.core.config import config, defaults_dict, DB_DIR
+from zicbee_lib.config import config, defaults_dict, DB_DIR
 from zicbee.core.zshell import DEFAULT_NAME
 from zicbee.db import Database, DB_DIR
 
@@ -22,11 +22,14 @@ def do_reset():
     zshell.songs.destroy()
     print "Database cleared!"
 
-
 def do_hash():
     """ List all songs by id and hash (mostly to debug find_dups command) """
     for i in zshell.songs.get_hash_iterator():
         print "%8d / %s"%i
+
+def do_cleanup():
+    """ Clean the database up """
+    zshell.songs.cleanup()
 
 def _webget(uri):
     if not uri.startswith('http://'):
@@ -36,20 +39,4 @@ def _webget(uri):
     except IOError, e:
         print "webget(%s): %s"%(uri, e)
 
-def do_stfu(host=None):
-    """ Kills the current player_host
-    (in case db_host and player_host are the same, this command
-    is equivalent to "kill")
-    """
-    if host is None:
-        host = config.player_host
-    _webget('%s/close'%host)
-    _webget('%s/db/kill'%host)
-
-def do_kill(host=None):
-    """ Kills the current db_host or any specified as argument """
-    if host is None:
-        host = config.db_host
-    _webget('%s/close'%host)
-    _webget('%s/db/kill'%host)
 
