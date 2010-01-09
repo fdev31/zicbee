@@ -9,11 +9,19 @@ def do_serve(pure=False):
     # chdir to serve files at the right place
     import web
     import socket
+    import signal
     import os, sys
     from zicbee_lib.config import config
     from zicbee_lib.debug import debug_enabled, DEBUG
     from zicbee_lib.resources import resource_filename
-    from zicbee.core.httpdb import web_db_index
+    from zicbee.core.httpdb import web_db_index, kill_server
+
+    def abort():
+        kill_server()
+        raise SystemExit()
+
+    signal.signal(signal.SIGINT, abort)
+
     if not pure:
         # let's do webplayer
         try:
@@ -22,7 +30,6 @@ def do_serve(pure=False):
             print "Can't load webplayer, falling-back to pure db mode"
             DEBUG()
             pure = True
-
 
     try:
         p = os.path.dirname(resource_filename('zicbee.ui.web', 'static'))
