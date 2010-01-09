@@ -24,6 +24,14 @@ if debug.debug_enabled:
 else:
     web.config.debug = None
 
+def kill_server():
+    zshell.songs.close()
+    try:
+        from zicbee.core.httpplayer import webplayer
+        webplayer.player.close()
+    except:
+        pass
+
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
@@ -216,12 +224,7 @@ class web_db_index:
         Returns:
             "Aaaah!"
         """
-        zshell.songs.close()
-        try:
-            from zicbee.core.httpplayer import webplayer
-            webplayer.player.close()
-        except:
-            pass
+        kill_server()
         yield 'Aaaah!'
         raise SystemExit()
 
