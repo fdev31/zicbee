@@ -56,11 +56,11 @@ def do_serve(pure=False):
         try:
             print "%s listening on:"%('Song browser' if pure else 'Song browser and player'),
             if pure:
-                urls = ('/db/(.*)', 'web_db_index',
-                        '/(.*)', 'web_db_index')
+                urls = ('.*/(.*)', 'web_db_index')
             else:
                 urls = ('/db/(.*)', 'web_db_index',
                         '/(.*)', 'webplayer')
+
             app = web.application(urls, locals())
             app.run()
         except SystemExit:
