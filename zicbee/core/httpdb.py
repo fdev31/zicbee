@@ -32,10 +32,22 @@ def kill_server():
     except:
         pass
 
+def allow_admin_mode():
+    addr = web.ctx.env['REMOTE_ADDR']
+
+    admins = config.allow_remote_admin
+    allowed = ['127.0.0.1']
+    if admins:
+        if admins.lower() in ('yes', 'true', 'on'):
+            return True
+        allowed.append(admins)
+    return addr in allowed
 
 # Set default headers & go to templates directory
 web.ctx.headers = [('Content-Type', 'text/html; charset=utf-8'), ('Expires', 'Thu, 01 Dec 1994 16:00:00 GMT')]
+
 from zicbee_lib.resources import resource_filename
+
 try:
     render = web.template.render(resource_filename('zicbee.ui.web', 'templates'))
 except Exception, e:
@@ -224,9 +236,10 @@ class web_db_index:
         Returns:
             "Aaaah!"
         """
-        kill_server()
-        yield 'Aaaah!'
-        raise SystemExit()
+        if allow_admin_mode():
+            kill_server()
+            yield 'Aaaah!'
+            raise SystemExit()
 
     def REQ_infos(self, song_id):
         """ Show infos about a song

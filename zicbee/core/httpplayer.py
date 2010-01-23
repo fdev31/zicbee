@@ -3,7 +3,7 @@ from __future__ import with_statement
 
 import difflib
 import urllib
-from zicbee.core.httpdb import render, web
+from zicbee.core.httpdb import render, web, allow_admin_mode
 from zicbee.core.player import PlayerCtl
 from zicbee.utils import notify
 from zicbee_lib.config import config
@@ -43,7 +43,8 @@ class webplayer:
     REQ_ = REQ_main # default page
 
     def REQ_close(self):
-        self.player.close()
+        if allow_admin_mode():
+            self.player.close()
 
     def REQ_search(self):
         it = ('' for i in xrange(1))
