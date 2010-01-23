@@ -266,6 +266,7 @@ class web_db_index:
         return dump_data_as_text(d, fmt)
 
     def REQ_get(self, *args):
+        """ Returns a song given his id """
         af = DbSimpleSearchForm()
         if af.validates():
             af.fill()
