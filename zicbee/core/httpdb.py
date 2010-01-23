@@ -38,9 +38,9 @@ def allow_admin_mode():
     admins = config.allow_remote_admin
     allowed = ['127.0.0.1']
     if admins:
-        if admins.lower() in ('yes', 'true', 'on'):
+        if len(admins) == 1 and admins[0].lower() in ('yes', 'true', 'on'):
             return True
-        allowed.append(admins)
+        allowed.extend(admins)
     return addr in allowed
 
 # Set default headers & go to templates directory
