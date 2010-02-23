@@ -83,6 +83,7 @@ class Playlist(list):
         self[p:p] = data
 
     def extend(self, data, idx=None):
+        """ See `list.extend` """
         if idx is None:
             idx = len(self)
         self.__update_position(idx, idx+len(data))
