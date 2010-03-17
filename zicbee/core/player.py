@@ -56,6 +56,7 @@ class Downloader(Thread):
         self.running = True
         stream = None
         abort_cmd = None
+        fd = None
 
         while self.running:
             if stream: # stream in progress
@@ -87,6 +88,8 @@ class Downloader(Thread):
                 if got_one: # urgent request
                     self.aborted = True
                     abort_cmd = None
+                    if fd and not fd.closed:
+                        fd.close()
                     fd = file(config.streaming_file, 'w')
                     preload_name = uri2fname(uri)
                     if preload_name in self.preloaded and os.path.exists( preload_name ):
@@ -110,12 +113,16 @@ class Downloader(Thread):
                         fd = file(preload_name, 'w')
                         stream = urllib.urlopen(next)
                         self.preloaded.append(preload_name)
-                        abort_cmd = partial(self.preloaded.remove, preload_name)
+                        abort_cmd = partial(self._abort, preload_name)
                 else:
                     # resets the aborted state
                     self.next = None
                     self.aborted = False
 
+
+    def _abort(self, name):
+        self.preloaded.remove(name)
+        os.unlink(name)
 
     def get(self, uri, i_chunk=None, chunk=None):
         MAX_PRELOADS = 5
