@@ -15,7 +15,7 @@ from zicbee_lib.debug import DEBUG
 from zicbee_lib import debug
 from zicbee import __version__ as VERSION
 
-WEB_FIELDS = 'artist album title length score tags'.split() + ['__id__']
+WEB_FIELDS = 'artist album title length score tags __id__'.split()
 
 web.internalerror = web.debugerror = web.debug = debug.log.debug
 
