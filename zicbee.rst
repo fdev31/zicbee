@@ -1,12 +1,13 @@
+
 ZicBee
 ++++++
 
-To know more, visit `the website <http://zicbee.gnux.info/>`_, or directly watch `the video tutorial <http://zicbee.gnux.info/files/tuto.avi>`_.
+To know more, visit `the website <http://zicbee.gnux.info/>`_.
 
 Install
 =======
 
-You can either get an `"all in one" ZIP file on the website <http://zicbee.gnux.info/releases/>`_ or install using something like easy_install, here is an example::
+You can either get an `"all in one" ZIP file on the website <http://zicbee.gnux.info/files/>`_ or install using something like easy_install, here is an example::
 
  easy_install zicbee
 
@@ -15,7 +16,7 @@ If you want to enable playback, install some player glue (pick one)::
  easy_install zicbee-mplayer
  easy_install zicbee-vlc
 
-If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/index.cgi/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing), also consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
+If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing), also consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
 
 
 Features
