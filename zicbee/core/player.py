@@ -45,70 +45,51 @@ class Downloader(Thread):
     def run(self):
         self.running = True
         stream = None
-        abort_cmd = None
         fd = None
 
         while self.running:
-            if stream: # stream in progress
-                d = stream.read(cs)
-                if self.aborted:
-                    self.aborted = False
-                    if abort_cmd:
-                        try:
-                            abort_cmd()
-                        except Exception:
-                            DEBUG()
-                        d = None
-                    # resets the aborted state
-                    abort_cmd = None
-                if not d:
+#            web.debug('stream: %s (aborted: %s)\n   |%s'%(fd, self.aborted, stream))
+            got_one = False
+            while True:
+                try:
+                    uri, ic, cs, cb = self.q.get_nowait()
+                    got_one = True
+                except Empty:
+                    break
+
+            if got_one: # we have something to download
+                if stream:
+                    web.debug('Closing incomplete download %s'%preload_name)
+                    import pdb; pdb.set_trace()
                     fd.close()
                     stream.close()
+                    self._abort(preload_name)
+                preload_name = uri2fname(uri)
+                self.preloaded.append(preload_name)
+                fd = file(preload_name, 'w')
+                stream = urllib.urlopen(uri)
+                fd.write(stream.read(ic))
+                fd.flush()
+                cb()
+            elif stream:
+                d = stream.read(cs)
+                if not d:
+                    web.debug('download: EOF')
+                    stream.close()
                     stream = None
+                    fd.close()
                 else:
                     fd.write(d)
-            else: # nothing to do
-                got_one = False
-                while True:
-                    try:
-                        uri, ic, cs, cb = self.q.get_nowait()
-                        got_one = True
-                    except Empty:
-                        break
-                if got_one: # urgent request
-                    self.aborted = True
-                    abort_cmd = None
-                    if fd and not fd.closed:
-                        fd.close()
-                    fd = file(config.streaming_file, 'w')
-                    preload_name = uri2fname(uri)
-                    if preload_name in self.preloaded and os.path.exists( preload_name ):
-                        # copy the preload to stream file
-                        fd.write(file(preload_name).read())
-                        fd.close()
-                    else:
-                        # start song download...
-                        stream = urllib.urlopen(uri)
-                        fd.write(stream.read(ic))
-                    cb() # call the callback, initial chunk injected (or whole file if cached)
-                elif not self.aborted: # really nothing to do ! :)
-
-                    sleep(1) # wait some idle time
-                    gc.collect()
-
-                    if self.next: # preload asked, set the right descriptors
-                        next = self.next
-                        self.next = None
-                        preload_name = uri2fname(next)
-                        fd = file(preload_name, 'w')
-                        stream = urllib.urlopen(next)
-                        self.preloaded.append(preload_name)
-                        abort_cmd = partial(self._abort, preload_name)
-                else:
-                    # resets the aborted state
+            else:
+                gc.collect()
+                sleep(1) # wait some idle time
+                if self.next: # preload asked, set the right descriptors
+                    next = self.next
                     self.next = None
-                    self.aborted = False
-
+                    preload_name = uri2fname(next)
+                    self.preloaded.append(preload_name)
+                    fd = file(preload_name, 'w')
+                    stream = urllib.urlopen(next)
 
     def _abort(self, name):
         self.preloaded.remove(name)
@@ -116,21 +97,22 @@ class Downloader(Thread):
 
     def get(self, uri, i_chunk=None, chunk=None):
         MAX_PRELOADS = 5
-        if len(self.preloaded) > MAX_PRELOADS:
-            rm = self.preloaded.pop(0)
-            try:
-                os.unlink(rm)
-            except OSError:
-                pass
+        filename = uri2fname(uri)
+        web.debug('GET %s => %s'%(uri, filename))
+        if filename not in self.preloaded:
+            if len(self.preloaded) > MAX_PRELOADS:
+                rm = self.preloaded.pop(0)
+                try:
+                    web.debug("RM %s"% rm)
+                    os.unlink(rm)
+                except OSError:
+                    pass
 
-        # ask for a download and wait for the initial_chunk to be completed
-        cache = uri2fname(uri)
-        if cache in self.preloaded:
-            return cache
-        e = Event()
-        self.q.put( (uri, i_chunk, chunk, e.set) )
-        e.wait()
-        return config.streaming_file
+            # ask for a download and wait for the initial_chunk to be completed
+            e = Event()
+            self.q.put( (uri, i_chunk, chunk, e.set) )
+            e.wait()
+        return filename
 
     def stop(self):
         self.running = False
@@ -209,6 +191,7 @@ class PlayerCtl(object):
 #                    web.debug('pos: %s, errors: %s'%(self.position, errors))
 
                     if self.position is None:
+                        web.debug('NO POSITION %s'%errors)
                         if errors['count'] > 2:
                             errors['count'] = 0
                             i = self.select(1)
@@ -221,8 +204,6 @@ class PlayerCtl(object):
     #@classmethod
     def _download_zic(self, uri, sync=False):
         d = media_config[self._get_type_from_uri(uri)]
-
-        self.downloader.aborted = True
         return self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
 
     def select(self, sense):
@@ -262,6 +243,7 @@ class PlayerCtl(object):
                 cache = media_config[self.selected_type].get('player_cache')
                 if cache:
                     self.player.set_cache(cache)
+            web.debug('LOADING: %s'%song_name)
             self.player.load(song_name)
             description="""<b>%(title)s</b>
 <i>%(album)s</i>"""%sel
