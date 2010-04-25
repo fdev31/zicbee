@@ -60,7 +60,6 @@ class Downloader(Thread):
             if got_one: # we have something to download
                 if stream:
                     web.debug('Closing incomplete download %s'%preload_name)
-                    import pdb; pdb.set_trace()
                     fd.close()
                     stream.close()
                     self._abort(preload_name)
