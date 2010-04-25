@@ -29,16 +29,6 @@ except ImportError:
 
 from hashlib import md5
 
-class MirrObj(object):
-
-    __slots__ = ['__objs']
-
-    def __init__(self, *objs):
-        self.__objs = objs
-
-    def __getattr__(self, name):
-        return MirrObj(*(getattr(o, name) for o in self.__objs))
-
 def uri2fname(uri):
     return "%s.%s"%(config.streaming_file, md5(uri).hexdigest())
 
