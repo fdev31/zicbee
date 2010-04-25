@@ -87,6 +87,7 @@ setup (
             'http://zicbee.gnux.info/files/',
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
+            'http://webpy.org/static/',
             'http://code.google.com/p/quodlibet/downloads/list',
             ],
         classifiers = [
