@@ -2,6 +2,7 @@
 import os
 from zicbee.core.httpdb import kill_server
 from zicbee_lib.config import config
+from zicbee_lib.debug import DEBUG
 
 def abort():
     kill_server()
@@ -66,7 +67,6 @@ def do_serve(pure=False):
         pure (default: False): just start DB serving, no player
     """
     import socket
-    from zicbee_lib.debug import DEBUG
     import sys
     sys.argv = ['zicdb', '0.0.0.0:%s'%(config.default_port)]
 
