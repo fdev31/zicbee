@@ -5,6 +5,7 @@ __all__ = ['web_db_index', 'WEB_FIELDS', 'render']
 
 import os
 import web
+import random
 from threading import RLock
 from time import time
 from zicbee.core import zshell
@@ -189,6 +190,23 @@ class web_db_index:
             None
         """
         yield VERSION
+
+    def REQ_random(self):
+        """ Returns a pattern with a random artist query
+        If "what" parameter is specified, allow to change
+        the random attribute, currently available:
+         - artist
+         - album
+        """
+        inp = web.input()
+        what = inp.get('what', 'artist')
+        if what.startswith('album'):
+            what = ['album', list(zshell.songs.albums)]
+        else:
+            what = ['artist', list(zshell.songs.artists)]
+
+        what[1] = random.choice(what[1])
+        return 'pattern=%s:%s'%tuple(what)
 
     def REQ_artists(self):
         """ List all the artists
