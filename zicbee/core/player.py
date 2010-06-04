@@ -29,8 +29,17 @@ except ImportError:
 
 from hashlib import md5
 
+def get_type_from_uri(uri):
+    if uri:
+        try:
+            return uri.rsplit('song.', 1)[1].split('?', 1)[0]
+        except IndexError:
+            return 'dunno'
+            return uri.rsplit('.', 1)[1]
+    return 'mp3'
+
 def uri2fname(uri):
-    return "%s.%s"%(config.streaming_file, md5(uri).hexdigest())
+    return "%s.%s.%s"%(config.streaming_file, md5(uri).hexdigest(), str(get_type_from_uri(uri)))
 
 class Downloader(Thread):
     q = Queue(3)
@@ -202,7 +211,7 @@ class PlayerCtl(object):
 
     #@classmethod
     def _download_zic(self, uri, sync=False):
-        d = media_config[self._get_type_from_uri(uri)]
+        d = media_config[get_type_from_uri(uri)]
         return self.downloader.get(uri, -1 if sync else d['init_chunk_size'], d['chunk_size'])
 
     def select(self, sense):
@@ -492,18 +501,9 @@ class PlayerCtl(object):
     def sibling(self):
         return self.playlist.sibling
 
-    #@classmethod
-    def _get_type_from_uri(self, uri):
-        if uri:
-            try:
-                return uri.rsplit('song.', 1)[1].split('?', 1)[0]
-            except IndexError:
-                return 'dunno'
-                return uri.rsplit('.', 1)[1]
-        return 'mp3'
 
     @property
     def selected_type(self):
         # http://localhost:9090/db/get/song.mp3?id=5 -> mp3
-        return self._get_type_from_uri(self.selected.get('uri'))
+        return get_type_from_uri(self.selected.get('uri'))
 
