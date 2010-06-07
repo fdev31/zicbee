@@ -1,4 +1,4 @@
-__all__ = ['Database', 'valid_tags']
+__all__ = ['Databae', 'valid_tags']
 # vim: ts=4 sw=4 et
 
 import os
@@ -190,80 +190,106 @@ class Database(object):
 
         us_prefix = None
 
-        # Avoid duplicates
-        if no_dups and len(self):
-
-            # user specified prefix
-            if directory is None:
-                try:
-                    print "Example filename %s"%(self.databases.itervalues().next()['handle'][0].filename)
-                except IndexError:
-                    pass
-                finally:
-                    us_prefix = raw_input('Enter prefix to remove: ')
-                    if us_prefix.strip():
-                        directory = us_prefix
-
-            # Remove every file starting with that directory
-            old_len = len(self)
-            deltas = []
-            for name, db in self._dbs_iter():
-                db = db['handle']
-                for it in (i for i in db if i.filename.startswith(directory)):
-                    db.delete(it)
-                    if deltas:
-                        deltas.append( old_len-len(self)-sum(deltas) )
-                    else:
-                        deltas.append( old_len-len(self) )
-
-            if db_name is None:
-                db_name = self.databases.keys()[ deltas.index( max(deltas) ) ]
-                print "Auto-detecting best candidate: %s"%db_name
-            print "Removed %d items"%( sum(deltas) )
-
-            self.cleanup()
+        print "Building data sets..."
+        db_filenames = {}
+        for name, db in self._dbs_iter():
+            db = db['handle']
+            db_filenames.update( (i.filename, i) for i in db if i.filename.startswith(directory) )
 
         db = self.databases[db_name]['handle']
 
         # Directory handling
+        filenames = []
         if directory is not None and not us_prefix:
             for root, dirs, files in os.walk(directory):
                 for fname in files:
                     if fname.rsplit('.', 1)[-1].lower() in valid_ext:
-                        fullpath = os.path.join(root, fname)
-                        tags = None
+                        filenames.append( os.path.join(root, fname) )
 
-                        try:
-                            tags = File(fullpath)
-                        except Exception, e:
-                            print 'Error reading %s: %s'%(fullpath, e)
-                            yield "E"
-                            continue
+        filenames = set(filenames)
+        db_set = set(db_filenames.iterkeys())
 
-                        if tags:
-                            # Do it before tags is changed !
-                            length = int(tags.info.length+0.5)
-                            if isinstance(tags, MP3):
-                                tags = EasyID3(fullpath)
-                            data = filter_dict(dict(tags))
-                        else:
-                            length = 0
+        # remove old files
+        print "\nRemoving..."
+        for removed in db_set.difference(filenames):
+            db.delete(db_filenames[removed])
 
-                            name = unicode(fname, 'utf-8', 'replace')
-                            album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
-                            data = {'title': name, 'album': album, 'artist': name}
+        # add new files
+        print "\nAdding..."
+        for fullpath in filenames.difference(db_set):
+            tags = None
 
-                        data['filename'] = fullpath
-                        data['length'] = length
-                        if data.get('title') and data.get('artist'):
-                            yield '.'
-                        else:
-                            yield '0'
-                        try:
-                            db.insert(**data)
-                        except:
-                            import pdb; pdb.set_trace()
+            try:
+                tags = File(fullpath)
+            except Exception, e:
+                print 'Error reading %s: %s'%(fullpath, e)
+                yield "E"
+                continue
 
+            if tags:
+                # Do it before tags is changed !
+                length = int(tags.info.length+0.5)
+                if isinstance(tags, MP3):
+                    tags = EasyID3(fullpath)
+                data = filter_dict(dict(tags))
+            else:
+                length = 0
+
+                name = unicode(fname, 'utf-8', 'replace')
+                album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
+                data = {'title': name, 'album': album, 'artist': name}
+
+            data['filename'] = fullpath
+            data['length'] = length
+            if data.get('title') and data.get('artist'):
+                yield '.'
+            else:
+                yield '0'
+            try:
+                db.insert(**data)
+            except:
+                import pdb; pdb.set_trace()
+
+        # Update tags
+        print "\nUpdating..."
+        for fullpath in filenames.intersection(db_set):
+            tags = None
+
+            try:
+                tags = File(fullpath)
+            except Exception, e:
+                print 'Error reading %s: %s'%(fullpath, e)
+                yield "E"
+                continue
+
+            if tags:
+                # Do it before tags is changed !
+                length = int(tags.info.length+0.5)
+                if isinstance(tags, MP3):
+                    tags = EasyID3(fullpath)
+                data = filter_dict(dict(tags))
+            else:
+                length = 0
+
+                name = unicode(fname, 'utf-8', 'replace')
+                album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
+                data = {'title': name, 'album': album, 'artist': name}
+
+            data['filename'] = fullpath
+            data['length'] = length
+            if data.get('title') and data.get('artist'):
+                yield '.'
+            else:
+                yield '0'
+            try:
+                song = db_filenames[fullpath]
+                #if any(data[k] != getattr(song, k) for k in data.keys()): # Looks useless
+                db.update(song, **data)
+            except:
+                import pdb; pdb.set_trace()
+
+        print "\nCleaning up..."
+        self.cleanup()
         # Archive handling
         if  archive is not None:
             from tarfile import TarFile
