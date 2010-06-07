@@ -44,7 +44,7 @@ class webplayer:
 
     def REQ_close(self):
         if allow_admin_mode():
-            self.player.close()
+            web.redirect('/db/kill')
 
     def REQ_search(self):
         it = ('' for i in xrange(1))
