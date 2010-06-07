@@ -177,9 +177,9 @@ class Database(object):
                     for k in item.fields)
 
     @checkdb
-    def merge(self, db_name, directory=None, archive=None, no_dups=True):
+    def merge(self, db_name, directory=None, archive=None, no_dups=True, update=False):
         """ Merge informations from files in specified directory or archive """
-        # TODO: add auto "no_dups" style after a len() check of the db
+        # TODO: handle no_dups to show merge of tags while adding new
 
         try:
             EasyID3
@@ -250,43 +250,44 @@ class Database(object):
             except:
                 import pdb; pdb.set_trace()
 
-        # Update tags
-        print "\nUpdating..."
-        for fullpath in filenames.intersection(db_set):
-            tags = None
+        if update:
+            # Update tags
+            print "\nUpdating..."
+            for fullpath in filenames.intersection(db_set):
+                tags = None
 
-            try:
-                tags = File(fullpath)
-            except Exception, e:
-                print 'Error reading %s: %s'%(fullpath, e)
-                yield "E"
-                continue
+                try:
+                    tags = File(fullpath)
+                except Exception, e:
+                    print 'Error reading %s: %s'%(fullpath, e)
+                    yield "E"
+                    continue
 
-            if tags:
-                # Do it before tags is changed !
-                length = int(tags.info.length+0.5)
-                if isinstance(tags, MP3):
-                    tags = EasyID3(fullpath)
-                data = filter_dict(dict(tags))
-            else:
-                length = 0
+                if tags:
+                    # Do it before tags is changed !
+                    length = int(tags.info.length+0.5)
+                    if isinstance(tags, MP3):
+                        tags = EasyID3(fullpath)
+                    data = filter_dict(dict(tags))
+                else:
+                    length = 0
 
-                name = unicode(fname, 'utf-8', 'replace')
-                album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
-                data = {'title': name, 'album': album, 'artist': name}
+                    name = unicode(fname, 'utf-8', 'replace')
+                    album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
+                    data = {'title': name, 'album': album, 'artist': name}
 
-            data['filename'] = fullpath
-            data['length'] = length
-            if data.get('title') and data.get('artist'):
-                yield '.'
-            else:
-                yield '0'
-            try:
-                song = db_filenames[fullpath]
-                #if any(data[k] != getattr(song, k) for k in data.keys()): # Looks useless
-                db.update(song, **data)
-            except:
-                import pdb; pdb.set_trace()
+                data['filename'] = fullpath
+                data['length'] = length
+                if data.get('title') and data.get('artist'):
+                    yield '.'
+                else:
+                    yield '0'
+                try:
+                    song = db_filenames[fullpath]
+                    #if any(data[k] != getattr(song, k) for k in data.keys()): # Looks useless
+                    db.update(song, **data)
+                except:
+                    import pdb; pdb.set_trace()
 
         print "\nCleaning up..."
         self.cleanup()

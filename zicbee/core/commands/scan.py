@@ -8,12 +8,12 @@ from zicbee_lib.debug import DEBUG
 from zicbee_lib.formats import duration_tidy, clean_path
 from os.path import dirname
 
-def _scan(**kw):
+def _scan(update=False, **kw):
     newline_iterator = itertools.cycle(x == 20 for x in xrange(21))
     print ', '.join(':'.join((k,v)) for k,v in kw.iteritems())
     try:
         newlined=True
-        for status_char in zshell.songs.merge(**kw):
+        for status_char in zshell.songs.merge(update=update,**kw):
             newlined=False
             print status_char,
             if newline_iterator.next():
@@ -25,58 +25,11 @@ def _scan(**kw):
     except Exception, e:
         DEBUG()
 
-def do_inc_scan():
-    """ Scan a directory in an incremental way:
-    Looking only for new or missing folders.
-    So if you add a file into an already existing directory containing songs,
-    it won't be detected!
-    """
-    directories = zshell.args + []
-    print "Incremental scan asked for %s"%(', '.join(directories))
-    db_dirs = set()
-    fs_dirs = set()
-    for rep in directories:
-        rep = clean_path(rep)
-        print "Analysing %s..."%rep
-
-        # collect directories of filesystem in fs_dirs
-        # and try to "guess" the ones in database (TODO: store [directory:number_of_entries scanned (including errors)], ...)
-        add, up = fs_dirs.add, fs_dirs.update
-        for root, dirs, files in os.walk(rep):
-            if not files:
-                fs_dirs.remove(root)
-
-            up(os.path.join(root, d) for d in dirs)
-
-        add, up = db_dirs.add, db_dirs.update
-        for d in zshell.songs.search(['filename']):
-            fn = d.filename
-            if fn.startswith(rep):
-                add(dirname(fn))
-
-    difference = list(fs_dirs.symmetric_difference(db_dirs))
-    difference.sort()
-
-    for i, item in enumerate(difference):
-        scan_item = True
-        if item in directories:
-            scan_item = False
-        else:
-            for it in difference:
-                if it is item:
-                    continue
-                elif item.startswith(it):
-                    scan_item = False
-                    break
-
-        if scan_item:
-            _scan(directory=item, db_name=zshell.songs.db_name)
-        else:
-            print "rm %s"%item
-
-def do_scan():
+def do_scan(up=False):
     """ Scan a directory for songs (fill Database)
     See "help" for a more complete documentation
+    paramter:
+      up: if True, updates tags of already scanned songs
     """
     if not zshell.args:
         sys.exit('At least one argument must be specified!')
@@ -98,7 +51,7 @@ def do_scan():
         _scan(archive=path, db_name=zshell.songs.db_name)
 
     for path in directories:
-        _scan(directory=path, db_name=zshell.songs.db_name)
+        _scan(directory=path, db_name=zshell.songs.db_name, update=up)
 
     elapsed = time() - start_t
     delta = len(zshell.songs)-orig_nb

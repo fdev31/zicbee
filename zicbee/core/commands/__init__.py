@@ -17,7 +17,7 @@ from .list import do_list
 from .find_dups import do_find_dups
 from .serve import do_serve
 from .search import do_search
-from .scan import do_scan, do_inc_scan
+from .scan import do_scan
 
 def do_help():
     """ Automatic help from self documentation """
