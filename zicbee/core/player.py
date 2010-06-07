@@ -100,6 +100,7 @@ class Downloader(Thread):
                     stream = urllib.urlopen(next)
 
     def _abort(self, name):
+        web.debug("RM %s"% name)
         self.preloaded.remove(name)
         os.unlink(name)
 
@@ -107,15 +108,15 @@ class Downloader(Thread):
         MAX_PRELOADS = 5
         filename = uri2fname(uri)
         web.debug('GET %s => %s'%(uri, filename))
-        if filename not in self.preloaded:
-            if len(self.preloaded) > MAX_PRELOADS:
-                rm = self.preloaded.pop(0)
-                try:
-                    web.debug("RM %s"% rm)
-                    os.unlink(rm)
-                except OSError:
-                    pass
 
+        if len(self.preloaded) > 2:
+            rm = self.preloaded.pop(0)
+            try:
+                web.debug("RM %s"% rm)
+                os.unlink(rm)
+            except OSError:
+                pass
+        if filename not in self.preloaded:
             # ask for a download and wait for the initial_chunk to be completed
             e = Event()
             self.q.put( (uri, i_chunk, chunk, e.set) )
