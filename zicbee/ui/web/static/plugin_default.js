@@ -25,8 +25,8 @@ function print_playlist(pls) {
         s = pls[i];
         idx = s[8];
         ico1 = active_icon('suppr', 'wget("/delete?idx='+idx+'", refresh_playlist);');
-        ico2 = active_icon('move_up', 'wget("/move?i1='+(idx-1)+'&i2='+idx+'", refresh_playlist);');
-        ico3 = active_icon('move_down', 'wget("/move?i1='+idx+'&i2='+(idx+1)+'", refresh_playlist);');
+        ico2 = active_icon('move_up', 'wget("/move?s='+(idx-1)+'&d='+idx+'", refresh_playlist);');
+        ico3 = active_icon('move_down', 'wget("/move?s='+idx+'&d='+(idx+1)+'", refresh_playlist);');
         txt += "<li>"+render_song(s, 'listFont')+ico1+ico2+ico3+'</li>';
     }
     txt += "</ul>";
