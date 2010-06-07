@@ -58,7 +58,7 @@ def do_scan(up=False):
     print "\nProcessed %d (%s%d) songs in %s (%.2f/s.)"%(
             len(zshell.songs),
             '-' if delta < 0 else '+',
-            delta,
+            abs(delta),
             duration_tidy(elapsed),
             len(zshell.songs)/elapsed)
 
