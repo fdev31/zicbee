@@ -109,7 +109,7 @@ class Downloader(Thread):
         filename = uri2fname(uri)
         web.debug('GET %s => %s'%(uri, filename))
 
-        if len(self.preloaded) > 2:
+        if len(self.preloaded) > MAX_PRELOADS:
             rm = self.preloaded.pop(0)
             try:
                 web.debug("RM %s"% rm)
