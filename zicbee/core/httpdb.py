@@ -247,6 +247,17 @@ class web_db_index:
         for d in dump_data_as_text(zshell.songs.genres, inp.get('fmt', 'txt')):
             yield d
 
+    def REQ_set(self):
+        if not allow_admin_mode():
+            return "Not allowed"
+        i = web.input()
+        k = i.get('k')
+        v = i.get('v')
+        if v is not None:
+            config[k] = v
+        v = config[k]
+        return "%s = %s"%(k, ', '.join(v) if isinstance(v, (list, tuple)) else v)
+
     def REQ_kill(self):
         """ Kills the application
 
