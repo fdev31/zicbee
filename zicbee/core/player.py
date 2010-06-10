@@ -493,13 +493,13 @@ class PlayerCtl(object):
                     u'Misc artists', u'No album', 'Virgin Radio 70', 1000,
                     None, None, 0],
                 ['http://ogg.frequence3.net:19000/frequence3.ogg',
-                    , u'Misc artists', u'No album', 'Radio Frequence3', 1000,
+                    u'Misc artists', u'No album', 'Radio Frequence3', 1000,
                     None, None, 0],
                 ['http://mp3.live.tv-radio.com/lemouv/all/lemouvhautdebit.mp3',
-                    , u'Misc artists', u'No album', 'Radio Le Mouv\'', 1000,
+                    u'Misc artists', u'No album', 'Radio Le Mouv\'', 1000,
                     None, None, 0],
                 ['http://mp3.live.tv-radio.com/francemusique/all/francemusiquehautdebit.mp3',
-                    , u'Misc artists', u'No album', 'Radio France Musique', 1000,
+                    u'Misc artists', u'No album', 'Radio France Musique', 1000,
                     None, None, 0],
                 ))
             self._save_playlists()
