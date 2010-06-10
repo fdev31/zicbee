@@ -473,12 +473,36 @@ class PlayerCtl(object):
 
     def _load_playlists(self):
         self._named_playlists = dict()
+        db_path = os.path.join(DB_DIR, 'playlists.pk')
         try:
-            save_file = file(os.path.join(DB_DIR, 'playlists.pk'), 'r')
+            save_file = file(db_path, 'r')
             p = Unpickler(save_file)
             self._named_playlists = p.load()
         except IOError, e:
-            log.debug("Not loading playlists: %s"%e.args[1])
+            self._named_playlists['radios'] = Playlist((
+                ['http://broadcast.infomaniak.net:80/radionova-high.mp3',
+                    u'Misc artists', u'No album', 'Radio Nova', 1000,
+                    None, None, 0],
+                ['http://vipicecast.yacast.net:80/virginradio',
+                    u'Misc artists', u'No album', 'Virgin Radio', 1000,
+                    None, None, 0],
+                ['http://vipicecast.yacast.net:80/vra_webradio03',
+                    u'Misc artists', u'No album', 'Virgin Radio 70', 1000,
+                    None, None, 0],
+                ['http://streaming.rtbf.be:8000/2128xrtbf',
+                    u'Misc artists', u'No album', 'Virgin Radio 70', 1000,
+                    None, None, 0],
+                ['http://ogg.frequence3.net:19000/frequence3.ogg',
+                    , u'Misc artists', u'No album', 'Radio Frequence3', 1000,
+                    None, None, 0],
+                ['http://mp3.live.tv-radio.com/lemouv/all/lemouvhautdebit.mp3',
+                    , u'Misc artists', u'No album', 'Radio Le Mouv\'', 1000,
+                    None, None, 0],
+                ['http://mp3.live.tv-radio.com/francemusique/all/francemusiquehautdebit.mp3',
+                    , u'Misc artists', u'No album', 'Radio France Musique', 1000,
+                    None, None, 0],
+                ))
+            self._save_playlists()
         except Exception, e:
             web.debug('Unable to load playlist. Corrupted file ? (%s)'%repr(e))
             DEBUG()
