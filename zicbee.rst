@@ -47,6 +47,7 @@ Including projects
   * zicbee-lib (base library for zicbee)
   * zicbee-mplayer (mplayer bindings, allow zicbee to play music)
   * zicbee-vlc (vlc bindings, allow zicbee to play music)
+  * zicbee-gst (GStreamer bindings, allow zicbee to play music)
   * zicbee-quodlibet (plugin that turns quodlibet into a zicbee client)
 
 Quickstart
@@ -75,12 +76,23 @@ Fire up the client::
 Play songs from another computer here, after doing some search, zap first song & show playlist::
 
  wasp search artist: black
+  => search artist containing "black" in their name
+ wasp set
+  => show all configuration variables
  wasp set db_host 192.168.0.40
+  => changes the host to take songs from
  wasp set player_host localhost
+  => tells zicbee to play song on THIS computer
  wasp search artist: black
+  => search again (on the new db_host)
  wasp play artist: black sab
+  => play black sabbath's music 
  wasp next
+  => skip current song
  wasp show
+  => Shows the next entries in the playlist
+ wasp help
+  => I think you *must* read it at least once...
 
 
 Dependencies
@@ -111,7 +123,10 @@ Changelog
  * improve shell completion
     * abbreviations everywhere
     * better completion
+ * Support for live streaming, try "play <your favorite mp3 stream>"
  * autoshuffle mode (can be disabled of course)
+ * new "random" command, plays some artist or album randomly
+ * stfu won't have unexpected results, it *kills* the player_host
  * visual notification for player (can be disabled, unset "notify" variable)
  * satisfying duplicates detection [WIP]
  * more flexible commands (handles short commands)
@@ -134,6 +149,8 @@ Changelog
         * prefix playlist name with "``>``" to append results to playlist
         * prefix playlist name with "``+``" to insert results into playlist just after the current song
  * cleaner javascript/cookies/sessions (prepare theme support)
+ * Tons of bugfixes!
+ * known bugs: volume command is not very functional yet
 
 0.8
 ...
