@@ -237,13 +237,15 @@ class PlayerCtl(object):
             if uri.count('/db/get') != 1 or uri.count('id=') != 1:
                 # something strange (LIVE mode)
                 song_name = uri
+                streaming = True
             else: # zicbee
-                sibling = self.sibling
                 sync = bool(sel.get('cursed'))
                 song_name = self._download_zic(sel['uri'], sync) # threaded
+                streaming = False
 
-                if sibling and not sibling.get('cursed'):
-                    self.downloader.next = sibling['uri']
+            sibling = self.sibling
+            if sibling and not sibling.get('cursed'):
+                self.downloader.next = sibling['uri']
 
             web.debug('select: %d (previous=%s)'%(sel['pls_position'], old_pos))
             if old_pos != sel['pls_position']:
@@ -258,6 +260,8 @@ class PlayerCtl(object):
 <i>%(album)s</i>"""%sel
             notify(sel.get('artist', 'Play'), description, icon='info') # generic notification
             self._paused = False
+            if streaming:
+                sleep(1.5) # FIXME: wait for things to settle... :(((
         return
 
     def volume(self, val):
