@@ -7,7 +7,12 @@ To know more, visit `the website <http://zicbee.gnux.info/>`_.
 Install
 =======
 
-You can either get an `"all in one" ZIP file on the website <http://zicbee.gnux.info/files/>`_ or install using something like easy_install, here is an example::
+If you just want to test the program, the simplest way is to  get a `Zicbee Pack <http://zicbee.gnux.info/files/zicbee-0.9-rc4.zip>`_, it's a compressed archive ready to run.
+
+If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing), also consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
+
+
+Setuptools way is supported too, using something like easy_install, here is an example::
 
  easy_install zicbee
 
@@ -95,6 +100,7 @@ Play songs from another computer here, after doing some search, zap first song &
   => I think you *must* read it at least once...
 
 
+
 Dependencies
 ============
 
@@ -124,6 +130,7 @@ Changelog
     * abbreviations everywhere
     * better completion
  * Support for live streaming, try "play <your favorite mp3 stream>"
+ * Change process title if ``setproctitle`` is available
  * autoshuffle mode (can be disabled of course)
  * new "random" command, plays some artist or album randomly
  * stfu won't have unexpected results, it *kills* the player_host
