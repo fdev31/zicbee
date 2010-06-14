@@ -20,6 +20,7 @@ If you want to enable playback, install some player glue (pick one)::
 
  easy_install zicbee-mplayer
  easy_install zicbee-vlc
+ easy_install zicbee-gst
 
 If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing), also consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
 
