@@ -1,5 +1,6 @@
 # vim: et ts=4 sw=4
 import os
+from zicbee_lib.resources import set_proc_title
 from zicbee.core.httpdb import kill_server
 from zicbee_lib.config import config
 from zicbee_lib.debug import DEBUG
@@ -68,6 +69,8 @@ def do_serve(pure=False):
     """
     import socket
     import sys
+
+    set_proc_title('zicserve')
     sys.argv = ['zicdb', '0.0.0.0:%s'%(config.default_port)]
 
     try:
