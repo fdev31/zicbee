@@ -55,9 +55,9 @@ class Downloader(Thread):
         self.running = True
         stream = None
         fd = None
+        cs = None
 
         while self.running:
-#            web.debug('stream: %s (aborted: %s)\n   |%s'%(fd, self.aborted, stream))
             got_one = False
             while True:
                 try:
