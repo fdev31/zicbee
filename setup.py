@@ -115,23 +115,3 @@ setup (
 
         )
 
-if 'build' in sys.argv or 'install' in sys.argv or any(a for a in sys.argv if 'dist' in a):
-    # test copied from zicbee/player/_mpgen.py [and mp.py]:
-    exe_name = 'mplayer' if os.sep == '/' else 'mplayer.exe'
-    import subprocess
-    try:
-        ret = subprocess.Popen([exe_name, '-really-quiet']).wait()
-    except OSError:
-        ret = 255
-    if ret:
-        dec = "*"*80
-        print dec
-        print dec
-        print ''
-        print "* WARNING !! mplayer seems not accessible, please install properly."
-        print dec
-        print "* YOU NEED MPLAYER IN YOUR PATH TO GET PLAYER FEATURES"
-        print ''
-        print dec
-        print dec
-
