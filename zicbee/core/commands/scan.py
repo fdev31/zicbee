@@ -28,7 +28,7 @@ def _scan(update=False, **kw):
 def do_scan(up=False):
     """ Scan a directory for songs (fill Database)
     See "help" for a more complete documentation
-    paramter:
+    parameter:
       up: if True, updates tags of already scanned songs
     """
     if not zshell.args:
