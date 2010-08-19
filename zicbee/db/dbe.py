@@ -237,7 +237,7 @@ class Database(object):
 
                 name = unicode(fname, 'utf-8', 'replace')
                 album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
-                data = {'title': name, 'album': album, 'artist': name}
+                data = {'title': name.split('\n')[0].strip(), 'album': album.split('\n')[0].strip(), 'artist': name.split('\n')[0].strip()}
 
             data['filename'] = fullpath
             data['length'] = length
@@ -379,6 +379,7 @@ def filter_dict(data):
             data[k] = u''
         elif not isinstance(d, unicode):
             data[k] = unicode(d)
+        data[k] = data[k].split('\n')[0].strip()
 
     if data.get('genre') == u'12':
         data['genre'] = u''
