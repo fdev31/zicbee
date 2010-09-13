@@ -5,12 +5,14 @@ import os
 import buzhug
 from itertools import chain
 from zicbee_lib.config import DB_DIR, media_config
+import re
 
 try:
     required_buzhug = [1, 5]
     assert [int(d) for d in buzhug.version.split('.')] >= required_buzhug
 except AssertionError:
     raise SystemExit('Wrong buzhug installed, please install at least version %s'%('.'.join(required_buzhug)))
+
 
 valid_ext = media_config.keys()
 
@@ -24,6 +26,8 @@ valid_tags = (
         'score',
         'tags',
         'length')
+
+track_re = re.compile('.*?(\d+)')
 
 filters_dict = dict(
         track = ('TRCK', 'tracknumber', u'WM/Track', "WM/TrackNumber" 'trkn'),
@@ -362,8 +366,8 @@ def filter_dict(data):
         try:
             if isinstance(track_val, (list, tuple)):
                 track_val = track_val[0]
-            if not isinstance(track_val, int):
-                track_val = int(track_val.replace('-', ' ').replace('/', ' ').split()[0])
+            if not iksinstance(track_val, int):
+                track_val = int( track_re.match(track_val).groups()[0] )
         except:
             print "Unable to get track for", repr(track_val)
             data['track'] = None
