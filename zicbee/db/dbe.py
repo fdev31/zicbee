@@ -235,14 +235,15 @@ class Database(object):
                 length = int(tags.info.length+0.5)
                 if isinstance(tags, MP3):
                     tags = EasyID3(fullpath)
-                data = filter_dict(dict(tags))
+                tags = dict(tags)
             else:
                 length = 0
 
                 name = unicode(fname, 'utf-8', 'replace')
                 album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
-                data = {'title': name.split('\n')[0].strip(), 'album': album.split('\n')[0].strip(), 'artist': name.split('\n')[0].strip()}
+                tags = {'title': name, 'album': album, 'artist': name}
 
+            data = filter_dict(tags)
             data['filename'] = fullpath
             data['length'] = length
             if data.get('title') and data.get('artist'):
@@ -272,13 +273,15 @@ class Database(object):
                     length = int(tags.info.length+0.5)
                     if isinstance(tags, MP3):
                         tags = EasyID3(fullpath)
-                    data = filter_dict(dict(tags))
+                    tags = dict(tags)
                 else:
                     length = 0
 
                     name = unicode(fname, 'utf-8', 'replace')
                     album = unicode(os.path.split(root)[-1], 'utf-8', 'replace')
-                    data = {'title': name, 'album': album, 'artist': name}
+                    tags = {'title': name, 'album': album, 'artist': name}
+
+                data = filter_dict(tags)
 
                 data['filename'] = fullpath
                 data['length'] = length
@@ -356,6 +359,19 @@ def filter_dict(data):
                 except IndexError:
                     v = None
             data[k] = v
+
+    for k in ('genre', 'artist', 'album', 'title'):
+        d = data.get(k)
+        if d is None:
+            data[k] = u''
+        elif not isinstance(d, unicode):
+            data[k] = unicode(d)
+        data[k] = data[k].split('\n')[0].replace(os.path.sep, '_').strip()
+
+    if data.get('genre') == u'12':
+        data['genre'] = u''
+
+
     track_val = data.get('track')
     if track_val is not None:
         try:
@@ -376,17 +392,8 @@ def filter_dict(data):
                 data['track'] = int(track_val.strip())
             except:
                 data['track'] = None
-
-    for k in ('genre', 'artist', 'album', 'title'):
-        d = data.get(k)
-        if d is None:
-            data[k] = u''
-        elif not isinstance(d, unicode):
-            data[k] = unicode(d)
-        data[k] = data[k].split('\n')[0].strip()
-
-    if data.get('genre') == u'12':
-        data['genre'] = u''
+        if not data['title'] and data['track']:
+            data['title'] = unicode(track_val)
 
     return data
 
