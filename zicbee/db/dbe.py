@@ -6,6 +6,7 @@ import buzhug
 from itertools import chain
 from zicbee_lib.config import DB_DIR, media_config
 import re
+import time
 
 try:
     required_buzhug = [1, 5]
@@ -77,6 +78,13 @@ class Database(object):
                     path = p,
                     handle = h,
                     )
+
+    def add_error(self, message):
+        f = getattr(self, '_error_fd', None)
+        if not f:
+            f = self._error_fd = open( os.path.join(DB_DIR, 'scan.log'), 'a+')
+            self._error_fd.write("-- Errors scanning %s on %s --\n"%(self.db_name, time.asctime()))
+        f.write(message+'\n')
 
     @property
     def artists(self):
@@ -264,7 +272,7 @@ class Database(object):
                 try:
                     tags = File(fullpath)
                 except Exception, e:
-                    print 'Error reading %s: %s'%(fullpath, e)
+                    self.add_error("%s | %s | %r"%(db_name, fullpath, e))
                     yield "E"
                     continue
 
