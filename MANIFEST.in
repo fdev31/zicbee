@@ -1,0 +1,2 @@
+recursive-include zicbee/ui/ *.png *.css *.html *.js
+include zicbee.rst

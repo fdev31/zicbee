@@ -55,16 +55,7 @@ setup (
         keywords = 'database music tags metadata management',
         packages = find_packages(),
         zip_safe = False,
-        package_data = {
-            'zicbee': [
-                'ui/web/templates/*.html',
-                'ui/web/static/*.css',
-                'ui/web/static/*.js',
-                'ui/web/static/pics/*.*',
-                'ui/web/static/pics/cmd/*.*',
-                'ui/notify/*.png',
-                ],
-            },
+        include_package_data = True,
 
         entry_points = {
             "console_scripts": [
@@ -83,8 +74,6 @@ setup (
             ),
 
         dependency_links = [
-            'eggs',
-            'http://zicbee.gnux.info/files/',
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
             'http://webpy.org/static/',
