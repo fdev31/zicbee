@@ -74,8 +74,6 @@ setup (
             ),
 
         dependency_links = [
-            'eggs',
-            'http://zicbee.gnux.info/files/',
             'http://webpy.org/',
             'http://buzhug.sourceforge.net/',
             'http://webpy.org/static/',
