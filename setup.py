@@ -53,18 +53,9 @@ setup (
         description='A simple & powerful distributed Music database engine',
         long_description=DESCRIPTION,
         keywords = 'database music tags metadata management',
+        include_package_data = True,
         packages = find_packages(),
         zip_safe = False,
-        package_data = {
-            'zicbee': [
-                'ui/web/templates/*.html',
-                'ui/web/static/*.css',
-                'ui/web/static/*.js',
-                'ui/web/static/pics/*.*',
-                'ui/web/static/pics/cmd/*.*',
-                'ui/notify/*.png',
-                ],
-            },
 
         entry_points = {
             "console_scripts": [

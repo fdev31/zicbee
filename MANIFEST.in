@@ -1,0 +1,3 @@
+recursive-include zicbee *.txt *.py *.rst
+recursive-include zicbee/ui *.png *.gif *.js *.html *.css
+
