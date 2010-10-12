@@ -10,7 +10,7 @@ from threading import RLock
 from time import time
 from zicbee.core import zshell
 from zicbee_lib.formats import compact_int, jdump, uncompact_int, dump_data_as_text
-from zicbee.core.parser import parse_line
+from zicbee_lib.parser import string2python
 from zicbee_lib.config import config
 from zicbee_lib.debug import DEBUG
 from zicbee_lib import debug
@@ -380,13 +380,13 @@ class web_db_index:
             if pattern is None:
                 res = xrange(0)
             else:
-                pat, vars = parse_line(pattern)
+                pat = string2python(pattern)
+                web.debug('PAT %r'%pat)
                 urlencode = web.http.urlencode
                 ci = compact_int
-                web.debug('searching %s %s...'%(pat, vars))
 
                 res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
-                        for r in zshell.songs.search(list(WEB_FIELDS)+['filename'], pat, **vars)
+                        for r in zshell.songs.search(list(WEB_FIELDS+['filename']), pat)
                         )
             t_sel = time()
 

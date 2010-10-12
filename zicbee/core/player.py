@@ -14,13 +14,13 @@ from Queue import Queue, Empty
 from zicbee.utils import notify
 from zicbee.core.httpdb import web
 from threading import RLock, Thread, Event
-from zicbee.core.parser import extract_props
 from zicbee_lib.resources import get_players
 from zicbee.core.playlist import EndOfPlaylist, Playlist
 from zicbee_lib.config import config, media_config, DB_DIR
 from zicbee_lib.debug import log, DEBUG
 from zicbee_lib.formats import jload
 from zicbee_lib.debug import nop
+from zicbee_lib.parser import parse_string, PLAYLIST
 
 try:
     from cPickle import Pickler, Unpickler
@@ -378,13 +378,14 @@ class PlayerCtl(object):
             hostname = "%s:%s"%(hostname, config.default_port)
 
         # set playlist name
-        (new_pattern , props) = extract_props(kw['pattern'], ('pls',))
-        if new_pattern:
-            kw['pattern'] = new_pattern
+        tokens = parse_string(kw['pattern'])
+        for tok in tokens:
+            if tok.isa(PLAYLIST):
+                playlist = tok.value
+                break
+        else:
+            playlist = None
 
-        props = dict(props)
-        if props:
-            playlist = props['pls']
 
         with self._lock:
             self.hostname = hostname
