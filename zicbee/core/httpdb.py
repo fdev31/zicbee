@@ -380,13 +380,13 @@ class web_db_index:
             if pattern is None:
                 res = xrange(0)
             else:
-                pat = string2python(pattern)
-                web.debug('PAT %r'%pat)
+                pat, kw = string2python(pattern)
+                web.debug('PAT %r KW %r'%(pat, kw))
                 urlencode = web.http.urlencode
                 ci = compact_int
 
                 res = ([hd+'/db/get/%s?id=%s'%('song.'+ r.filename.rsplit('.', 1)[-1].lower(), ci(int(r.__id__))), r]
-                        for r in zshell.songs.search(list(WEB_FIELDS+['filename']), pat)
+                        for r in zshell.songs.search(list(WEB_FIELDS+['filename']), pat, **kw)
                         )
             t_sel = time()
 

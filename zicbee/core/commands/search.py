@@ -35,14 +35,14 @@ def do_search(out=None, edit_mode=False):
                     )
             print txt.decode('utf8').encode('utf8')
 
-    pat = string2python(' '.join(zshell.args))
+    pat, kw = string2python(' '.join(zshell.args))
     if edit_mode:
         search_fn = zshell.songs.u_search
     else:
         search_fn = zshell.songs.search
 
     num = 0
-    for num, res in enumerate(search_fn(None, pat)):
+    for num, res in enumerate(search_fn(None, pat, **kw)):
         song_output(res)
         duration += res.length
 
