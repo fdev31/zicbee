@@ -20,7 +20,7 @@ from zicbee_lib.config import config, media_config, DB_DIR
 from zicbee_lib.debug import log, DEBUG
 from zicbee_lib.formats import jload
 from zicbee_lib.debug import nop
-from zicbee_lib.parser import parse_string, PLAYLIST
+from zicbee_lib.parser import parse_string, PLAYLIST, tokens2string
 
 try:
     from cPickle import Pickler, Unpickler
@@ -382,6 +382,8 @@ class PlayerCtl(object):
         for tok in tokens:
             if tok.isa(PLAYLIST):
                 playlist = tok.value
+                tokens.remove(tok)
+                kw['pattern'] = tokens2string(tokens)
                 break
         else:
             playlist = None

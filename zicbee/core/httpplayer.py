@@ -49,7 +49,6 @@ class webplayer:
     def REQ_search(self):
         it = ('' for i in xrange(1))
         try:
-
             i = web.input()
             tempname = False
 
