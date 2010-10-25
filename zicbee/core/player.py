@@ -323,6 +323,11 @@ class PlayerCtl(object):
     def move_entry(self, pos1, pos2):
         """ Move an entry to a given playlist position"""
         p = self.playlist
+        if p.pos == pos2:
+            return
+        elif p.pos > pos1:
+            p.pos -= 1
+            pos2 -= 1
         to_move = p[pos1]
         del p[pos1]
         p.inject(to_move, pos2)
