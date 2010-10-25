@@ -1,48 +1,19 @@
 TODO (urgent):
- Cancel downloads on select.
- Top & Bottom border of commands should be red/blue
- Left & Right divs should be stylised (background/no border) 
- Form should fade-out when user validate search,
-   a click on the bee makes it fade in
- Right align the "Search" button
- Left align the "search" form on the /search/ server
- Change font
 
 BUGS:
- Should adapt samplerate to current song (time is bended now)
- Pause is messed-up if NEXT or PREV is pressed (should un-pause)
- Check why m4a & wma support is variable (ffmpeg options ?)
-
+ length: 3*60 is broken
+ check if the whole tag list is supported in the new tokenizer
 HIGH PRIO:
- Manage some configuration (list of hosts etc...)
- Manage status icon/menu http://www.pygtk.org/docs/pygtk/class-gtkstatusicon.html
  Rip avbin.py to something similar in aspect but much simpler
-
- Add Hide icon to hide top bar and playlist (near shuffle ? move shuffle to uri bar ?)
- Refactor player ! (it's a mess...)
- Add Generic Pack/Unpack (tar, zip...) facilities and enhance get cmd
+ Refactor player ! (it's a mess... make it event-based)
 
 LOW PRIO:
- Add tooltip for shuffle button
 
- Add playlist management to the view
-  - inject (local file or directory)
-  - delete
-  - drag & drop
  Add a Delete button under playlist (should hide with playlist)
- Add adaptative chunk size (**2 until it takes >0.05s) to server & get cmd
-
- UI:
-  Review alignments ?
-  Contextual menu in list (with delete etc...)
 
 FUTURE:
- Add tarball/zip download to http interface
-
  Separate artist db:
-  - artist view possible
-  - difflib matching on insert
-  much slower ?? (to test...)
+  - difflib matching on insert (auto-unduplicate)
 
  Tags edition ? add pure "tags" + ratings (user defined)
 
@@ -52,7 +23,7 @@ FUTURE:
  uPnP/DLNA support ? https://coherence.beebits.net/
  daap support ? http://jerakeen.org/code/PythonDaap/
 
-LINKS:
+READINGS:
 http://www.sacredchao.net/quodlibet/wiki/Development/Mutagen/Tutorial
 http://www.pygtk.org/docs/pygtk/index.html
 
