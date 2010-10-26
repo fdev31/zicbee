@@ -52,8 +52,12 @@ Note that zicserve is just a convenient way to run "zicdb serve".
 Dependencies:
 .............
 
--   3.0 > Python >= 2.5for python 2.5, one of the following libraries is
-    required: ** cjson [json] ** or simplejson [json] ** or demjson [json]
+-   3.0 > Python >= 2.6
+-   or Python 2.5 with:
+
+    -   cjson [json]
+    -   or simplejson [json]
+    -   or demjson [json]
 
 Knowledges about shell usage and readline is a good point.
 
