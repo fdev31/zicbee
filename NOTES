@@ -1,14 +1,18 @@
 TODO (urgent):
+clean http://zicbee.gnux.info/Roadmap 
+Generate zicbee.rst from Quickstart & Roadmap, merge the content
+
 
 BUGS:
  length: 3*60 is broken
  check if the whole tag list is supported in the new tokenizer
+
 HIGH PRIO:
- Rip avbin.py to something similar in aspect but much simpler
  Refactor player ! (it's a mess... make it event-based)
 
 LOW PRIO:
 
+ Rip avbin.py to something similar in aspect but much simpler
  Add a Delete button under playlist (should hide with playlist)
 
 FUTURE:

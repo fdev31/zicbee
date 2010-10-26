@@ -7,7 +7,7 @@ To know more, visit `the website <http://zicbee.gnux.info/>`_.
 Install
 =======
 
-If you just want to test the program, the simplest way is to  get a `Zicbee Pack <http://zicbee.gnux.info/files/zicbee-0.9-rc5.zip>`_, it's a compressed archive ready to run.
+If you just want to test the program, the simplest way is to  get a `Zicbee Pack <http://zicbee.gnux.info/files/zicbee-0.9-rc7.zip>`_, it's a compressed archive ready to run.
 
 If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing) plus examples programs.
 For a better experience, consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
