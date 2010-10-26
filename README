@@ -1,200 +1,618 @@
-= User documentation =
-== Pattern/match command ==
-Pattern is everywhere, used in www interface, in many shell commands (search, play, etc...).
+
+User documentation
+==================
+
+For a shorter introduction, see `Quickstart`_ page.
+
+
+Install
+-------
+
+
+Instructions (skip this if you already installed zicbee)
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Preferably, download and unzip a `packaged release`_ or clone the workshop
+repository if you plan to hack the code:
+
+::
+
+    ~/programs/> hg clone http://zicbee.gnux.info/hg/zicbee-workshop/ bee
+    ~/programs/> cd bee
+
+
+Now you should be able to run **manage** program so every source will be
+retrieved and a compact distribution will be built.
+
+::
+
+    ~/programs/bee/> ./manage
+    ...
+
+
+You can also install it in the standard setuptools way:
+
+::
+
+    easy_install -U zicbee
+    or
+    pip install -U zicbee
+
+
+"-U" means update in pip and easy_install.
+
+`setuptools`_ or distribute is required for that.
+
+After that, you should have working "zicdb", "wasp" and "zicserve" binaries.
+Feel free to run execute with "help" as the only argument!
+
+Note that zicserve is just a convenient way to run "zicdb serve".
+
+
+Dependencies:
+.............
+
+-   3.0 > Python >= 2.5for python 2.5, one of the following libraries is
+    required: ** cjson [json] ** or simplejson [json] ** or demjson [json]
+
+Knowledges about shell usage and readline is a good point.
+
+-   any shell, preferably with readline enabled [ui_core]
+-   webpy >= 0.3 [ui_www]
+-   buzhug [database]optional dependencies:
+-   mplayer (the open one, mostly known by free software users) [player]
+-   vlc [player]
+-   python-gst (gstreamer) [player]
+
+For playback, according to the backend, you will need either:
+
+-   mplayer(.exe) in your PATH
+-   libvlc available on your system
+-   gstreamer + pygst bindings
+
+Once you installed zicbee (unpacking a pack or installing individual
+packages) on computers with music, run those shell commands on each
+:
+
+::
+
+    % zicdb scan <base directory containing music files>
+
+
+wait a little, depending on your library size ...
+
+::
+
+    % zicserve
+
+
+now the server is looping, you can access the music of this computer remotely
+(or not ;))
+
+If you installed zicbee-mplayer (or vlc or gst), then you can use this device
+to play music too. If you want to use your own player with zicbee, just
+search the database and request some playlist (m3u) output !
+
+Open your web browser, point `http://localhost:9090/`_ and you should see
+some graphics.
+
+To know all the commands, try **zicdb help** command. Note that there is a
+shortcut for **zicdb serve**, you can just type **zicserve**. Don't forget to
+run **wasp help** for all clients commands (most, in fact).
+
+
+Help yourself
+-------------
+
+::
+
+    % wasp help
+    % zicdb help
+
+Pattern/match command
+---------------------
+
+Pattern is everywhere, used in www interface, in many shell commands (search,
+play, etc...).
 
 Syntax summary:
 
-{{{
-field: value [ [or|and] field2: value2 ]...
-}}}
+::
+
+    field: value [ [or|and] field2: value2 ]...
+
 
 for length, value may be preceded by **<** or **>**
+
 if field name starts with a capital, the search is case-sensitive
 
 Possible fields:
 
-    * id (compact style)
-    * genre
-    * artist
-    * album
-    * title
-    * track
-    * filename
-    * score
-    * tags
-    * length
-    * playlist <special: output a named playlist>
-    * pls <special: input a named playlist>
+-   id (compact style)
+-   genre
+-   artist
+-   album
+-   title
+-   track
+-   score
+-   tags
+-   length
+-   auto <special: auto-expand artists according to last.fm statistics)
+-   pls <special: save/update a playlist>
 
-=== Named playlist:
- Named playlists are arbitrary string, with a special case "#": being the current playlist
-You may prefix the name with **+** to append or **>** to insert at current position (also works with **#** playlist). If not you are just replacing the specified playlist.
 
-=== Working Examples:
+Commented Examples
+++++++++++++++++++
 
-{{{
-% zicdb search filename: shak length: > 3*60
-}}}
-> songs with "shak" in filename and of more than 3 min
-{{{
-% zicdb search artist: shak length: > 3*60 or artist: black
-}}}
-> songs with "shak" or "black" in artist name and of more than 3 min
-{{{
-% zicdb search artist: shak length: > 3*60 and title: mo
-}}}
-> songs with "shak" in artist name and of more than 3 min and with "moon" on the title
-{{{
-% zicdb search tags: jazz title: moon
-}}}
+::
+
+    % wasp search artist: =shakira length: > 3*60
+
+
+> songs from "shakira" and of more than 3 min
+
+::
+
+    % wasp search artist: the rolling length: > 3*60 or artist: black
+
+
+> songs with "the rolling" or "black" in artist name and of more than 3 min
+
+::
+
+    % wasp search artist: shak length: > 3*60 and title: mo
+
+
+> songs with "shak" in artist name and of more than 3 min and with "moon" on
+the title
+
+::
+
+    % wasp search tags: jazz title: moon
+
+
 > songs tagged "jazz" and with titles containing "moon"
-{{{
-% zicdb search score: >2
-}}}
+
+::
+
+    % wasp search score: >2
+
+
 > songs with a score higher than 2
-{{{
-% zicdb search score: >2 score: <= 3 tags: rock length: <= 120
-}}}
-> a quite dumb search ;) (the selected songs will have a score of 3, less than 2 min and tagged as "rock")
 
-== Commands ===
+::
 
-Note that "::" arguments are not (yet) supported in wasp, unlike zicbee / zicdb [shell].
-Most commands will read {{{db_host}}} and {{{player_host}}} variables (see **set** command).
+    % wasp search score: >2 score: <= 3 tags: rock length: <= 120
 
-=== help
-    List all available commands (with associated help if available)
 
-=== set
-   Without argument, lists the variables
-   If two arguments are passed, just set the value
+> a quite dumb search ;) (the selected songs will have a score of 3, less
+than 2 min and tagged as "rock")
 
-=== shell (zicdb - default for wasp)
-    Launches a shell accepting any command
 
-Still undocumented, usage may vary between zicdb & wasp: tag, rate, kill, stfu
+Basic commands details
+======================
 
-== Remote commands (including wasp)
+Most commands will read ::db_host and ::player_host variables (see **set**
+command).
 
-=== get[::host][::out] <match command> (not in wasp yet)
-  host:
-    the host to connect to
-  out:
-    the output directory
 
-====  Examples:
-{{{
-% zicdb get::out=/tmp/download::host=gunter.biz artist: black
-% zicdb get::gunter.biz artist: black
-}}}
+Common to zicbee and wasp
+-------------------------
 
-=== show [offset [size]] (only in wasp)
-   Shows the playlist 
 
-=== play[::dbhost::phost] <match command>
-    Set playlist to specified request and start playing if previously stopped
+help
+++++
 
-    dbhost:
-      the computer owning the songs
-    phost:
-      the playback computer
-    match command:
-      same as 'search' command with 2 more fields:
-        pls: output playlist name
-        playlist: input playlist name
+List all available commands (with associated help if available)
 
-        - # is the current playlist name
-        - names can be prefixed with '+' to append
 
-==== Examples:
-{{{
-% zicdb play artist: doors
-}}}
-> play the doors
-{{{
-% zicdb play artist: bouchers pls: boucherie
-}}}
-> store in playlist "boucherie" songs with "bouchers" in artist
-{{{
-% zicdb play artist: pigalle pls: +boucherie
-}}}
-> append to playlist "boucherie" songs with "pigalle" in artist
-{{{
-% zicdb play playlist: boucherie
-}}}
-> play songs stored in playlist "boucherie"
-{{{
-% zicdb play pls: sogood playlist: #
-}}}
-> save the current playlist to playlist "sogood"
+set
++++
 
-=== search[::out::host] <match command>
+Without argument, lists the variables
+If two arguments are passed, just set the value
 
-  out:
-    specifies the output format (for now: m3u or null or default)
 
-=== infos
-    Display informations about player status
+List of "set" variables
+.......................
 
-=== shuffle
-    Shuffles the current playlist
 
-=== next
-    Zap current song
+fork ( yes,no )
+::::::::::::::::
 
-=== prev
-    Move backward in playlist
 
-=== guess
-    tells if the given parameter matches with the current song (fault tolerant)
+tells if the server should fork or not
 
-=== playlist
-    Display the current playlist
 
-=== m3u (only in wasp)
-    Display the current playlist in m3u format
+enable_history ( yes, no )
+::::::::::::::::::::::::::
 
-== Local commands
 
-=== use
-    Not a command by itself, used to specify active database (default: songs)
-    You can specify mutiple databases at once using ',' separator (without spaces)
-    Exemple:
-{{{
-% zicdb use lisa serve
-}}}
+enable commands history in wasp
+
+
+web_skin ( default )
+:::::::::::::::::::::
+
+
+skin name (only one now)
+
+
+players* ( off,gst,mplayer,vlc )
+::::::::::::::::::::::::::::::::
+
+
+player backend preference*
+
+
+download_dir ( /tmp )
+:::::::::::::::::::::
+
+
+download directory for **get** command mainly
+
+
+socket_timeout ( 30 )
+:::::::::::::::::::::
+
+
+sets the default socket timeout (increase the value if you have timeout
+problems)
+
+
+default_search ( off, "any valid search pattern" )
+::::::::::::::::::::::::::::::::::::::::::::::::::
+
+
+sets the default pattern used in "play" command when no parameter is
+specified
+
+
+allow_remote_admin ( yes,no )
+:::::::::::::::::::::::::::::
+
+
+allow usage of **kill** and **stfu** from any host
+
+
+streaming_file ( /tmp/zsong )
+:::::::::::::::::::::::::::::
+
+
+temporary file used in player
+
+
+history_size ( 50 )
+:::::::::::::::::::
+
+
+size of commandline history |
+
+
+custom_extensions* ( mpg, mp2 )
+:::::::::::::::::::::::::::::::
+
+
+adds support for officially unsupported extensions to **scan** command*
+
+
+player_host* ( localhost:9090 )
+:::::::::::::::::::::::::::::::
+
+
+the host you want to play music on*
+
+
+db_host ( localhost:9090 )
+::::::::::::::::::::::::::
+
+
+the host you want to take music from
+
+
+notify ( yes,no )
+:::::::::::::::::
+
+
+add desktop notification support to advert song changes
+
+
+default_port ( 9090 )
+:::::::::::::::::::::
+
+
+port used by default if not specififed
+
+
+debug ( off,on )
+::::::::::::::::
+
+
+enables debuging mode
+
+
+autoshuffle ( yes,no )
+::::::::::::::::::::::
+
+
+automatically runs "shuffle" command when a playlist is fully loaded
+
+
+loop ( yes,no )
+:::::::::::::::
+
+
+runs player in loop, infinitely, if **autoshuffle** is enabled, then re-
+shuffle the playlist before each loop
+
+{*} Multi values can be passed, using a coma (","), but **NO SPACES**.
+Note: "on" and "yes" are equivalent value, same for "off" and "no".
+
+
+zicdb specific
+--------------
+
+Note that "command::argument1[=foo][:argument2...]" syntax is only supported
+by zicdb.
+
+
+serve[::pure]
++++++++++++++
+
+Runs a user-accessible www server on port 9090
+
+pure:
+don't allow player functionality access
+
+You can alternatively use the "zicserve" alias.
+
+
+scan [directory|archive]...
++++++++++++++++++++++++++++
+
+Scan directories/archive for files and add them to the database
+
+
+search[::format] "match command"
+++++++++++++++++++++++++++++++++
+
+Search for songs, display results (output on stdout).
+
+format:
+specifies the output format (for now: m3u or null or default)
+
+
+list
+++++
+
+List available Databases.
+
+
+reset
++++++
+
+Erases the Database (every previous scan is lost!)
+
+
+bundle "filename"
++++++++++++++++++
+
+Create a bundle (compressed archive) of the database
+
+
+use
++++
+
+Not a command by itself, used to specify active database (default: songs)
+Exemple:
+
+::
+
+    % zicdb use lisa serve
+
+
 > starts serving lisa's database
-{{{
-% zicdb use usb_drive reset
-}}}
-> destroy usb_drive database
-{{{
-% zicdb use ipod bundle ipod_database_backup.zdb
-}}}
-> backups the "ipod" database into "ipod_database_backup.zdb" file in current directory
 
-**WARNING:** using more than one database will most probably lead to song conflicts and won't be usable
-      consider this feature very experimental, use only if you know what you are doing.
+::
+
+    % zicdb use usb_drive reset
+
+
+> destroy usb_drive database
+
+::
+
+    % zicdb use ipod bundle ipod_database_backup.zdb
+
+
+> backups the "ipod" database into "ipod_database_backup.zdb" file in current
+directory
+
+**WARNING:** using more than one database will most probably lead to song
+conflicts and won't be usable
+consider this feature very experimental, use only if you know what you are
+doing.
 
 **NOTE:** you can alternatively use the "ZDB" environment variable instead
 
-=== serve[::pure]
-    Runs a user-accessible www server on port 8080
 
-  pure:
-    don't allow player functionality access
-
-=== list
-    List available Databases.
-
-=== reset
-    Erases the Database (every previous scan is lost!)
-
-=== bundle <filename>
-    Create a bundle (compressed archive) of the database
-
-=== scan <directory|archive> [directory|archive...]
-    Scan directories/archive for files and add them to the database
+wasp specific
+-------------
 
 
- And much more... see <zicdb|wasp> help for more !
+get "match command"
++++++++++++++++++++
+
+Downloads the previous **search** result in ``download_dir``
+
+
+Examples:
+.........
+
+::
+
+    % wasp get artist: black
+    % zicdb search::out=m3u artist: black
+
+show [number of items|slice]
+++++++++++++++++++++++++++++
+
+Shows the playlist
+
+-   show 4 will show the 4 elements from the current one
+-   show 1:15 will show elements from 1 to 15
+-   show :10 is equivalent to show 0:10
+-   show 20: will show elements from 20 to end
+-   show -5: syntax is not really supported but still "works" (shows the
+    last 5 elements, but indexes are incorrect)
+
+
+playlist
+++++++++
+
+Display the whole playlist
+
+
+play "match command"
+++++++++++++++++++++
+
+Set playlist to specified request and start playing if previously stopped
+
+match command:
+same as 'search' command with 2 more fields:
+pls: output playlist name
+playlist: input playlist name
+
+- "#" is the special name for the current playlist
+- names can be prefixed with > to append to playlist
+- or + to insert just after the current song
+- no prefix means replace
+
+Not using any playlist field is equivalent to "pls: #"
+
+Note a special sugar is provided when copy/paste'ing a zicbee uri.
+
+::
+
+    % play http://myfriend.mydomain.com:9090/db/get/song.mp3?id=34g
+
+
+Will be interpreted as ``play id: 34g pls: +#`` on myfriend.mydomain.com
+host.
+
+
+More examples:
+..............
+
+::
+
+    % wasp play artist: doors
+
+
+> play the doors
+
+::
+
+    % wasp play artist: bouchers pls: boucherie
+
+
+> store in playlist "boucherie" songs with "bouchers" in artist
+
+::
+
+    % wasp play artist: pigalle pls: +boucherie
+
+
+> append to playlist "boucherie" songs with "pigalle" in artist
+
+::
+
+    % wasp play playlist: boucherie
+
+
+> play songs stored in playlist "boucherie"
+
+::
+
+    % wasp play pls: sogood playlist: #
+
+
+> save the current playlist to playlist "sogood"
+
+
+search "match command"
+++++++++++++++++++++++
+
+Search for a patter, display results
+Results are also stored for commands like "get"
+
+
+random "what"
++++++++++++++
+
+Chooses a random thing (artist by default, can be "album" as well)
+then plays it
+
+
+m3u
++++
+
+Prints the current playlist in m3u format
+
+
+grep "arbitrary string"
++++++++++++++++++++++++
+
+Only shows playlist elements containing the specified string
+Result is stored for commands like "move" or "delete"
+
+
+move "what" "where"
++++++++++++++++++++
+
+Moves song at position "what" to "where"
+If "where" is not given, defaults to the song next current one.
+"what" can be special keyword "grep", will move previously grep'ped songs
+
+
+infos
++++++
+
+Display informations about player status
+
+
+shuffle
++++++++
+
+Shuffles the current playlist
+
+
+next
+++++
+
+Zap current song
+
+
+prev
+++++
+
+Move backward in playlist
+
+
+guess
++++++
+
+Tells if the given name matches with the current song
+
+
+Problems
+========
+
+If you find any problem with installation, don't hesitate to post an Issue or
+contact me directly fdev31 AT gmail DOT com or fill the `Bugtracker`_.
+
+.. _Quickstart: Quickstart
+.. _packaged release: http://zicbee.gnux.info/files/
+.. _setuptools: http://peak.telecommunity.com/dist/ez_setup.py
+.. _http://localhost:9090/: http://localhost:9090/
+.. _Bugtracker: http://zicbee.gnux.info/bugtraq
