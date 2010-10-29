@@ -30,7 +30,7 @@ Good luck !"""
 # also supported:
 #            'simplejson>=1.7.3',
 
-requirements = [ 'zicbee-lib>=0.7', 'buzhug>=1.8', 'mutagen>=1.20', 'web.py>=0.34' ]
+requirements = [ 'zicbee-lib>=0.7.1', 'buzhug>=1.8', 'mutagen>=1.20', 'web.py>=0.34' ]
 
 if sys.version_info[:2] < (2, 6):
     # add cjson dependency
