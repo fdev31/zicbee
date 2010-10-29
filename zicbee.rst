@@ -47,12 +47,12 @@ Features
 
 Including projects
 ==================
-  * zicbee (server (zicserve) / admin utilities (zicdb) / lightweight client (wasp))
-  * zicbee-lib (base library for zicbee)
-  * zicbee-mplayer (mplayer bindings, allow zicbee to play music)
-  * zicbee-vlc (vlc bindings, allow zicbee to play music)
-  * zicbee-gst (GStreamer bindings, allow zicbee to play music)
-  * zicbee-quodlibet (plugin that turns quodlibet into a zicbee client)
+  * `zicbee <http://pypi.python.org/pypi/zicbee>`_ (server (zicserve) / admin utilities (zicdb) / lightweight client (wasp))
+  * `zicbee-lib <http://pypi.python.org/pypi/zicbee-lib>`_  (base library for zicbee)
+  * `zicbee-mplayer <http://pypi.python.org/pypi/zicbee-mplayer>`_ (mplayer bindings, allow zicbee to play music)
+  * `zicbee-vlc <http://pypi.python.org/pypi/zicbee-vlc>`_ (vlc bindings, allow zicbee to play music)
+  * `zicbee-gst <http://pypi.python.org/pypi/zicbee-gst>`_ (GStreamer bindings, allow zicbee to play music)
+  * `zicbee-quodlibet <http://pypi.python.org/pypi/zicbee-quodlibet>`_ (plugin that turns quodlibet into a zicbee client)
 
 Quickstart
 ==========
