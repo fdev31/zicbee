@@ -502,7 +502,7 @@ class PlayerCtl(object):
                     u'Misc artists', u'No album', 'Virgin Radio 70', 1000,
                     None, None, 0],
                 ['http://streaming.rtbf.be:8000/2128xrtbf',
-                    u'Misc artists', u'No album', 'Virgin Radio 70', 1000,
+                    u'Misc artists', u'No album', 'Classic 21', 1000,
                     None, None, 0],
                 ['http://ogg.frequence3.net:19000/frequence3.ogg',
                     u'Misc artists', u'No album', 'Radio Frequence3', 1000,
