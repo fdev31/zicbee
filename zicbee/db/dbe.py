@@ -390,7 +390,7 @@ def filter_dict(data):
         try:
             if isinstance(track_val, (list, tuple)):
                 track_val = track_val[0]
-            if not iksinstance(track_val, int):
+            if not isinstance(track_val, int):
                 track_val = int( track_re.match(track_val).groups()[0] )
         except:
             print "Unable to get track for", repr(track_val)
