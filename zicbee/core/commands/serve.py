@@ -38,7 +38,8 @@ def make_app(no_player=False, fork=None):
     pid = 0 # if not forking, still execute children commands
     do_detach = False # do not try to detach by default
 
-    if config.fork and not debug_enabled or fork is True:
+#    if config.fork and not debug_enabled or fork is True:
+    if False: # FIXME: fork looks broken
         try:
             pid = os.fork()
             do_detach = True # fork succeded, try to detach
