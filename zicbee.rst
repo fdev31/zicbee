@@ -174,10 +174,10 @@ Changelog
     * see Developers section
  * minimal www interface (for low power machines, don't expect too much)
     * use /basic on any server with a player, it's quite rought now
- * Integrate automatic playlists with ``*AUTO*`` keyword
+ * Integrate automatic playlists with ``auto`` special tag
     * minimalistic last.fm support (no account needed, only works with "artist" keyword)
-    * modulable tolerence giving a digit (ex: ``*AUTO 15*``)
-    * "``artist: wax tailor or artist: birdy nam nam *AUTO*``" automatically generates a playlist of similar artists
+    * modulable tolerence giving a digit (ex: ``auto: 15``)
+    * "``artist: wax tailor or artist: birdy nam nam auto:``" automatically generates a playlist of similar artists (no value=10)
  * Split project for clarity
  * stored playlists (including position)
     * related wasp commands: load, save, append, inject
