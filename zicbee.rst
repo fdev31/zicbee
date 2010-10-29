@@ -9,7 +9,7 @@ Install
 
 If you just want to test the program, the simplest way is to  get a `Zicbee Pack <http://zicbee.gnux.info/files/zicbee-0.9-rc7.zip>`_, it's a compressed archive ready to run.
 
-If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/tip.zip>`_, a collection of scripts to ease sources handling (fetching, building, distributing) plus examples programs.
+If you know Python language, you may want to download a fresh copy of `the workshop <http://zicbee.gnux.info/hg/zicbee-workshop/archive/default.tgz>`_, a collection of scripts to ease sources handling (fetching, building, distributing) plus examples programs.
 For a better experience, consider installing `Mercurial <http://mercurial.selenic.com/wiki/>`_.
 
 
@@ -77,26 +77,59 @@ Fire up the client::
 
  wasp
 
-Play songs from another computer here, after doing some search, zap first song & show playlist::
+Example session
+===============
 
- wasp search artist: black
-  => search artist containing "black" in their name
- wasp set
-  => show all configuration variables
- wasp set db_host 192.168.0.40
-  => changes the host to take songs from
- wasp set player_host localhost
-  => tells zicbee to play song on THIS computer
- wasp search artist: black
-  => search again (on the new db_host)
- wasp play artist: black sab
-  => play black sabbath's music 
- wasp next
-  => skip current song
- wasp show
-  => Shows the next entries in the playlist
- wasp help
-  => I think you *must* read it at least once...
+search artist containing "black" in their name::
+
+  wasp search artist: black
+
+show all configuration variables::
+
+  wasp set
+
+changes the host to take songs from::
+
+  wasp set db_host 192.168.0.40
+
+tells zicbee to play song on THIS computer::
+
+  wasp set player_host localhost
+
+search again (on the new db_host)::
+
+  wasp search artist: black
+
+play black sabbath's music ::
+
+  wasp play artist: black sab
+
+skip current song::
+
+  wasp next
+
+Shows the next entries in the playlist::
+
+  wasp show
+
+Play "IAM" music, case sensitive and exact match::
+
+  wasp play artist: =IAM
+
+Play an auto-generated playlist based on some artists::
+
+  wasp play auto: artist: =IAM or artist: =Archive
+
+Find some song "grepping" some pattern, then move it just after the currently playing song (only works on interactive shell)::
+
+  wasp> grep lune
+  wasp> move grep
+
+I think you *must* read it at least once::
+
+  wasp help
+
+ You can also just run "wasp", and you will get into an interactive shell with completion.
 
 
 
@@ -106,7 +139,7 @@ Dependencies
 The software and all the dependencies are available in pure python without native code requirement,
 it should run on any OS. Wherever many packages answers that requirement, then evaluate speed and simplicity.
 
-  * A JSON implementation (python-cjson, simplejson, demjson or builtin if using python >= 2.6)
+  * Some JSON implementation (python-cjson, simplejson, demjson or builtin if using python >= 2.6)
   * mutagen (song metadatas handling)
   * buzhug (database)
   * web.py (minimalistic www providing library)
@@ -155,7 +188,7 @@ Changelog
         * prefix playlist name with "``>``" to append results to playlist
         * prefix playlist name with "``+``" to insert results into playlist just after the current song
  * cleaner javascript/cookies/sessions (prepare theme support)
- * Tons of bugfixes!
+ * Tons of bugfixes! (among others, the parser is rewritten, with minor syntax changes)
  * known bugs: volume command is not very functional yet
 
 0.8
